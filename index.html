@@ -27,18 +27,8 @@
     .receipt-paper { background: #fff; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
     .receipt-paper::after { content: ""; position: absolute; bottom: -6px; left: 0; right: 0; height: 6px; background: radial-gradient(circle, transparent 70%, #fff 75%) 0 0; background-size: 10px 10px; background-position: 0 100%; }
     .card-product:active { transform: scale(0.97); transition: 0.1s; }
-    .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    #qrContainer img { margin: 0 auto; border: 4px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
-    
-    /* Category Scroll */
-    .cat-btn { transition: all 0.2s; white-space: nowrap; }
-    .cat-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
-    
     .btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-checkout:not(:disabled):hover { background-color: #1e293b; transform: translateY(-1px); }
-    
-    /* Login Modal Styles */
     #loginModal { transition: all 0.3s ease !important; display: flex !important; opacity: 1 !important; visibility: visible !important; z-index: 9999 !important; }
     #loginModal.hidden { display: none !important; opacity: 0 !important; visibility: hidden !important; }
     .login-option { transition: all 0.2s ease; border: 1px solid #e2e8f0; }
@@ -57,51 +47,29 @@
       <h1 class="text-2xl font-bold text-slate-800 mb-2">Selamat Datang</h1>
       <p class="text-sm text-slate-500">Itsbad Store - Premium Digital Services</p>
     </div>
-    
     <div class="w-full max-w-xs space-y-4">
       <button id="googleLoginBtn" onclick="window.loginWithGoogle()" class="login-option w-full bg-white border border-slate-200 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50">
-        <i class="fab fa-google text-red-500 text-lg"></i>
-        <span>Login dengan Google</span>
+        <i class="fab fa-google text-red-500 text-lg"></i><span>Login dengan Google</span>
       </button>
-      
       <button id="guestLoginBtn" onclick="window.continueAsGuest()" class="login-option w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800">
-        <i class="fas fa-user-clock text-lg"></i>
-        <span>Lanjut sebagai Tamu</span>
+        <i class="fas fa-user-clock text-lg"></i><span>Lanjut sebagai Tamu</span>
       </button>
-      
       <div class="guest-warning p-3 mt-4">
         <div class="flex items-start gap-2">
           <i class="fas fa-exclamation-circle text-orange-500 mt-0.5"></i>
-          <div class="text-left">
-            <h4 class="font-bold text-xs text-orange-700">Mode Tamu</h4>
-            <p class="text-[10px] text-orange-600">Riwayat pesanan tidak akan tersimpan.</p>
-          </div>
+          <div class="text-left"><h4 class="font-bold text-xs text-orange-700">Mode Tamu</h4><p class="text-[10px] text-orange-600">Riwayat pesanan tidak akan tersimpan.</p></div>
         </div>
       </div>
     </div>
-    
-    <div class="absolute bottom-6 left-0 right-0 text-center">
-      <p class="text-xs text-slate-400">© 2024 Itsbad Store. All rights reserved.</p>
-    </div>
+    <div class="absolute bottom-6 left-0 right-0 text-center"><p class="text-xs text-slate-400">© 2024 Itsbad Store.</p></div>
   </div>
 
   <div id="adminLoginModal" class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
     <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md mx-4">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-800">Admin Access</h2>
-        <p class="text-gray-600 mt-2">Masukkan PIN Admin</p>
-      </div>
+      <div class="text-center mb-8"><h2 class="text-2xl font-bold text-gray-800">Admin Access</h2><p class="text-gray-600 mt-2">Masukkan PIN Admin</p></div>
       <form id="pinForm" class="space-y-6">
-        <div>
-          <div class="relative">
-            <input type="password" id="adminPin" maxlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest font-mono" placeholder="••••••" autocomplete="off" required />
-            <button type="button" id="togglePin" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"><i class="fas fa-eye"></i></button>
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <button type="button" onclick="closeAdminLogin()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">Batal</button>
-          <button type="submit" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Buka Panel</button>
-        </div>
+        <div><div class="relative"><input type="password" id="adminPin" maxlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest font-mono" placeholder="••••••" autocomplete="off" required /><button type="button" id="togglePin" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"><i class="fas fa-eye"></i></button></div></div>
+        <div class="flex space-x-3"><button type="button" onclick="closeAdminLogin()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">Batal</button><button type="submit" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Buka Panel</button></div>
       </form>
     </div>
   </div>
@@ -109,16 +77,11 @@
   <div class="app-container hidden" id="app">
     <div class="sticky top-0 z-40 bg-white/90 backdrop-blur-md px-5 py-3 border-b border-slate-50 flex items-center justify-between">
         <div class="flex items-center gap-3">
-             <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-                 <img id="headerAvatar" src="https://ui-avatars.com/api/?name=Guest" class="w-full h-full object-cover">
-             </div>
-             <div>
-                 <h1 class="text-sm font-bold text-slate-800 leading-none" id="shopNameDisplay">Itsbad Store</h1>
-                 <p class="text-[10px] text-slate-400 mt-1" id="headerGreeting">Loading...</p>
-             </div>
+             <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200"><img id="headerAvatar" src="https://ui-avatars.com/api/?name=Guest" class="w-full h-full object-cover"></div>
+             <div><h1 class="text-sm font-bold text-slate-800 leading-none" id="shopNameDisplay">Itsbad Store</h1><p class="text-[10px] text-slate-400 mt-1" id="headerGreeting">Loading...</p></div>
         </div>
         <div class="flex items-center gap-2">
-            <button id="adminHeaderBtn" onclick="openAdminLogin()" class="hidden w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Admin Panel"><i class="fas fa-cog text-sm"></i></button>
+            <button id="adminHeaderBtn" onclick="openAdminLogin()" class="hidden w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors"><i class="fas fa-cog text-sm"></i></button>
             <button onclick="toggleSearch()" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fas fa-search"></i></button>
         </div>
     </div>
@@ -141,17 +104,14 @@
         </div>
 
         <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2"></div>
-
-        <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20">
-            <div class="col-span-2 text-center py-10 text-slate-400 text-xs">Memuat Produk...</div>
-        </div>
+        <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20"><div class="col-span-2 text-center py-10 text-slate-400 text-xs">Memuat Produk...</div></div>
     </div>
 
     <div class="bottom-nav">
         <button onclick="switchTab('home')" class="nav-item active" id="nav-home"><i class="fas fa-home"></i> Beranda</button>
         <button onclick="openCart()" class="nav-item relative" id="nav-cart"><i class="fas fa-shopping-bag"></i><span id="cartBadge" class="absolute top-0 right-6 w-4 h-4 bg-red-500 text-white text-[9px] flex items-center justify-center rounded-full border-2 border-white hidden">0</span> Keranjang</button>
         <button onclick="openProfile()" class="nav-item" id="nav-profile"><i class="fas fa-user"></i> Akun</button>
-        <button id="nav-admin" onclick="openAdminLogin()" class="nav-item hidden" title="Admin Panel"><i class="fas fa-cog"></i> Admin</button>
+        <button id="nav-admin" onclick="openAdminLogin()" class="nav-item hidden"><i class="fas fa-cog"></i> Admin</button>
     </div>
 
     <div id="detailModal" class="fixed inset-0 z-[70] hidden">
@@ -208,7 +168,7 @@
                 <div id="qrContainer" class="flex justify-center my-2 min-h-[180px] items-center"></div>
                 <div id="qrStatus" class="text-[10px] text-green-600 bg-green-50 py-1 rounded mt-2">Nominal Otomatis</div>
             </div>
-            <p class="text-xs text-center text-slate-500 max-w-xs leading-relaxed">Silakan scan QRIS di atas. Setelah transfer, klik tombol di bawah untuk kirim bukti ke Admin.</p>
+            <p class="text-xs text-center text-slate-500 max-w-xs leading-relaxed">Silakan scan QRIS di atas. Pastikan nominal muncul otomatis sebelum bayar.</p>
         </div>
         <div class="p-5 border-t">
             <button onclick="generateReceipt()" class="w-full bg-green-500 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-green-600 active:scale-95 transition-all"><i class="fas fa-check-circle"></i> SAYA SUDAH BAYAR</button>
@@ -238,16 +198,10 @@
     </div>
 
     <div id="profileModal" class="fixed inset-0 z-[60] hidden bg-white flex flex-col">
-        <div class="p-4 border-b flex items-center justify-between">
-            <h2 class="font-bold text-lg">Profil Saya</h2>
-            <button onclick="closeProfile()" class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors"><i class="fas fa-times"></i></button>
-        </div>
+        <div class="p-4 border-b flex items-center justify-between"><h2 class="font-bold text-lg">Profil Saya</h2><button onclick="closeProfile()" class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors"><i class="fas fa-times"></i></button></div>
         <div class="flex-1 overflow-y-auto p-5">
             <div class="flex flex-col items-center mb-8">
-                <div class="relative w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden">
-                    <img id="profileAvatarEdit" src="" class="w-full h-full object-cover">
-                    <input type="file" id="uploadAvatar" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleAvatarUpload(this)">
-                </div>
+                <div class="relative w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden"><img id="profileAvatarEdit" src="" class="w-full h-full object-cover"><input type="file" id="uploadAvatar" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleAvatarUpload(this)"></div>
                 <p class="text-xs text-slate-400 mt-2">Ketuk foto untuk mengganti</p>
             </div>
             <div class="space-y-4">
@@ -257,56 +211,33 @@
             </div>
             <button onclick="saveProfileData()" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg mt-8 hover:bg-slate-800 active:scale-95 transition-all">SIMPAN PROFIL</button>
             <button onclick="doLogout()" class="w-full border border-red-100 text-red-500 bg-red-50 py-3.5 rounded-xl font-bold mt-3 hover:bg-red-100 transition-colors">KELUAR</button>
-            <div class="mt-10 pt-6 border-t border-dashed border-slate-200">
-                <h4 class="font-bold text-xs text-slate-400 mb-3 uppercase">Riwayat Pesanan</h4>
-                <div id="historyList" class="space-y-2"></div>
-            </div>
+            <div class="mt-10 pt-6 border-t border-dashed border-slate-200"><h4 class="font-bold text-xs text-slate-400 mb-3 uppercase">Riwayat Pesanan</h4><div id="historyList" class="space-y-2"></div></div>
         </div>
     </div>
 
     <div id="adminModal" class="fixed inset-0 z-[90] hidden bg-slate-100 overflow-y-auto">
-        <div class="sticky top-0 bg-white p-4 shadow-sm flex justify-between items-center">
-            <h2 class="font-bold">Admin Panel</h2>
-            <button onclick="closeAdminPanel()" class="text-red-500 text-xs font-bold hover:text-red-600">Tutup</button>
-        </div>
+        <div class="sticky top-0 bg-white p-4 shadow-sm flex justify-between items-center"><h2 class="font-bold">Admin Panel</h2><button onclick="closeAdminPanel()" class="text-red-500 text-xs font-bold hover:text-red-600">Tutup</button></div>
         <div class="p-5" id="adminContent">
             <div id="adminDash" class="space-y-6">
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                      <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Pengaturan Toko</h3>
-                     <input id="admStoreName" class="w-full border p-2 rounded mb-2 text-xs focus:outline-none focus:border-blue-300" placeholder="Nama Toko">
-                     <input id="admFee" type="number" class="w-full border p-2 rounded mb-2 text-xs focus:outline-none focus:border-blue-300" placeholder="Fee Admin">
-                     
-                     <div class="bg-blue-50 border border-blue-100 p-2 rounded mb-2">
-                         <p class="text-[10px] font-bold text-blue-600 mb-1">Upload QRIS (Screenshot)</p>
-                         <input type="file" id="qrisFileInp" class="w-full text-xs" onchange="handleQrisUpload(this)">
-                     </div>
-                     <input id="admQris" class="w-full border p-2 rounded mb-2 text-xs bg-slate-50 focus:outline-none" placeholder="String QRIS (Terisi Otomatis)" readonly>
-                     <button onclick="saveAdmSettings()" class="w-full bg-blue-600 text-white py-2 rounded text-xs font-bold hover:bg-blue-700 active:scale-95 transition-all">Simpan Config</button>
+                     <input id="admStoreName" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Nama Toko">
+                     <input id="admFee" type="number" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Fee Admin">
+                     <div class="bg-blue-50 border border-blue-100 p-2 rounded mb-2"><p class="text-[10px] font-bold text-blue-600 mb-1">Upload QRIS</p><input type="file" id="qrisFileInp" class="w-full text-xs" onchange="handleQrisUpload(this)"></div>
+                     <input id="admQris" class="w-full border p-2 rounded mb-2 text-xs bg-slate-50" placeholder="String QRIS" readonly>
+                     <button onclick="saveAdmSettings()" class="w-full bg-blue-600 text-white py-2 rounded text-xs font-bold">Simpan Config</button>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Input Produk</h3>
                     <div class="flex gap-2 mb-2">
-                        <div onclick="document.getElementById('admImgInp').click()" class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center cursor-pointer border border-dashed hover:bg-slate-50 transition-colors">
-                            <img id="admImgPrev" class="w-full h-full object-cover hidden">
-                            <i id="admImgIcon" class="fas fa-camera text-slate-400"></i>
-                        </div>
+                        <div onclick="document.getElementById('admImgInp').click()" class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center cursor-pointer border border-dashed"><img id="admImgPrev" class="w-full h-full object-cover hidden"><i id="admImgIcon" class="fas fa-camera text-slate-400"></i></div>
                         <input type="file" id="admImgInp" class="hidden" onchange="handleAdmImg(this)">
-                        <div class="flex-1 space-y-2">
-                            <input id="admPName" class="w-full border p-2 rounded text-xs focus:outline-none focus:border-blue-300" placeholder="Nama Produk">
-                            <input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold focus:outline-none focus:border-blue-300" placeholder="Kategori (Ketik/Pilih)">
-                            <datalist id="catList"></datalist>
-                        </div>
+                        <div class="flex-1 space-y-2"><input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk"><input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori"><datalist id="catList"></datalist></div>
                     </div>
-                    <div class="flex gap-2 mb-2">
-                        <input id="admPPrice" type="number" class="w-full border p-2 rounded text-xs focus:outline-none focus:border-blue-300" placeholder="Harga">
-                        <input id="admPStock" type="number" class="w-full border p-2 rounded text-xs focus:outline-none focus:border-blue-300" placeholder="Stok">
-                    </div>
-                    <textarea id="admPDesc" class="w-full border p-2 rounded text-xs mb-2 focus:outline-none focus:border-blue-300" placeholder="Deskripsi"></textarea>
+                    <div class="flex gap-2 mb-2"><input id="admPPrice" type="number" class="w-full border p-2 rounded text-xs" placeholder="Harga"><input id="admPStock" type="number" class="w-full border p-2 rounded text-xs" placeholder="Stok"></div>
+                    <textarea id="admPDesc" class="w-full border p-2 rounded text-xs mb-2" placeholder="Deskripsi"></textarea>
                     <input type="hidden" id="admEditIdx" value="-1">
-                    <div class="flex gap-2">
-                        <button onclick="saveAdmProd()" class="flex-1 bg-green-500 text-white py-2 rounded text-xs font-bold hover:bg-green-600 active:scale-95 transition-all">Simpan / Update</button>
-                        <button onclick="resetAdmForm()" class="bg-slate-200 px-3 rounded text-xs hover:bg-slate-300 transition-colors">Batal</button>
-                    </div>
+                    <div class="flex gap-2"><button onclick="saveAdmProd()" class="flex-1 bg-green-500 text-white py-2 rounded text-xs font-bold">Simpan</button><button onclick="resetAdmForm()" class="bg-slate-200 px-3 rounded text-xs">Batal</button></div>
                 </div>
                 <div id="admList" class="space-y-2"></div>
             </div>
@@ -321,11 +252,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // ==============================================
-    // KONFIGURASI FIREBASE
-    // ==============================================
+    // --- CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
       authDomain: "kasir-online-c22bd.firebaseapp.com",
@@ -335,26 +264,11 @@
       messagingSenderId: "1052259146588",
       appId: "1:1052259146588:web:a3f4e9c31982cbfa2dff99"
     };
+    const STORE_ID="itsbad-store", OWNER_WA="6285236363128", ADMIN_PIN="110603", ADMIN_EMAIL="isbadd84@gmail.com";
+    let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[]}, cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, tempAdmImg="", currentDetailIdx=-1, activeCategory='all', isGuestMode=false;
+    toastr.options={"positionClass":"toast-top-center","timeOut":"2000","showMethod":"slideDown","hideMethod":"slideUp","closeButton":false,"progressBar":true};
 
-    const STORE_ID = "itsbad-store";
-    const OWNER_WA = "6285236363128";
-    const ADMIN_PIN = "110603";
-    const ADMIN_EMAIL = "isbadd84@gmail.com";
-
-    let db, auth, user;
-    let storeData = { name: "Itsbad Store", fee: 0, products: [] };
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    let userProfile = {};
-    let tempAdmImg = "";
-    let currentDetailIdx = -1;
-    let activeCategory = 'all';
-    let isGuestMode = false;
-    
-    toastr.options = { "positionClass": "toast-top-center", "timeOut": "2000", "showMethod": "slideDown", "hideMethod": "slideUp", "closeButton": false, "progressBar": true };
-
-    // ==============================================
-    // QRIS UTILITY (CRC16)
-    // ==============================================
+    // --- QRIS ENGINE (FIXED) ---
     function generateCRC16(str) {
         let crc = 0xFFFF;
         for (let c = 0; c < str.length; c++) {
@@ -369,337 +283,155 @@
 
     function formatQrisAmount(qrisRaw, amount) {
         let qris = qrisRaw.trim();
-        if (qris.slice(-4).match(/[0-9A-Fa-f]{4}/)) qris = qris.slice(0, -4);
-        if (!qris.endsWith("6304")) {
-             const idx63 = qris.lastIndexOf("6304");
-             if(idx63 > -1) qris = qris.substring(0, idx63 + 4); else qris += "6304";
-        }
+        // 1. Bersihkan CRC Lama (Cari 6304 terakhir dan potong)
+        const idxCRC = qris.lastIndexOf("6304");
+        if(idxCRC > -1) qris = qris.substring(0, idxCRC);
+        
+        // 2. Force Dynamic
+        qris = qris.replace("010211", "010212");
+
+        // 3. HAPUS TAG 55 (TIPS) - Ini penyebab utama "Invalid"
+        // Regex ini menghapus Tag 55 beserta panjangnya (biasanya 02) dan isinya (01/02/03)
+        // Format umum: 550201, 550202, 550203
+        qris = qris.replace(/55020[0-9]/g, "");
+
+        // 4. Inject Nominal (Tag 54)
+        // Hapus Tag 54 lama jika ada (biar gak double)
+        // Note: Regex sederhana, asumsi tidak ada tag lain yg mirip pattern ini
+        qris = qris.replace(/54\d{2}\d+/g, "");
+
+        // Buat Tag 54 Baru
         const amountStr = amount.toString();
         const tag54 = "54" + amountStr.length.toString().padStart(2, '0') + amountStr;
-        
-        if (qris.includes("54")) qris = qris.replace(/54\d{2}[0-9]+/, tag54);
-        else {
-            const idx58 = qris.indexOf("5802ID");
-            if (idx58 > -1) qris = qris.slice(0, idx58) + tag54 + qris.slice(idx58);
-            else {
-                const idx63 = qris.indexOf("6304");
-                qris = qris.slice(0, idx63) + tag54 + qris.slice(idx63);
-            }
+
+        // Cari posisi inject: Sebelum Tag 58 (Country)
+        const idx58 = qris.indexOf("5802ID");
+        if(idx58 > -1) {
+            qris = qris.slice(0, idx58) + tag54 + qris.slice(idx58);
+        } else {
+            // Fallback: Masukkan di akhir sebelum CRC
+            qris += tag54;
         }
-        if (qris.includes("010211")) qris = qris.replace("010211", "010212");
+
+        // 5. Hitung CRC Baru
+        qris += "6304";
         return qris + generateCRC16(qris);
     }
 
-    // ==============================================
-    // CORE FUNCTIONS & EXPORTS
-    // ==============================================
+    // --- MAIN FUNCTIONS ---
+    window.loginWithGoogle = async () => {
+        try { if(!auth)throw 0; const r=await signInWithPopup(auth,new GoogleAuthProvider()); user=r.user; isGuestMode=false; 
+        if(user.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase()){document.getElementById('adminHeaderBtn').classList.remove('hidden');document.getElementById('nav-admin').classList.remove('hidden');}
+        toastr.success("Login Sukses"); document.getElementById('loginModal').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); loadProfile(user.uid); initStore(); 
+        if(new URLSearchParams(window.location.search).get('page')==='admin') setTimeout(openAdminLogin,500); } catch(e){toastr.error("Gagal Login");}
+    };
+    window.continueAsGuest = () => { isGuestMode=true; user={uid:'guest_'+Date.now()}; userProfile={name:'Tamu'}; toastr.success("Mode Tamu"); document.getElementById('loginModal').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); document.getElementById('headerGreeting').innerText="Mode Tamu"; initStore(); };
+    window.initStore = async () => {
+        try { const s=await get(child(ref(db),`stores/${STORE_ID}`)); if(s.exists()){ storeData=s.val(); if(!storeData.products)storeData.products=[]; } else await set(ref(db,`stores/${STORE_ID}`),storeData);
+        document.getElementById('shopNameDisplay').innerText=storeData.name; renderCategories(); renderProducts(); updateCartBadge(); } catch(e){}
+    };
+    window.renderCategories = () => {
+        const cats=['all']; const dl=document.getElementById('catList'); dl.innerHTML="";
+        storeData.products.forEach(p=>{const c=p.category||'Umum'; if(!cats.includes(c))cats.push(c); if(!Array.from(dl.options).some(o=>o.value===c)){const o=document.createElement('option');o.value=c;dl.appendChild(o);}});
+        const c=document.getElementById('categoryContainer'); c.innerHTML="";
+        cats.forEach(k=>{ c.innerHTML+=`<button onclick="filterCat('${k}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${k===activeCategory?'bg-slate-900 text-white':'bg-white border border-slate-200 text-slate-600'} hover:bg-slate-800 hover:text-white transition-colors">${k==='all'?'Semua':k}</button>`; });
+    };
+    window.filterCat=(c)=>{activeCategory=c;renderCategories();renderProducts();};
+    window.filterProducts=()=>{renderProducts(document.getElementById('searchInput').value.toLowerCase());};
+    window.renderProducts=(q="")=>{
+        const g=document.getElementById('productGrid'); g.innerHTML="";
+        let f=storeData.products; if(activeCategory!=='all')f=f.filter(p=>(p.category||'Umum')===activeCategory); if(q)f=f.filter(p=>p.name.toLowerCase().includes(q));
+        if(!f.length){g.innerHTML='<div class="col-span-2 text-center py-10 text-slate-400 text-xs">Kosong</div>';return;}
+        f.forEach(p=>{
+            const idx=storeData.products.indexOf(p); const img=p.image||`https://placehold.co/200x200/e2e8f0/94a3b8?text=${p.name[0]}`;
+            g.innerHTML+=`<div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden" onclick="openDetail(${idx})">${parseInt(p.stock)<=0?'<div class="absolute inset-0 bg-white/70 z-10 flex items-center justify-center font-bold text-red-500 text-xs backdrop-blur-sm">HABIS</div>':''}<div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden"><img src="${img}" class="w-full h-full object-cover"></div><div class="mb-1"><span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category||'Umum'}</span></div><h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-tight mb-1 min-h-[2rem]">${p.name}</h3><div class="mt-auto flex justify-between items-center"><span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span><button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]"><i class="fas fa-arrow-right"></i></button></div></div>`;
+        });
+    };
     
-    // LOGIN FUNCTIONS (DEFINED AS WINDOW GLOBALS FOR SAFETY)
-    window.loginWithGoogle = async function() {
-      try {
-        if (!auth) throw new Error("Firebase belum siap. Periksa koneksi.");
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        user = result.user; isGuestMode = false;
+    // CART & CHECKOUT
+    window.addToCart=(i)=>{const p=storeData.products[i]; if(!p||parseInt(p.stock)<=0)return toastr.error("Stok Habis"); const x=cart.find(c=>c.idx===i); if(x)x.qty++; else cart.push({idx:i,name:p.name,price:parseInt(p.price),qty:1}); saveCart(); toastr.success("Masuk Keranjang");};
+    window.saveCart=()=>{localStorage.setItem('cart',JSON.stringify(cart)); updateCartBadge();};
+    window.updateCartBadge=()=>{const t=cart.reduce((a,b)=>a+(b.qty||0),0); const b=document.getElementById('cartBadge'); b.innerText=t>99?'99+':t; t>0?b.classList.remove('hidden'):b.classList.add('hidden');};
+    window.renderCartList=()=>{
+        const l=document.getElementById('cartList'); l.innerHTML=""; if(!cart.length){l.innerHTML='<div class="text-center py-10 text-slate-400 text-xs">Kosong</div>'; document.getElementById('cartTotalDisplay').innerText="Rp 0"; document.getElementById('btnCheckout').disabled=true; return;}
+        let sub=0; cart.forEach((i,x)=>{sub+=i.price*i.qty; l.innerHTML+=`<div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl"><div class="flex-1 mr-3"><h4 class="font-bold text-xs text-slate-700 truncate">${i.name}</h4><p class="text-xs text-blue-600 font-bold">Rp ${i.price.toLocaleString()}</p></div><div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1"><button onclick="modQty(${x},-1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">−</button><span class="text-xs font-bold w-5 text-center">${i.qty}</span><button onclick="modQty(${x},1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">+</button></div></div>`;});
+        document.getElementById('cartTotalDisplay').innerText="Rp "+(sub+(parseInt(storeData.fee)||0)).toLocaleString('id-ID'); document.getElementById('btnCheckout').disabled=false;
+    };
+    window.modQty=(x,d)=>{if(!cart[x])return; cart[x].qty+=d; if(cart[x].qty<=0)cart.splice(x,1); saveCart(); renderCartList();};
+
+    window.initPayment=()=>{
+        if(!cart.length)return; if(!document.getElementById('orderNote').value.trim()){toastr.warning("Isi Catatan Dulu");return;}
+        const sub=cart.reduce((a,b)=>a+(b.price*b.qty),0); const tot=sub+(parseInt(storeData.fee)||0);
+        document.getElementById('payAmountDisplay').innerText="Rp "+tot.toLocaleString('id-ID');
+        const qc=document.getElementById('qrContainer'); const qs=document.getElementById('qrStatus'); const raw=storeData.qris||"";
         
-        if(user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-            document.getElementById('adminHeaderBtn').classList.remove('hidden');
-            document.getElementById('nav-admin').classList.remove('hidden');
-        }
-        toastr.success("Login berhasil!");
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        loadProfile(user.uid); initStore();
-        if(new URLSearchParams(window.location.search).get('page') === 'admin') setTimeout(openAdminLogin, 500);
-      } catch (error) {
-        console.error("Login error:", error);
-        toastr.error("Login gagal: " + error.message);
-      }
-    };
-
-    window.continueAsGuest = function() {
-      isGuestMode = true;
-      user = { uid: 'guest_' + Date.now(), displayName: 'Tamu', isAnonymous: true };
-      userProfile = { name: 'Tamu', email: '', avatar: '', phone: '', address: '' };
-      toastr.success("Masuk sebagai tamu");
-      document.getElementById('loginModal').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      document.getElementById('authAlert').classList.remove('hidden');
-      document.getElementById('headerAvatar').src = "https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff";
-      document.getElementById('headerGreeting').innerText = "Mode Tamu";
-      initStore();
-    };
-
-    window.showLoginOptions = function() {
-      document.getElementById('app').classList.add('hidden');
-      document.getElementById('loginModal').classList.remove('hidden');
-    };
-
-    // ADMIN FUNCTIONS
-    window.openAdminLogin = function() {
-      if (!user) { toastr.warning('Login Google dulu!'); window.showLoginOptions(); return; }
-      if (user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { toastr.error('Akses Ditolak'); return; }
-      document.getElementById('adminLoginModal').classList.remove('hidden');
-      document.getElementById('adminPin').focus();
-    };
-
-    window.closeAdminLogin = function() { document.getElementById('adminLoginModal').classList.add('hidden'); document.getElementById('adminPin').value = ''; };
-
-    // STORE LOGIC
-    window.initStore = async function() {
-      try {
-        const snap = await get(child(ref(db), `stores/${STORE_ID}`));
-        if(snap.exists()) {
-          storeData = snap.val();
-          if (!storeData.products) storeData.products = [];
-          if (!storeData.fee) storeData.fee = 0;
-          if (!storeData.name) storeData.name = "Itsbad Store";
-        } else await set(ref(db, `stores/${STORE_ID}`), storeData);
-        document.getElementById('shopNameDisplay').innerText = storeData.name;
-        renderCategories(); renderProducts(); updateCartBadge();
-      } catch(e) { console.error("Store init error:", e); }
-    };
-
-    window.renderCategories = function() {
-      const cats = ['all'];
-      const datalist = document.getElementById('catList');
-      datalist.innerHTML = "";
-      if(storeData.products) storeData.products.forEach(p => {
-          const c = p.category || 'Umum';
-          if(!cats.includes(c)) cats.push(c);
-          if(!Array.from(datalist.options).some(opt => opt.value === c)) {
-            const opt = document.createElement('option'); opt.value = c; datalist.appendChild(opt);
-          }
-      });
-      const container = document.getElementById('categoryContainer');
-      container.innerHTML = "";
-      cats.forEach(c => {
-        const activeClass = c === activeCategory ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600';
-        container.innerHTML += `<button onclick="filterCat('${c}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass} hover:bg-slate-800 hover:text-white transition-colors">${c === 'all' ? 'Semua' : c}</button>`;
-      });
-    };
-
-    window.filterCat = function(c) { activeCategory = c; renderCategories(); renderProducts(); };
-    window.filterProducts = function() { window.renderProducts(document.getElementById('searchInput').value.toLowerCase()); };
-
-    window.renderProducts = function(query = "") {
-      const grid = document.getElementById('productGrid');
-      grid.innerHTML = "";
-      if (!storeData.products || storeData.products.length === 0) { grid.innerHTML = '<div class="col-span-2 text-center py-10 text-slate-400 text-xs">Belum ada produk</div>'; return; }
-      let filtered = storeData.products;
-      if(activeCategory !== 'all') filtered = filtered.filter(p => (p.category || 'Umum') === activeCategory);
-      if(query) filtered = filtered.filter(p => p.name.toLowerCase().includes(query));
-      
-      filtered.forEach((p, index) => {
-        const originalIdx = storeData.products.findIndex(prod => prod === p);
-        const hasStock = parseInt(p.stock) > 0;
-        const img = p.image || `https://placehold.co/200x200/e2e8f0/94a3b8?text=${encodeURIComponent(p.name.charAt(0))}`;
-        grid.innerHTML += `
-            <div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden hover:shadow-md transition-shadow" onclick="openDetail(${originalIdx})">
-                ${!hasStock ? '<div class="absolute inset-0 bg-white/70 z-10 flex items-center justify-center font-bold text-red-500 text-xs backdrop-blur-sm">HABIS</div>' : ''}
-                <div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden"><img src="${img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"></div>
-                <div class="mb-1"><span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category || 'Umum'}</span></div>
-                <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-tight mb-1 min-h-[2rem]">${p.name}</h3>
-                <div class="mt-auto flex justify-between items-center"><span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
-                <button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] hover:bg-slate-800 transition-colors"><i class="fas fa-arrow-right"></i></button></div></div>`;
-      });
-    };
-    
-    // UI HELPERS
-    window.toggleSearch = function() { 
-        const sb = document.getElementById('searchBar'); sb.classList.toggle('hidden'); 
-        if(!sb.classList.contains('hidden')) document.getElementById('searchInput').focus(); 
-    };
-    window.openDetail = function(idx) {
-      if (idx < 0) return;
-      currentDetailIdx = idx;
-      const p = storeData.products[idx];
-      document.getElementById('detailImg').src = p.image || `https://placehold.co/400x400?text=${encodeURIComponent(p.name)}`;
-      document.getElementById('detailName').innerText = p.name;
-      document.getElementById('detailPrice').innerText = "Rp " + parseInt(p.price).toLocaleString('id-ID');
-      document.getElementById('detailStock').innerText = "Stok: " + p.stock;
-      document.getElementById('detailDesc').innerText = p.desc || "Tidak ada deskripsi.";
-      document.getElementById('detailCat').innerText = p.category || "Umum";
-      const btn = document.getElementById('btnAddToCart');
-      if(parseInt(p.stock) > 0) {
-        btn.disabled = false; btn.innerHTML = `<i class="fas fa-plus"></i> TAMBAH KE KERANJANG`; 
-        btn.className = "w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-95 transition-all";
-      } else {
-        btn.disabled = true; btn.innerHTML = `STOK HABIS`; 
-        btn.className = "w-full bg-slate-300 text-slate-500 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed";
-      }
-      document.getElementById('detailModal').classList.remove('hidden');
-    };
-    window.closeDetail = function() { document.getElementById('detailModal').classList.add('hidden'); };
-    window.addToCartFromDetail = function() { if(currentDetailIdx > -1) { window.addToCart(currentDetailIdx); window.closeDetail(); } };
-    
-    window.addToCart = function(idx) {
-      const p = storeData.products[idx];
-      if(!p || parseInt(p.stock) <= 0) { toastr.error("Stok Habis"); return; }
-      const exist = cart.find(c => c.idx === idx);
-      if(exist) exist.qty++; else cart.push({ idx, name: p.name, price: parseInt(p.price), qty: 1 });
-      window.saveCart(); toastr.success("Masuk Keranjang");
-    };
-
-    window.saveCart = function() { localStorage.setItem('cart', JSON.stringify(cart)); window.updateCartBadge(); };
-    window.updateCartBadge = function() { 
-      const t = cart.reduce((s, i) => s + (i.qty || 0), 0);
-      const b = document.getElementById('cartBadge');
-      b.innerText = t > 99 ? '99+' : t; t > 0 ? b.classList.remove('hidden') : b.classList.add('hidden');
-    };
-    window.openCart = function() { window.switchTab('cart'); window.renderCartList(); document.getElementById('cartModal').classList.remove('hidden'); if(cart.length) setTimeout(() => document.getElementById('orderNote').focus(), 300); };
-    window.closeCart = function() { document.getElementById('cartModal').classList.add('hidden'); window.switchTab('home'); };
-    
-    window.renderCartList = function() {
-      const l = document.getElementById('cartList'); l.innerHTML = "";
-      if(cart.length === 0) { 
-        l.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs">Keranjang kosong</div>';
-        document.getElementById('cartTotalDisplay').innerText = "Rp 0"; document.getElementById('btnCheckout').disabled = true; return; 
-      }
-      let sub = 0;
-      cart.forEach((i, x) => {
-        sub += (i.price*i.qty);
-        l.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl hover:shadow-sm"><div class="flex-1 min-w-0 mr-3"><h4 class="font-bold text-xs text-slate-700 truncate">${i.name}</h4><p class="text-xs text-blue-600 font-bold mt-1">Rp ${i.price.toLocaleString('id-ID')}</p></div><div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1"><button onclick="modQty(${x}, -1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">−</button><span class="text-xs font-bold w-5 text-center">${i.qty}</span><button onclick="modQty(${x}, 1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">+</button></div></div>`;
-      });
-      document.getElementById('cartTotalDisplay').innerText = "Rp " + (sub + (parseInt(storeData.fee)||0)).toLocaleString('id-ID');
-      document.getElementById('btnCheckout').disabled = false;
-    };
-    window.modQty = function(x, d) { if(!cart[x])return; cart[x].qty+=d; if(cart[x].qty<=0)cart.splice(x,1); window.saveCart(); window.renderCartList(); };
-
-    window.initPayment = function() {
-        if(cart.length === 0) return;
-        if(!document.getElementById('orderNote').value.trim()) { toastr.warning("Isi catatan dulu"); return; }
-        const sub = cart.reduce((t,i)=>t+(i.price*i.qty),0);
-        const total = sub + (parseInt(storeData.fee)||0);
-        document.getElementById('payAmountDisplay').innerText = "Rp " + total.toLocaleString('id-ID');
-        const qc = document.getElementById('qrContainer');
-        const qs = document.getElementById('qrStatus');
-        const raw = storeData.qris || "";
-        
-        if(!raw) { qc.innerHTML = '<p class="text-xs text-red-500 text-center">QRIS belum diset</p>'; qs.classList.add('hidden'); }
+        if(!raw){qc.innerHTML='<p class="text-xs text-red-500">QRIS belum diatur</p>';qs.classList.add('hidden');}
         else {
-            qc.innerHTML = '<div class="text-center py-8"><p class="text-xs text-slate-400">Membuat QR...</p></div>'; qs.classList.remove('hidden');
-            setTimeout(() => {
+            qc.innerHTML='<div class="text-center py-8"><p class="text-xs text-slate-400">Loading QR...</p></div>'; qs.classList.remove('hidden');
+            setTimeout(()=>{
                 try {
-                    let final = raw; let txt = "Scan Manual"; let cls = "text-orange-600 bg-orange-50";
-                    if(raw.length > 20) { final = formatQrisAmount(raw, total); txt = "Nominal Otomatis"; cls = "text-green-600 bg-green-50"; }
-                    qc.innerHTML = ""; new QRCode(qc, { text: final, width: 180, height: 180, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
-                    qs.innerHTML = txt; qs.className = `text-[10px] ${cls} py-1 rounded mt-2`;
-                } catch(e) { qc.innerHTML = '<p class="text-xs text-red-500">Error QR</p>'; }
-            }, 300);
+                    let final=raw; let txt="Scan Manual"; let cls="text-orange-600 bg-orange-50";
+                    if(raw.length>20){ 
+                        // PANGGIL FUNGSI BARU DI SINI
+                        final=formatQrisAmount(raw, tot); 
+                        txt="Nominal Otomatis"; cls="text-green-600 bg-green-50"; 
+                    }
+                    qc.innerHTML=""; new QRCode(qc,{text:final,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
+                    qs.innerHTML=txt; qs.className=`text-[10px] ${cls} py-1 rounded mt-2`;
+                } catch(e){qc.innerHTML='<p class="text-xs text-red-500">Error QR</p>';}
+            },300);
         }
         document.getElementById('cartModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('hidden');
     };
-    window.closePayment = function() { document.getElementById('paymentModal').classList.add('hidden'); };
 
-    window.generateReceipt = async function() {
-        const note = document.getElementById('orderNote').value;
-        const sub = cart.reduce((t,i)=>t+(i.price*i.qty),0);
-        const fee = parseInt(storeData.fee)||0;
-        const total = sub+fee;
-        document.getElementById('recStoreName').innerText = storeData.name;
-        document.getElementById('receiptDate').innerText = new Date().toLocaleDateString('id-ID');
-        document.getElementById('receiptName').innerText = userProfile.name||"Tamu";
-        document.getElementById('receiptTotal').innerText = "Rp "+total.toLocaleString('id-ID');
-        const ri = document.getElementById('receiptItems'); ri.innerHTML = "";
-        cart.forEach(i => ri.innerHTML += `<div class="flex justify-between text-xs"><span class="truncate max-w-[60%]">${i.name} ×${i.qty}</span><span class="font-medium">Rp ${(i.price*i.qty).toLocaleString('id-ID')}</span></div>`);
-        if(fee>0) ri.innerHTML += `<div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed"><span>Biaya Admin</span><span>Rp ${fee.toLocaleString('id-ID')}</span></div>`;
-        document.getElementById('receiptNoteBox').innerText = "📝 "+note;
-        
-        if(user && !isGuestMode) {
-             try { await push(ref(db, `orders/${user.uid}`), { items: [...cart], subtotal: sub, fee, total, note, date: Date.now(), status: "pending", customerName: userProfile.name, customerPhone: userProfile.phone }); } catch(e){}
-        }
+    window.generateReceipt=async()=>{
+        const note=document.getElementById('orderNote').value; const sub=cart.reduce((a,b)=>a+(b.price*b.qty),0); const fee=parseInt(storeData.fee)||0; const tot=sub+fee;
+        document.getElementById('recStoreName').innerText=storeData.name; document.getElementById('receiptDate').innerText=new Date().toLocaleDateString('id-ID'); document.getElementById('receiptName').innerText=userProfile.name||"Tamu"; document.getElementById('receiptTotal').innerText="Rp "+tot.toLocaleString('id-ID');
+        const ri=document.getElementById('receiptItems'); ri.innerHTML="";
+        cart.forEach(i=>ri.innerHTML+=`<div class="flex justify-between text-xs"><span class="truncate max-w-[60%]">${i.name} ×${i.qty}</span><span class="font-medium">Rp ${(i.price*i.qty).toLocaleString()}</span></div>`);
+        if(fee>0)ri.innerHTML+=`<div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed"><span>Biaya Admin</span><span>Rp ${fee.toLocaleString()}</span></div>`;
+        document.getElementById('receiptNoteBox').innerText="📝 "+note;
+        if(user&&!isGuestMode)try{await push(ref(db,`orders/${user.uid}`),{items:[...cart],subtotal:sub,fee,total:tot,note,date:Date.now(),status:"pending",customerName:userProfile.name,customerPhone:userProfile.phone});}catch(e){}
         document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('receiptModal').classList.remove('hidden');
     };
-
-    window.sendToWhatsapp = function() {
-        const note = document.getElementById('orderNote').value;
-        const sub = cart.reduce((t,i)=>t+(i.price*i.qty),0);
-        const fee = parseInt(storeData.fee)||0;
-        const total = sub+fee;
-        let msg = `*STRUK - ${storeData.name}*\n👤 ${userProfile.name||'Tamu'}\n`;
-        cart.forEach(i => msg += `➡️ ${i.name} (${i.qty}) : Rp ${(i.price*i.qty).toLocaleString('id-ID')}\n`);
-        msg += `💰 Total: Rp ${total.toLocaleString('id-ID')}\n📝 ${note}\n✅ LUNAS (QRIS)`;
-        window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(msg)}`, '_blank');
-        setTimeout(() => { cart=[]; window.saveCart(); location.reload(); }, 1500);
-    };
-    window.closeReceipt = function() { cart=[]; window.saveCart(); location.reload(); };
-
-    // ADMIN & PROFILE
-    window.checkAdmin = function() {
-        if(!user || user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
-        if(document.getElementById('adminPin').value === ADMIN_PIN) {
-             document.getElementById('adminLoginModal').classList.add('hidden');
-             document.getElementById('adminModal').classList.remove('hidden');
-             document.getElementById('admStoreName').value = storeData.name;
-             document.getElementById('admFee').value = storeData.fee;
-             document.getElementById('admQris').value = storeData.qris;
-             window.renderAdmList();
-        } else toastr.error("PIN Salah");
-    };
-    window.closeAdminPanel = function() { document.getElementById('adminModal').classList.add('hidden'); };
     
-    window.renderAdmList = function() {
-        const l = document.getElementById('admList'); l.innerHTML = "";
-        storeData.products.forEach((p,i) => {
-            l.innerHTML += `<div class="flex justify-between items-center bg-white p-3 text-xs border rounded-lg mb-2"><div class="flex-1"><b>${p.name}</b><br>Stok: ${p.stock}</div><div><button onclick="editAdm(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="delAdm(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div></div>`;
-        });
-    };
-    window.editAdm = function(i) {
-        const p = storeData.products[i];
-        document.getElementById('admPName').value = p.name; document.getElementById('admPCat').value = p.category;
-        document.getElementById('admPPrice').value = p.price; document.getElementById('admPStock').value = p.stock;
-        document.getElementById('admPDesc').value = p.desc; document.getElementById('admEditIdx').value = i;
-        if(p.image) { tempAdmImg = p.image; document.getElementById('admImgPrev').src = p.image; document.getElementById('admImgPrev').classList.remove('hidden'); document.getElementById('admImgIcon').classList.add('hidden'); }
-    };
-    window.delAdm = async function(i) { if(confirm('Hapus?')) { storeData.products.splice(i,1); await update(ref(db, `stores/${STORE_ID}`), storeData); window.renderAdmList(); window.renderProducts(); } };
-    window.saveAdmProd = async function() {
-        const i = parseInt(document.getElementById('admEditIdx').value);
-        const p = { name: document.getElementById('admPName').value, category: document.getElementById('admPCat').value, price: document.getElementById('admPPrice').value, stock: document.getElementById('admPStock').value, desc: document.getElementById('admPDesc').value, image: tempAdmImg || (i > -1 ? storeData.products[i].image : "") };
-        if(i > -1) storeData.products[i] = p; else storeData.products.push(p);
-        await update(ref(db, `stores/${STORE_ID}`), storeData); window.resetAdmForm(); window.renderAdmList(); window.renderProducts();
-    };
-    window.resetAdmForm = function() { document.getElementById('admPName').value=""; document.getElementById('admEditIdx').value="-1"; tempAdmImg=""; document.getElementById('admImgPrev').classList.add('hidden'); document.getElementById('admImgIcon').classList.remove('hidden'); };
-    window.saveAdmSettings = async function() { storeData.name = document.getElementById('admStoreName').value; storeData.fee = document.getElementById('admFee').value; storeData.qris = document.getElementById('admQris').value; await update(ref(db, `stores/${STORE_ID}`), storeData); toastr.success("Disimpan"); setTimeout(() => location.reload(), 500); };
-    window.handleAdmImg = function(input) { const f=input.files[0]; if(f) { const r=new FileReader(); r.onload=(e)=>{const i=new Image(); i.onload=()=>{const c=document.createElement('canvas'); const ctx=c.getContext('2d'); let w=i.width,h=i.height; if(w>300){h=(h*300)/w;w=300;} c.width=w;c.height=h;ctx.drawImage(i,0,0,w,h); tempAdmImg=c.toDataURL('image/jpeg',0.7); document.getElementById('admImgPrev').src=tempAdmImg; document.getElementById('admImgPrev').classList.remove('hidden'); document.getElementById('admImgIcon').classList.add('hidden');}; i.src=e.target.result;}; r.readAsDataURL(f); }};
-    window.handleQrisUpload = function(input) { const f=input.files[0]; if(f) { const r=new FileReader(); r.onload=(e)=>{const i=new Image(); i.onload=()=>{const c=document.createElement('canvas'); c.width=i.width;c.height=i.height; c.getContext('2d').drawImage(i,0,0); try{const code=jsQR(c.getContext('2d').getImageData(0,0,c.width,c.height).data,c.width,c.height); if(code)document.getElementById('admQris').value=code.data;}catch(e){}}; i.src=e.target.result;}; r.readAsDataURL(f); }};
+    // ADMIN & UTILS
+    window.checkAdmin=()=>{if(document.getElementById('adminPin').value===ADMIN_PIN){document.getElementById('adminLoginModal').classList.add('hidden');document.getElementById('adminModal').classList.remove('hidden');document.getElementById('admStoreName').value=storeData.name;document.getElementById('admFee').value=storeData.fee;document.getElementById('admQris').value=storeData.qris;renderAdmList();}else toastr.error("PIN Salah");};
+    window.renderAdmList=()=>{const l=document.getElementById('admList');l.innerHTML="";storeData.products.forEach((p,i)=>{l.innerHTML+=`<div class="flex justify-between items-center bg-white p-3 text-xs border rounded-lg mb-2"><div class="flex-1"><b>${p.name}</b><br>Stok: ${p.stock}</div><div><button onclick="editAdm(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="delAdm(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div></div>`;});};
+    window.handleQrisUpload=(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;c.getContext('2d').drawImage(i,0,0);try{const code=jsQR(c.getContext('2d').getImageData(0,0,c.width,c.height).data,c.width,c.height);if(code)document.getElementById('admQris').value=code.data;}catch(e){}};i.src=e.target.result;};r.readAsDataURL(f);}};
+    
+    // EXPORTS
+    Object.assign(window,{
+        openDetail:(i)=>{currentDetailIdx=i;const p=storeData.products[i];document.getElementById('detailImg').src=p.image;document.getElementById('detailName').innerText=p.name;document.getElementById('detailPrice').innerText="Rp "+parseInt(p.price).toLocaleString();document.getElementById('detailStock').innerText="Stok: "+p.stock;document.getElementById('detailDesc').innerText=p.desc;document.getElementById('detailCat').innerText=p.category;const b=document.getElementById('btnAddToCart');if(parseInt(p.stock)>0){b.disabled=false;b.innerHTML="TAMBAH";b.classList.remove('bg-slate-300');b.classList.add('bg-slate-900');}else{b.disabled=true;b.innerHTML="HABIS";b.classList.remove('bg-slate-900');b.classList.add('bg-slate-300');}document.getElementById('detailModal').classList.remove('hidden');},
+        closeDetail:()=>{document.getElementById('detailModal').classList.add('hidden');},
+        addToCartFromDetail:()=>{if(currentDetailIdx>-1){addToCart(currentDetailIdx);closeDetail();}},
+        toggleSearch:()=>{document.getElementById('searchBar').classList.toggle('hidden');},
+        openCart:()=>{switchTab('cart');renderCartList();document.getElementById('cartModal').classList.remove('hidden');},
+        closeCart:()=>{document.getElementById('cartModal').classList.add('hidden');switchTab('home');},
+        closePayment:()=>{document.getElementById('paymentModal').classList.add('hidden');},
+        sendToWhatsapp:()=>{const n=document.getElementById('orderNote').value;const s=cart.reduce((a,b)=>a+(b.price*b.qty),0);const t=s+(parseInt(storeData.fee)||0);let m=`*STRUK*\n`;cart.forEach(i=>m+=`${i.name}(${i.qty}):${(i.price*i.qty).toLocaleString()}\n`);m+=`Total:${t.toLocaleString()}\nNote:${n}`;window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(m)}`,'_blank');setTimeout(()=>{cart=[];saveCart();location.reload();},1500);},
+        closeReceipt:()=>{cart=[];saveCart();location.reload();},
+        openAdminLogin:()=>{if(!user||user.email?.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){toastr.error("Akses Ditolak");return;}document.getElementById('adminLoginModal').classList.remove('hidden');},
+        closeAdminLogin:()=>{document.getElementById('adminLoginModal').classList.add('hidden');},
+        closeAdminPanel:()=>{document.getElementById('adminModal').classList.add('hidden');},
+        editAdm:(i)=>{const p=storeData.products[i];document.getElementById('admPName').value=p.name;document.getElementById('admPPrice').value=p.price;document.getElementById('admPStock').value=p.stock;document.getElementById('admPDesc').value=p.desc;document.getElementById('admPCat').value=p.category;document.getElementById('admEditIdx').value=i;if(p.image){tempAdmImg=p.image;document.getElementById('admImgPrev').src=p.image;document.getElementById('admImgPrev').classList.remove('hidden');}},
+        delAdm:async(i)=>{if(confirm('Hapus?')){storeData.products.splice(i,1);await update(ref(db,`stores/${STORE_ID}`),storeData);renderAdmList();renderProducts();}},
+        saveAdmProd:async()=>{const i=parseInt(document.getElementById('admEditIdx').value);const p={name:document.getElementById('admPName').value,category:document.getElementById('admPCat').value,price:document.getElementById('admPPrice').value,stock:document.getElementById('admPStock').value,desc:document.getElementById('admPDesc').value,image:tempAdmImg||(i>-1?storeData.products[i].image:"")};if(i>-1)storeData.products[i]=p;else storeData.products.push(p);await update(ref(db,`stores/${STORE_ID}`),storeData);resetAdmForm();renderAdmList();renderProducts();},
+        resetAdmForm:()=>{document.getElementById('admPName').value="";document.getElementById('admEditIdx').value="-1";tempAdmImg="";document.getElementById('admImgPrev').classList.add('hidden');},
+        handleAdmImg:(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');let w=i.width,h=i.height;if(w>300){h=(h*300)/w;w=300;}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);tempAdmImg=c.toDataURL('image/jpeg',0.7);document.getElementById('admImgPrev').src=tempAdmImg;document.getElementById('admImgPrev').classList.remove('hidden');};i.src=e.target.result;};r.readAsDataURL(f);}},
+        saveAdmSettings:async()=>{storeData.name=document.getElementById('admStoreName').value;storeData.fee=document.getElementById('admFee').value;storeData.qris=document.getElementById('admQris').value;await update(ref(db,`stores/${STORE_ID}`),storeData);toastr.success("Saved");},
+        switchTab:(t)=>{document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));document.getElementById(`nav-${t}`).classList.add('active');},
+        openProfile:()=>{if(!user||isGuestMode)window.showLoginOptions();else{switchTab('profile');document.getElementById('profileModal').classList.remove('hidden');}},
+        closeProfile:()=>{document.getElementById('profileModal').classList.add('hidden');switchTab('home');},
+        showLoginOptions:()=>{document.getElementById('app').classList.add('hidden');document.getElementById('loginModal').classList.remove('hidden');},
+        doLogout:()=>{if(confirm("Logout?"))signOut(auth).then(()=>location.reload());},
+        handleAvatarUpload:(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');let w=i.width,h=i.height;if(w>300){h=(h*300)/w;w=300;}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);const d=c.toDataURL('image/jpeg',0.7);document.getElementById('profileAvatarEdit').src=d;userProfile.tempAvatar=d;};i.src=e.target.result;};r.readAsDataURL(f);}},
+        saveProfileData:async()=>{userProfile.name=document.getElementById('profName').value;userProfile.phone=document.getElementById('profPhone').value;userProfile.address=document.getElementById('profAddress').value;if(userProfile.tempAvatar){userProfile.avatar=userProfile.tempAvatar;delete userProfile.tempAvatar;}await update(ref(db,`users/${user.uid}`),userProfile);toastr.success("Profil Saved");},
+        loadProfile:async(uid)=>{const s=await get(child(ref(db),`users/${uid}`));if(s.exists())userProfile=s.val();else userProfile={name:user.displayName,email:user.email};document.getElementById('headerGreeting').innerText=userProfile.name;if(userProfile.avatar){document.getElementById('headerAvatar').src=userProfile.avatar;document.getElementById('profileAvatarEdit').src=userProfile.avatar;}document.getElementById('profName').value=userProfile.name||"";document.getElementById('profPhone').value=userProfile.phone||"";document.getElementById('profAddress').value=userProfile.address||"";const h=await get(child(ref(db),`orders/${uid}`));const hl=document.getElementById('historyList');hl.innerHTML="";if(h.exists())Object.values(h.val()).forEach(o=>hl.innerHTML+=`<div class="p-2 border-b text-xs">${new Date(o.date).toLocaleDateString()} - Rp ${parseInt(o.total).toLocaleString()}</div>`);}
+    });
 
-    window.switchTab = function(t) { document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active')); document.getElementById(`nav-${t}`).classList.add('active'); };
-    window.doLogout = function() { if(confirm("Logout?")) signOut(auth).then(()=>location.reload()); };
-    window.openProfile = function() { if(!user||isGuestMode) window.showLoginOptions(); else { window.switchTab('profile'); document.getElementById('profileModal').classList.remove('hidden'); } };
-    window.closeProfile = function() { document.getElementById('profileModal').classList.add('hidden'); window.switchTab('home'); };
-    window.handleAvatarUpload = function(input) { const f=input.files[0]; if(f) { const r=new FileReader(); r.onload=(e)=>{const i=new Image(); i.onload=()=>{const c=document.createElement('canvas'); const ctx=c.getContext('2d'); let w=i.width,h=i.height; if(w>300){h=(h*300)/w;w=300;} c.width=w;c.height=h;ctx.drawImage(i,0,0,w,h); const d=c.toDataURL('image/jpeg',0.7); document.getElementById('profileAvatarEdit').src=d; userProfile.tempAvatar=d; }; i.src=e.target.result;}; r.readAsDataURL(f); }};
-    window.saveProfileData = async function() { userProfile.name = document.getElementById('profName').value; userProfile.phone = document.getElementById('profPhone').value; userProfile.address = document.getElementById('profAddress').value; if(userProfile.tempAvatar) { userProfile.avatar = userProfile.tempAvatar; delete userProfile.tempAvatar; } await update(ref(db, `users/${user.uid}`), userProfile); toastr.success("Profil disimpan"); document.getElementById('headerGreeting').innerText = "Halo, " + userProfile.name.split(' ')[0]; if(userProfile.avatar) document.getElementById('headerAvatar').src = userProfile.avatar; };
-    window.loadProfile = async function(uid) { const s = await get(child(ref(db), `users/${uid}`)); if(s.exists()) userProfile=s.val(); else userProfile={name:user.displayName,email:user.email,avatar:user.photoURL}; document.getElementById('headerGreeting').innerText = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak"; if(userProfile.avatar) { document.getElementById('headerAvatar').src = userProfile.avatar; document.getElementById('profileAvatarEdit').src = userProfile.avatar; } document.getElementById('profName').value = userProfile.name||""; document.getElementById('profPhone').value = userProfile.phone||""; document.getElementById('profAddress').value = userProfile.address||""; const h = await get(child(ref(db), `orders/${uid}`)); const hl = document.getElementById('historyList'); hl.innerHTML=""; if(h.exists()) { Object.values(h.val()).sort((a,b)=>b.date-a.date).slice(0,5).forEach(o=>{ hl.innerHTML+=`<div class="text-[10px] bg-slate-50 p-2 rounded flex justify-between items-center mb-1"><div><span class="font-medium">${new Date(o.date).toLocaleDateString('id-ID')}</span></div><span class="font-bold">Rp ${parseInt(o.total).toLocaleString('id-ID')}</span></div>`; }); } else hl.innerHTML='<p class="text-xs text-slate-400 text-center">Belum ada pesanan</p>'; };
-
-    // INITIALIZATION
-    try {
-        const app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-        auth = getAuth(app);
-        
-        document.getElementById('pinForm').addEventListener('submit', (e) => { e.preventDefault(); window.checkAdmin(); });
-        document.getElementById('togglePin').addEventListener('click', function() { const i = document.getElementById('adminPin'); i.type = i.type === 'password' ? 'text' : 'password'; });
-
-        onAuthStateChanged(auth, (u) => {
-            if (u) {
-                user = u; isGuestMode = false;
-                if(u.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                    document.getElementById('adminHeaderBtn').classList.remove('hidden');
-                    document.getElementById('nav-admin').classList.remove('hidden');
-                }
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                loadProfile(u.uid); initStore();
-                if(new URLSearchParams(window.location.search).get('page') === 'admin') setTimeout(openAdminLogin, 500);
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
-            }
-        });
-    } catch(e) {
-        console.error("Firebase Init Error:", e);
-        toastr.error("Gagal memuat sistem: Periksa Internet");
-    }
+    // INIT
+    try{const app=initializeApp(firebaseConfig);db=getDatabase(app);auth=getAuth(app);document.getElementById('pinForm').addEventListener('submit',(e)=>{e.preventDefault();window.checkAdmin();});document.getElementById('togglePin').addEventListener('click',()=>{const i=document.getElementById('adminPin');i.type=i.type==='password'?'text':'password';});onAuthStateChanged(auth,(u)=>{if(u){user=u;isGuestMode=false;if(u.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase()){document.getElementById('adminHeaderBtn').classList.remove('hidden');document.getElementById('nav-admin').classList.remove('hidden');}document.getElementById('loginModal').classList.add('hidden');document.getElementById('app').classList.remove('hidden');loadProfile(u.uid);initStore();if(new URLSearchParams(window.location.search).get('page')==='admin')setTimeout(openAdminLogin,500);}else{document.getElementById('loginModal').classList.remove('hidden');}});}catch(e){toastr.error("Init Error");}
   </script>
 </body>
 </html>
