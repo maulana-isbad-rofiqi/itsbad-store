@@ -492,7 +492,7 @@
     import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Firebase configuration
+    // ✅ CONFIGURASI FIREBASE ASLI MILIK ANDA
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
       authDomain: "kasir-online-c22bd.firebaseapp.com",
@@ -506,7 +506,7 @@
 
     // Constants
     const STORE_ID = "itsbad-store-premium";
-    const OWNER_WA = "6285236363128";
+    const OWNER_WA = "6285236363128"; // Ganti dengan nomor WhatsApp admin Anda
     const DEFAULT_FEE = 2500;
 
     // Global variables
@@ -537,22 +537,25 @@
         db = getDatabase(app);
         auth = getAuth(app);
         
+        console.log("✅ Firebase initialized with YOUR configuration");
+        
         // Listen for auth state changes
         onAuthStateChanged(auth, (u) => {
             if (u) {
                 user = u;
+                console.log("✅ User logged in:", u.email || "Anonymous");
                 document.getElementById('authOverlay').classList.add('hidden');
                 loadUserProfile(u.uid);
                 initStore();
             } else {
+                console.log("⚠️ No user logged in");
                 document.getElementById('authOverlay').classList.remove('hidden');
             }
         });
         
-        console.log("Firebase initialized successfully");
     } catch (error) {
-        console.error("Firebase initialization error:", error);
-        showError("Firebase gagal diinisialisasi. Mode offline diaktifkan.");
+        console.error("❌ Firebase initialization error:", error);
+        showError("Firebase gagal diinisialisasi: " + error.message);
         // Fallback: show store in offline mode
         setTimeout(() => {
             document.getElementById('authOverlay').classList.add('hidden');
@@ -589,6 +592,7 @@
             if (snapshot.exists()) {
                 userProfile = snapshot.val();
                 localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                console.log("✅ User profile loaded:", userProfile.name);
             } else {
                 // Create default profile
                 userProfile = {
@@ -601,11 +605,12 @@
                     lastLogin: new Date().toISOString()
                 };
                 await set(userRef, userProfile);
+                console.log("✅ Default user profile created");
             }
             updateProfileDisplay();
             await loadOrderHistory(uid);
         } catch (error) {
-            console.warn("Failed to load user profile:", error);
+            console.warn("⚠️ Failed to load user profile:", error);
             // Use local profile if available
             if (Object.keys(userProfile).length === 0) {
                 userProfile = {
@@ -643,7 +648,7 @@
                 profileAvatarEl.innerHTML = imgHtml.replace('text-sm', 'text-5xl');
             }
         } catch (error) {
-            console.error("Error updating profile display:", error);
+            console.error("❌ Error updating profile display:", error);
         }
     }
 
@@ -687,9 +692,9 @@
             }
             localStorage.setItem('userProfile', JSON.stringify(userProfile));
             updateProfileDisplay();
-            showSuccess("Profil berhasil diperbarui!");
+            showSuccess("✅ Profil berhasil diperbarui!");
         } catch (error) {
-            showError("Gagal menyimpan profil: " + error.message);
+            showError("❌ Gagal menyimpan profil: " + error.message);
         }
     }
 
@@ -705,6 +710,7 @@
                 storeData = snapshot.val();
                 if (!storeData.products) storeData.products = [];
                 if (!storeData.fee) storeData.fee = DEFAULT_FEE;
+                console.log("✅ Store data loaded:", storeData.name);
             } else {
                 // Create default store
                 storeData = { 
@@ -723,14 +729,21 @@
                             price: 45000,
                             stock: 5,
                             desc: "Produk eksklusif dengan fitur lengkap"
+                        },
+                        {
+                            name: "Produk Sample 3",
+                            price: 75000,
+                            stock: 3,
+                            desc: "Produk terlaris dengan garansi 1 tahun"
                         }
                     ]
                 };
                 await set(storeRef, storeData);
+                console.log("✅ Default store created");
             }
             renderStore();
         } catch (error) {
-            console.error("Failed to load store:", error);
+            console.error("❌ Failed to load store:", error);
             // Use default store data
             renderStore();
         }
@@ -788,7 +801,7 @@
             }
             updateCartBadge();
         } catch (error) {
-            console.error("Error rendering store:", error);
+            console.error("❌ Error rendering store:", error);
             showError("Gagal memuat produk");
         }
     }
@@ -823,7 +836,7 @@
             
             document.getElementById('productDetailModal').classList.remove('hidden');
         } catch (error) {
-            console.error("Error showing product detail:", error);
+            console.error("❌ Error showing product detail:", error);
             showError("Gagal memuat detail produk");
         }
     }
@@ -873,12 +886,12 @@
                     qty: 1,
                     stock: stock
                 });
-                showSuccess("Ditambahkan ke keranjang!");
+                showSuccess("✅ Ditambahkan ke keranjang!");
             }
             
             saveCart();
         } catch (error) {
-            console.error("Error adding to cart:", error);
+            console.error("❌ Error adding to cart:", error);
             showError("Gagal menambahkan ke keranjang");
         }
     }
@@ -902,7 +915,7 @@
             
             saveCart();
         } catch (error) {
-            console.error("Error updating quantity:", error);
+            console.error("❌ Error updating quantity:", error);
             showError("Gagal mengupdate kuantitas");
         }
     }
@@ -913,7 +926,7 @@
             updateCartBadge();
             renderCart();
         } catch (error) {
-            console.error("Error saving cart:", error);
+            console.error("❌ Error saving cart:", error);
         }
     }
 
@@ -929,7 +942,7 @@
                 badgeEl.classList.add('hidden');
             }
         } catch (error) {
-            console.error("Error updating cart badge:", error);
+            console.error("❌ Error updating cart badge:", error);
         }
     }
 
@@ -950,7 +963,7 @@
                 sheet.classList.add('translate-y-full');
             }
         } catch (error) {
-            console.error("Error toggling cart:", error);
+            console.error("❌ Error toggling cart:", error);
         }
     }
 
@@ -1013,7 +1026,7 @@
             document.getElementById('cartFee').textContent = `+ Rp ${fee.toLocaleString('id-ID')}`;
             document.getElementById('cartTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
         } catch (error) {
-            console.error("Error rendering cart:", error);
+            console.error("❌ Error rendering cart:", error);
             showError("Gagal memuat keranjang");
         }
     }
@@ -1029,7 +1042,7 @@
                 }
             }
         } catch (error) {
-            console.error("Error removing from cart:", error);
+            console.error("❌ Error removing from cart:", error);
             showError("Gagal menghapus item");
         }
     }
@@ -1076,7 +1089,7 @@
             // Generate QR Code
             generateQR(total);
         } catch (error) {
-            console.error("Error processing checkout:", error);
+            console.error("❌ Error processing checkout:", error);
             showError("Gagal memproses checkout");
         }
     }
@@ -1128,7 +1141,7 @@
                 </div>`;
             }
         } catch (error) {
-            console.error("Error generating QR:", error);
+            console.error("❌ Error generating QR:", error);
         }
     }
 
@@ -1204,7 +1217,7 @@ Biaya Layanan: Rp ${fee.toLocaleString('id-ID')}
                 // Close checkout modal
                 setTimeout(() => {
                     closeCheckout();
-                    showSuccess("Pesanan berhasil dikirim! Admin akan menghubungi Anda.");
+                    showSuccess("✅ Pesanan berhasil dikirim! Admin akan menghubungi Anda.");
                 }, 1000);
             } else {
                 showWarning("Popup diblokir! Buka WhatsApp secara manual.");
@@ -1212,7 +1225,7 @@ Biaya Layanan: Rp ${fee.toLocaleString('id-ID')}
                 alert("Salin pesan berikut dan kirim ke Admin:\n\n" + msg);
             }
         } catch (error) {
-            console.error("Error in confirmAndSend:", error);
+            console.error("❌ Error in confirmAndSend:", error);
             showError("Gagal mengirim pesan: " + error.message);
         }
     }
@@ -1238,9 +1251,9 @@ Biaya Layanan: Rp ${fee.toLocaleString('id-ID')}
             const orderRef = ref(db, `orders/${user.uid}`);
             await push(orderRef, orderData);
             
-            console.log("Order saved successfully");
+            console.log("✅ Order saved successfully");
         } catch (error) {
-            console.error("Failed to save order:", error);
+            console.error("❌ Failed to save order:", error);
             // Continue even if save fails
         }
     }
@@ -1297,9 +1310,9 @@ Biaya Layanan: Rp ${fee.toLocaleString('id-ID')}
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
-            showSuccess("Login berhasil!");
+            showSuccess("✅ Login berhasil!");
         } catch (error) {
-            console.error("Google login error:", error);
+            console.error("❌ Google login error:", error);
             showError("Login Google gagal: " + error.message);
         }
     }
@@ -1309,7 +1322,7 @@ Biaya Layanan: Rp ${fee.toLocaleString('id-ID')}
             await signInAnonymously(auth);
             showInfo("Login sebagai tamu berhasil");
         } catch (error) {
-            console.error("Guest login error:", error);
+            console.error("❌ Guest login error:", error);
             showError("Login tamu gagal: " + error.message);
         }
     }
