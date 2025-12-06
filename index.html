@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Toko Online Pro</title>
+  <title>Itsbad Store</title>
+  
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" type="image/png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
-    .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #6366f1; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+    body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
+    .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #4f46e5; width: 16px; height: 16px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .no-scrollbar::-webkit-scrollbar { display: none; }
-    #qrContainer img { margin: 0 auto; border: 4px solid white; border-radius: 8px; }
+    #qrContainer img { margin: 0 auto; border: 8px solid white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .payment-option.active { border-color: #4f46e5; background-color: #eef2ff; color: #4f46e5; }
   </style>
 </head>
 <body class="flex justify-center min-h-screen text-slate-800">
@@ -24,19 +27,19 @@
     
     <div class="glass-nav p-4 z-40 sticky top-0 flex justify-between items-center h-16 shadow-sm">
         <div class="flex items-center gap-3 cursor-pointer" onclick="window.openProfile()">
-            <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border border-slate-300">
+            <div id="userAvatar" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
                 <i class="fas fa-user text-slate-400"></i>
             </div>
             <div>
-                <h1 class="text-sm font-bold leading-tight truncate w-32" id="shopNameDisplay">Loading...</h1>
+                <h1 class="text-sm font-bold leading-tight truncate w-32 text-indigo-900" id="shopNameDisplay">Itsbad Store</h1>
                 <p class="text-[10px] text-slate-500 truncate w-24" id="userNameDisplay">Tamu</p>
             </div>
         </div>
         
-        <div class="flex items-center gap-1">
-            <button onclick="window.toggleCart()" class="relative p-2 text-slate-600 hover:text-indigo-600 transition">
-                <i class="fas fa-shopping-bag text-xl"></i>
-                <span id="cartCount" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
+        <div class="flex items-center gap-2">
+            <button onclick="window.toggleCart()" class="relative p-2 text-slate-600 hover:text-indigo-600 transition bg-slate-50 rounded-full w-10 h-10 flex items-center justify-center">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cartCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full hidden shadow-sm">0</span>
             </button>
         </div>
     </div>
@@ -44,21 +47,26 @@
     <div class="flex-1 overflow-y-auto p-4 bg-slate-50 relative no-scrollbar" id="mainContainer">
 
       <div id="authOverlay" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center p-6 hidden">
-          <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
-              <i class="fas fa-store text-3xl text-indigo-600"></i>
+          <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <i class="fas fa-store text-4xl text-indigo-600"></i>
           </div>
-          <h2 class="text-2xl font-bold mb-2">Selamat Datang</h2>
-          <p class="text-slate-500 text-sm mb-8 text-center">Masuk untuk mulai belanja.</p>
-          <button onclick="window.loginGoogle()" class="w-full bg-white border border-slate-200 py-3.5 rounded-xl font-bold text-slate-700 flex items-center justify-center gap-3 shadow-sm hover:bg-slate-50 transition mb-3">
-              <i class="fab fa-google text-red-500"></i> Masuk dengan Google
+          <h2 class="text-2xl font-bold mb-2 text-slate-800">Itsbad Store</h2>
+          <p class="text-slate-500 text-sm mb-8 text-center px-4">Selamat datang! Masuk untuk mulai berbelanja dengan mudah.</p>
+          
+          <button onclick="window.loginGoogle()" class="w-full bg-white border border-slate-200 py-4 rounded-2xl font-bold text-slate-700 flex items-center justify-center gap-3 shadow-sm hover:bg-slate-50 transition mb-3">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5"> Masuk dengan Google
           </button>
-          <button onclick="window.loginGuest()" class="w-full bg-slate-100 py-3.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition">Lanjut sebagai Tamu</button>
+          
+          <button onclick="window.loginGuest()" class="w-full bg-slate-100 py-4 rounded-2xl font-bold text-slate-600 hover:bg-slate-200 transition">
+              Lanjut sebagai Tamu
+          </button>
       </div>
 
       <div id="page-shop">
         <div id="productGrid" class="grid grid-cols-2 gap-3 pb-24">
             <div class="col-span-2 text-center py-20 text-slate-400">
-                <div class="loader mx-auto mb-2"></div> Memuat Produk...
+                <div class="loader mx-auto mb-3"></div> 
+                <span class="text-xs font-medium">Memuat Produk...</span>
             </div>
         </div>
       </div>
@@ -66,24 +74,33 @@
     </div>
 
     <div id="productModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="window.closeProductModal()"></div>
-        <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative z-10">
-            <button onclick="window.closeProductModal()" class="absolute top-3 right-3 w-8 h-8 bg-black/20 text-white rounded-full flex items-center justify-center z-20"><i class="fas fa-times"></i></button>
-            <div class="h-48 bg-slate-100 flex items-center justify-center relative">
-                <i class="fas fa-box text-6xl text-slate-200"></i>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="window.closeProductModal()"></div>
+        <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative z-10 modal-enter transform transition-all">
+            <button onclick="window.closeProductModal()" class="absolute top-3 right-3 w-8 h-8 bg-black/30 text-white rounded-full flex items-center justify-center z-20 backdrop-blur-md"><i class="fas fa-times"></i></button>
+            
+            <div class="h-56 bg-slate-100 flex items-center justify-center relative">
+                <i class="fas fa-box text-6xl text-slate-300"></i>
             </div>
-            <div class="p-5">
+            
+            <div class="p-6">
                 <div class="flex justify-between items-start mb-2">
-                    <h2 id="modalProdName" class="text-xl font-bold text-slate-800 leading-tight">Nama Produk</h2>
-                    <span id="modalProdPrice" class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg text-sm font-bold whitespace-nowrap">Rp 0</span>
+                    <h2 id="modalProdName" class="text-xl font-bold text-slate-800 leading-tight w-2/3">Nama Produk</h2>
+                    <span id="modalProdPrice" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap shadow-md shadow-indigo-200">Rp 0</span>
                 </div>
-                <p id="modalProdStock" class="text-xs text-slate-500 mb-4 font-bold">Stok: 0</p>
-                <div class="bg-slate-50 p-3 rounded-xl mb-6 max-h-32 overflow-y-auto">
+                
+                <p id="modalProdStock" class="text-xs text-slate-500 mb-4 font-bold flex items-center gap-1"><i class="fas fa-cubes"></i> Stok: 0</p>
+                
+                <div class="bg-slate-50 p-4 rounded-2xl mb-6 max-h-32 overflow-y-auto border border-slate-100">
                     <p id="modalProdDesc" class="text-sm text-slate-600 leading-relaxed">Deskripsi produk...</p>
                 </div>
-                <div class="flex gap-2">
-                    <button id="btnModalAddCart" class="flex-1 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50">+ Keranjang</button>
-                    <button id="btnModalBuyNow" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200">Beli Sekarang</button>
+
+                <div class="flex gap-3">
+                    <button id="btnModalAddCart" class="flex-1 py-3.5 border-2 border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition">
+                        + Keranjang
+                    </button>
+                    <button id="btnModalBuyNow" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition">
+                        Beli Sekarang
+                    </button>
                 </div>
             </div>
         </div>
@@ -95,166 +112,164 @@
             <h2 class="font-bold text-lg">Profil Saya</h2>
         </div>
         <div class="flex-1 p-5 overflow-y-auto">
-            <div class="flex flex-col items-center mb-6">
+            <div class="flex flex-col items-center mb-8">
                 <div class="relative w-24 h-24 mb-3">
-                    <div id="profileAvatarPreview" class="w-full h-full rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
-                        <i class="fas fa-user text-4xl text-slate-400"></i>
+                    <div id="profileAvatarPreview" class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-xl">
+                        <i class="fas fa-user text-4xl text-slate-300"></i>
                     </div>
-                    <label for="avatarUpload" class="absolute bottom-0 right-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md">
+                    <label for="avatarUpload" class="absolute bottom-0 right-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-indigo-700 transition">
                         <i class="fas fa-camera text-xs"></i>
                     </label>
                     <input type="file" id="avatarUpload" accept="image/*" class="hidden">
                 </div>
-                <p class="text-xs text-slate-400">Klik ikon kamera untuk ganti foto</p>
+                <p class="text-xs text-slate-400">Ketuk kamera untuk ubah foto</p>
             </div>
-            <div class="space-y-4">
-                <div><label class="text-xs font-bold text-slate-500 ml-1">Nama Lengkap</label><input type="text" id="profName" class="w-full p-3 border rounded-xl text-sm" placeholder="Nama Anda"></div>
-                <div><label class="text-xs font-bold text-slate-500 ml-1">Nomor WhatsApp</label><input type="tel" id="profWa" class="w-full p-3 border rounded-xl text-sm" placeholder="08xxxxxxxx"></div>
-                <div><label class="text-xs font-bold text-slate-500 ml-1">Alamat Pengiriman</label><textarea id="profAddress" rows="3" class="w-full p-3 border rounded-xl text-sm" placeholder="Alamat lengkap..."></textarea></div>
-                <button onclick="window.saveProfile()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold mt-4 shadow-lg">SIMPAN PROFIL</button>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 ml-1 uppercase">Nama Lengkap</label>
+                    <input type="text" id="profName" class="w-full p-4 border rounded-2xl text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none transition" placeholder="Nama Anda">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 ml-1 uppercase">Nomor WhatsApp</label>
+                    <input type="tel" id="profWa" class="w-full p-4 border rounded-2xl text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none transition" placeholder="08xxxxxxxx">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 ml-1 uppercase">Alamat Pengiriman</label>
+                    <textarea id="profAddress" rows="3" class="w-full p-4 border rounded-2xl text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none transition" placeholder="Alamat lengkap..."></textarea>
+                </div>
+                <button onclick="window.saveProfile()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold mt-4 shadow-xl hover:bg-slate-800 transition">SIMPAN PROFIL</button>
             </div>
         </div>
     </div>
 
     <div id="cartModal" class="fixed inset-0 z-50 pointer-events-none">
         <div class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300" id="cartBackdrop" onclick="window.toggleCart()"></div>
-        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 pointer-events-auto max-h-[90vh] flex flex-col" id="cartSheet">
-            <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold text-lg">Keranjang Belanja</h3>
-                <button onclick="window.toggleCart()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500"><i class="fas fa-times"></i></button>
+        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-[2rem] shadow-2xl transform translate-y-full transition-transform duration-300 pointer-events-auto max-h-[85vh] flex flex-col" id="cartSheet">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800">Keranjang Belanja</h3>
+                <button onclick="window.toggleCart()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition"><i class="fas fa-times"></i></button>
             </div>
-            <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar min-h-[200px]"></div>
-            <div class="p-5 bg-slate-50 border-t border-slate-200 pb-8">
-                <div class="flex justify-between text-sm mb-2"><span class="text-slate-500">Subtotal</span><span class="font-bold" id="cartSubtotal">Rp 0</span></div>
-                <div class="flex justify-between text-sm mb-4 text-orange-500"><span>Biaya Layanan</span><span class="font-bold" id="cartFee">+ Rp 0</span></div>
-                <div class="flex justify-between text-xl font-bold text-indigo-700 mb-4"><span>Total</span><span id="cartTotal">Rp 0</span></div>
-                <button onclick="window.processCheckout()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition">BAYAR SEKARANG</button>
+            <div id="cartItems" class="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar min-h-[200px]"></div>
+            <div class="p-6 bg-slate-50 border-t border-slate-200 pb-8">
+                <div class="flex justify-between text-sm mb-2"><span class="text-slate-500">Subtotal</span><span class="font-bold text-slate-700" id="cartSubtotal">Rp 0</span></div>
+                <div class="flex justify-between text-sm mb-4 text-indigo-500"><span>Biaya Layanan</span><span class="font-bold" id="cartFee">+ Rp 0</span></div>
+                <div class="flex justify-between text-xl font-bold text-slate-900 mb-6 pt-4 border-t border-slate-200"><span>Total Bayar</span><span id="cartTotal">Rp 0</span></div>
+                <button onclick="window.processCheckout()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition transform active:scale-95">
+                    BAYAR SEKARANG
+                </button>
             </div>
         </div>
     </div>
 
     <div id="paymentModal" class="fixed inset-0 bg-white z-[60] hidden flex-col">
         <div class="p-4 border-b flex items-center gap-3 shadow-sm">
-            <button onclick="window.closePayment()" class="text-slate-500"><i class="fas fa-arrow-left text-xl"></i></button>
-            <h2 class="font-bold text-lg">Pilih Metode Pembayaran</h2>
+            <button onclick="window.closePayment()" class="text-slate-500 p-2"><i class="fas fa-arrow-left text-xl"></i></button>
+            <h2 class="font-bold text-lg">Pembayaran QRIS</h2>
         </div>
         
-        <div class="flex-1 overflow-y-auto p-5 pb-20">
-            <div class="text-center mb-6">
-                <p class="text-xs text-slate-400 font-bold uppercase mb-1">Total Tagihan</p>
-                <h1 class="text-3xl font-bold text-slate-800" id="payTotal">Rp 0</h1>
+        <div class="flex-1 overflow-y-auto p-6 text-center">
+            
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-3xl mb-8 text-white shadow-xl shadow-indigo-200">
+                <p class="text-xs text-indigo-200 font-bold uppercase mb-1 tracking-wider">Total Tagihan</p>
+                <h1 class="text-4xl font-bold tracking-tight" id="payTotal">Rp 0</h1>
             </div>
 
-            <p class="text-xs font-bold text-slate-500 mb-3 ml-1">TRANSFER BANK (CEK OTOMATIS)</p>
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div onclick="window.selectPayment('BCA')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" class="w-10 h-auto">
-                    <span class="text-xs font-bold text-slate-600">BCA Mobile</span>
-                </div>
-                <div onclick="window.selectPayment('BRI')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/BANK_BRI_logo.svg" class="w-8 h-auto">
-                    <span class="text-xs font-bold text-slate-600">BRImo</span>
-                </div>
-                <div onclick="window.selectPayment('MANDIRI')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg" class="w-10 h-auto">
-                    <span class="text-xs font-bold text-slate-600">Livin'</span>
-                </div>
-                <div onclick="window.selectPayment('BNI')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/id/5/55/BNI_logo.svg" class="w-10 h-auto">
-                    <span class="text-xs font-bold text-slate-600">BNI Mobile</span>
-                </div>
-            </div>
-
-            <p class="text-xs font-bold text-slate-500 mb-3 ml-1">E-WALLET / QRIS</p>
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div onclick="window.selectPayment('DANA')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" class="w-12 h-auto">
-                    <span class="text-xs font-bold text-slate-600">DANA</span>
-                </div>
-                <div onclick="window.selectPayment('GOPAY')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" class="w-12 h-auto">
-                    <span class="text-xs font-bold text-slate-600">GoPay</span>
-                </div>
-                <div onclick="window.selectPayment('SHOPEE')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" class="w-8 h-auto">
-                    <span class="text-xs font-bold text-slate-600">ShopeePay</span>
-                </div>
-                <div onclick="window.selectPayment('QRIS')" class="payment-option border rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                    <i class="fas fa-qrcode text-xl text-slate-700"></i>
-                    <span class="text-xs font-bold text-slate-600">Scan Lainnya</span>
-                </div>
-            </div>
-
-            <div id="paymentDisplayArea" class="hidden bg-slate-50 border p-5 rounded-2xl text-center">
-                <p class="text-xs font-bold text-indigo-600 mb-4 uppercase" id="payInstruction">SCAN MENGGUNAKAN APLIKASI BANK</p>
-                <div id="qrContainer" class="flex justify-center min-h-[200px] items-center bg-white p-2 rounded-xl shadow-sm mb-4"></div>
-                <p class="text-[10px] text-slate-400" id="qrNote">Nominal otomatis masuk</p>
+            <div class="bg-white border-2 border-slate-100 p-6 rounded-3xl mb-8 shadow-sm relative">
+                <p class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">Scan QR Code</p>
                 
-                <div class="mt-6 pt-4 border-t border-slate-200 text-left">
-                    <label class="text-xs font-bold text-slate-500 ml-1">Upload Bukti Transfer</label>
-                    <div class="relative mt-2">
+                <div id="qrContainer" class="flex justify-center min-h-[220px] items-center"></div>
+                
+                <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500 bg-slate-50 py-2 rounded-lg">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                    <span id="qrNote">Nominal otomatis masuk</span>
+                </div>
+            </div>
+
+            <div class="text-left space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 ml-1 uppercase">Nama Pembeli</label>
+                    <input type="text" id="custNamePayment" class="w-full p-4 border rounded-2xl bg-slate-50 text-slate-700 font-medium" readonly>
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-500 ml-1 uppercase">Bukti Transfer</label>
+                    <div class="relative mt-1">
                         <input type="file" id="proofFile" accept="image/*" class="hidden" onchange="window.previewProofPayment(this)">
-                        <button onclick="document.getElementById('proofFile').click()" class="w-full py-3 border-2 border-dashed border-indigo-200 bg-white rounded-xl text-indigo-600 text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition">
-                            <i class="fas fa-upload"></i> <span id="payProofText">Pilih Foto Bukti</span>
+                        <button onclick="document.getElementById('proofFile').click()" class="w-full py-4 border-2 border-dashed border-indigo-200 bg-indigo-50 rounded-2xl text-indigo-600 text-sm font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition">
+                            <i class="fas fa-cloud-upload-alt text-lg"></i> <span id="payProofText">Upload Foto Bukti</span>
                         </button>
-                        <img id="payProofPreview" class="hidden mt-2 w-full h-32 object-cover rounded-lg border">
+                        <img id="payProofPreview" class="hidden mt-3 w-full h-40 object-cover rounded-2xl border-2 border-slate-100 shadow-sm">
                     </div>
                 </div>
-                
-                <button onclick="window.sendOrder()" class="w-full mt-4 bg-green-500 text-white py-4 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-green-600 transition">
-                    <i class="fab fa-whatsapp text-xl"></i> KONFIRMASI KE ADMIN
-                </button>
             </div>
+        </div>
 
+        <div class="p-5 border-t bg-white">
+            <button onclick="window.sendOrder()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 flex items-center justify-center gap-2 hover:bg-green-600 transition transform active:scale-95">
+                <i class="fab fa-whatsapp text-xl"></i> KONFIRMASI KE ADMIN
+            </button>
         </div>
     </div>
 
     <div id="adminPanel" class="fixed inset-0 bg-slate-50 z-[70] hidden overflow-y-auto">
         <div class="sticky top-0 bg-white p-4 shadow-sm flex justify-between items-center z-10">
-            <h2 class="font-bold text-lg">Admin Dashboard</h2>
-            <button onclick="window.location.href=window.location.pathname" class="text-sm font-bold text-red-500">Keluar</button>
+            <h2 class="font-bold text-lg text-slate-800">Admin Dashboard</h2>
+            <button onclick="window.location.href=window.location.pathname" class="text-sm font-bold text-red-500 bg-red-50 px-3 py-1 rounded-lg">Keluar</button>
         </div>
         
         <div id="adminLoginForm" class="p-10 text-center mt-20">
-            <h3 class="font-bold text-lg mb-4">Login Admin</h3>
-            <input type="password" id="adminPin" class="w-full p-4 rounded-xl border text-center mb-4" placeholder="PIN Admin">
-            <button onclick="window.loginAdmin()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">MASUK</button>
+            <div class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-lock text-2xl text-slate-500"></i>
+            </div>
+            <h3 class="font-bold text-xl mb-6 text-slate-700">Akses Admin</h3>
+            <input type="password" id="adminPin" class="w-full p-4 rounded-2xl border-2 border-slate-200 text-center text-xl mb-4 focus:border-slate-800 outline-none transition" placeholder="PIN Admin">
+            <button onclick="window.loginAdmin()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg">MASUK</button>
         </div>
 
-        <div id="adminContent" class="p-4 space-y-6 hidden">
-            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
-                <h3 class="font-bold text-sm text-slate-500 uppercase">Setting Toko</h3>
-                <input type="text" id="setStoreName" class="w-full p-2 border rounded text-sm" placeholder="Nama Toko">
-                <input type="number" id="setFee" class="w-full p-2 border rounded text-sm" placeholder="Biaya Admin (Rp)">
+        <div id="adminContent" class="p-5 space-y-6 hidden pb-20">
+            
+            <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4">
+                <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider border-b pb-2">Pengaturan Toko</h3>
                 
-                <div class="border-t pt-2">
-                    <p class="text-xs font-bold mb-1">Upload QRIS Bisnis (Wajib)</p>
-                    <div class="bg-blue-50 p-2 rounded text-[10px] text-blue-700 mb-2">
-                        Gunakan QRIS dari Dana Bisnis / Shopee Partner agar nominal bisa otomatis.
-                    </div>
-                    <input type="file" id="qrisUpload" class="text-xs w-full mb-1">
-                    <textarea id="setQris" class="w-full p-2 text-[10px] bg-slate-100 rounded" rows="2" readonly></textarea>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Nama Toko</label>
+                    <input type="text" id="setStoreName" class="w-full p-3 border rounded-xl text-sm mt-1" placeholder="Itsbad Store">
                 </div>
                 
-                <button onclick="window.saveSettings()" class="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-bold">SIMPAN PENGATURAN</button>
-            </div>
-
-            <div class="bg-white p-4 rounded-xl shadow-sm">
-                <h3 class="font-bold text-sm mb-3 text-slate-500 uppercase">Tambah Produk</h3>
-                <input type="text" id="newProdName" class="w-full p-2 border rounded mb-2 text-sm" placeholder="Nama Produk">
-                <div class="flex gap-2 mb-2">
-                    <input type="number" id="newProdPrice" class="w-1/2 p-2 border rounded text-sm" placeholder="Harga">
-                    <input type="number" id="newProdStock" class="w-1/2 p-2 border rounded text-sm" placeholder="Stok">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Biaya Admin (Rp)</label>
+                    <input type="number" id="setFee" class="w-full p-3 border rounded-xl text-sm mt-1" placeholder="Contoh: 1000">
                 </div>
-                <textarea id="newProdDesc" class="w-full p-2 border rounded mb-2 text-sm" placeholder="Deskripsi Produk" rows="2"></textarea>
-                <button onclick="window.addProduct()" class="w-full bg-green-500 text-white py-2 rounded-lg text-sm font-bold">TAMBAH</button>
+                
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <p class="text-xs font-bold text-indigo-800 mb-2 uppercase">QRIS Database (Wajib)</p>
+                    <input type="file" id="qrisUpload" class="text-xs w-full mb-2 text-indigo-600">
+                    <textarea id="setQris" class="w-full p-2 text-[10px] bg-white rounded border text-slate-400 font-mono h-16" rows="2" readonly placeholder="String QRIS akan muncul disini..."></textarea>
+                </div>
+                
+                <button onclick="window.saveSettings()" class="w-full bg-indigo-600 text-white py-3 rounded-xl text-sm font-bold shadow-md hover:bg-indigo-700 transition">SIMPAN PENGATURAN</button>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm">
-                <h3 class="font-bold text-sm mb-3 text-slate-500 uppercase">List Produk</h3>
-                <div id="adminProdList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4">
+                <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider border-b pb-2">Tambah Produk</h3>
+                
+                <input type="text" id="newProdName" class="w-full p-3 border rounded-xl text-sm" placeholder="Nama Produk">
+                
+                <div class="flex gap-3">
+                    <input type="number" id="newProdPrice" class="w-1/2 p-3 border rounded-xl text-sm" placeholder="Harga (Rp)">
+                    <input type="number" id="newProdStock" class="w-1/2 p-3 border rounded-xl text-sm" placeholder="Stok">
+                </div>
+                
+                <textarea id="newProdDesc" class="w-full p-3 border rounded-xl text-sm h-20 resize-none" placeholder="Deskripsi Singkat"></textarea>
+                
+                <button onclick="window.addProduct()" class="w-full bg-green-500 text-white py-3 rounded-xl text-sm font-bold shadow-md hover:bg-green-600 transition">TAMBAH PRODUK</button>
             </div>
-            <div class="h-10"></div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider border-b pb-4 mb-2">Daftar Produk</h3>
+                <div id="adminProdList" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
         </div>
     </div>
 
@@ -270,7 +285,7 @@
     import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // --- CONFIG FIREBASE ASLI (SUDAH FIX 100%) ---
+    // --- CONFIG FIREBASE ASLI (FIXED) ---
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
       authDomain: "kasir-online-c22bd.firebaseapp.com",
@@ -288,10 +303,9 @@
     // STATE
     toastr.options = { "positionClass": "toast-top-center", "timeOut": "2000" };
     let db, auth, user;
-    let storeData = { name: "Loading...", fee: 0, products: [], qris: "" };
+    let storeData = { name: "Itsbad Store", fee: 0, products: [], qris: "" };
     let cart = JSON.parse(localStorage.getItem('myCart')) || [];
     let userData = { name: "", wa: "", address: "", avatar: "" };
-    let currentPaymentName = "QRIS";
     let grandTotal = 0;
 
     // INIT
@@ -373,14 +387,14 @@
                 storeData = snap.val();
                 if(!storeData.products) storeData.products = [];
             } else {
-                storeData = { name: "Toko Baru", fee: 0, products: [] };
+                storeData = { name: "Itsbad Store", fee: 0, products: [] };
             }
             renderStore();
         } catch(e) { toastr.error("Gagal load data"); }
     }
 
     function renderStore() {
-        document.getElementById('shopNameDisplay').innerText = storeData.name;
+        document.getElementById('shopNameDisplay').innerText = storeData.name || "Itsbad Store";
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
         
@@ -388,17 +402,19 @@
             storeData.products.forEach((p, i) => {
                 const hasStock = parseInt(p.stock) > 0;
                 grid.innerHTML += `
-                <div onclick="window.openProductDetail(${i})" class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col h-full relative overflow-hidden cursor-pointer active:scale-95 transition">
-                    ${!hasStock ? '<div class="absolute inset-0 bg-white/60 flex items-center justify-center font-bold text-red-500 z-10">HABIS</div>' : ''}
-                    <div class="w-full h-24 bg-indigo-50 rounded-xl mb-3 flex items-center justify-center text-indigo-200">
-                        <i class="fas fa-box text-3xl"></i>
+                <div onclick="window.openProductDetail(${i})" class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col h-full relative overflow-hidden cursor-pointer active:scale-95 transition hover:shadow-md">
+                    ${!hasStock ? '<div class="absolute inset-0 bg-white/80 flex items-center justify-center font-bold text-red-500 z-10 text-sm border-2 border-red-100 m-2 rounded-xl">STOK HABIS</div>' : ''}
+                    <div class="w-full h-28 bg-slate-50 rounded-xl mb-3 flex items-center justify-center text-indigo-200">
+                        <i class="fas fa-box-open text-4xl"></i>
                     </div>
-                    <h3 class="font-bold text-sm text-slate-700 leading-tight mb-1 truncate">${p.name}</h3>
+                    <h3 class="font-bold text-sm text-slate-800 leading-tight mb-1 truncate">${p.name}</h3>
                     <p class="text-indigo-600 font-bold text-sm">Rp ${parseInt(p.price).toLocaleString()}</p>
                 </div>`;
             });
         } else {
-            grid.innerHTML = `<div class="col-span-2 text-center text-slate-400 py-10">Belum ada produk</div>`;
+            grid.innerHTML = `<div class="col-span-2 text-center text-slate-400 py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                <i class="fas fa-ghost text-4xl mb-3 opacity-20"></i><br>Belum ada produk
+            </div>`;
         }
         updateCartBadge();
     }
@@ -410,7 +426,7 @@
         const p = storeData.products[index];
         document.getElementById('modalProdName').innerText = p.name;
         document.getElementById('modalProdPrice').innerText = "Rp " + parseInt(p.price).toLocaleString();
-        document.getElementById('modalProdStock').innerText = "Stok Tersedia: " + p.stock;
+        document.getElementById('modalProdStock').innerText = p.stock;
         document.getElementById('modalProdDesc').innerText = p.desc || "Tidak ada deskripsi.";
         
         const hasStock = parseInt(p.stock) > 0;
@@ -419,10 +435,12 @@
         
         if(hasStock) {
             btnAdd.disabled = false; btnBuy.disabled = false;
-            btnAdd.classList.remove('opacity-50'); btnBuy.classList.remove('opacity-50');
+            btnAdd.classList.remove('opacity-50', 'cursor-not-allowed'); 
+            btnBuy.classList.remove('opacity-50', 'cursor-not-allowed');
         } else {
             btnAdd.disabled = true; btnBuy.disabled = true;
-            btnAdd.classList.add('opacity-50'); btnBuy.classList.add('opacity-50');
+            btnAdd.classList.add('opacity-50', 'cursor-not-allowed'); 
+            btnBuy.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
         btnAdd.onclick = () => { window.addToCart(index); window.closeProductModal(); };
@@ -444,7 +462,7 @@
             cart.push({ index, name: p.name, price: parseInt(p.price), qty: 1, stock: parseInt(p.stock) });
         }
         saveCart();
-        toastr.success("Ditambahkan");
+        toastr.success("Masuk Keranjang");
     };
 
     window.updateQty = (idx, change) => {
@@ -488,17 +506,17 @@
         const el = document.getElementById('cartItems');
         el.innerHTML = "";
         let subtotal = 0;
-        if(cart.length === 0) el.innerHTML = `<div class="text-center text-slate-400 py-10">Keranjang kosong</div>`;
+        if(cart.length === 0) el.innerHTML = `<div class="text-center text-slate-400 py-10 opacity-50"><i class="fas fa-shopping-basket text-4xl mb-2"></i><br>Keranjang kosong</div>`;
         else {
             cart.forEach((c, i) => {
                 subtotal += c.price * c.qty;
                 el.innerHTML += `
-                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100">
-                    <div><h4 class="font-bold text-sm text-slate-700">${c.name}</h4><p class="text-xs text-indigo-600 font-bold">Rp ${c.price.toLocaleString()}</p></div>
-                    <div class="flex items-center gap-3 bg-slate-50 rounded-lg p-1">
-                        <button onclick="window.updateQty(${i}, -1)" class="w-6 h-6 rounded hover:bg-white">-</button>
-                        <span class="text-sm font-bold w-4 text-center">${c.qty}</span>
-                        <button onclick="window.updateQty(${i}, 1)" class="w-6 h-6 rounded hover:bg-white">+</button>
+                <div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+                    <div><h4 class="font-bold text-sm text-slate-800">${c.name}</h4><p class="text-xs text-indigo-600 font-bold">Rp ${c.price.toLocaleString()}</p></div>
+                    <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-1 border border-slate-100">
+                        <button onclick="window.updateQty(${i}, -1)" class="w-7 h-7 rounded-lg hover:bg-white text-slate-500 font-bold transition">-</button>
+                        <span class="text-sm font-bold w-4 text-center text-slate-800">${c.qty}</span>
+                        <button onclick="window.updateQty(${i}, 1)" class="w-7 h-7 rounded-lg hover:bg-white text-slate-500 font-bold transition">+</button>
                     </div>
                 </div>`;
             });
@@ -518,36 +536,17 @@
         grandTotal = subtotal + fee;
 
         document.getElementById('payTotal').innerText = "Rp " + grandTotal.toLocaleString();
-        document.getElementById('custName').value = userData.name;
+        document.getElementById('custNamePayment').value = userData.name;
         
         document.getElementById('paymentModal').classList.remove('hidden');
         document.getElementById('paymentModal').classList.add('flex');
         
-        // Hide display initially until method selected
-        document.getElementById('paymentDisplayArea').classList.add('hidden');
-        document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
+        generateQR(grandTotal);
     };
 
     window.closePayment = () => {
         document.getElementById('paymentModal').classList.add('hidden');
         document.getElementById('paymentModal').classList.remove('flex');
-    };
-
-    window.selectPayment = (methodName) => {
-        currentPaymentName = methodName;
-        
-        document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        
-        const display = document.getElementById('paymentDisplayArea');
-        display.classList.remove('hidden');
-        
-        const instruction = document.getElementById('payInstruction');
-        if(methodName === 'QRIS') instruction.innerText = "SCAN QRIS DI BAWAH";
-        else instruction.innerText = `BUKA ${methodName} & SCAN QRIS DI BAWAH`;
-        
-        generateQR(grandTotal);
-        display.scrollIntoView({ behavior: 'smooth' });
     };
 
     window.previewProofPayment = (input) => {
@@ -575,7 +574,7 @@
         
         const fee = parseInt(storeData.fee || 0);
 
-        const msg = `*ORDER BARU*\n────────────────\n👤 ${userData.name}\n📱 ${userData.wa || '-'}\n📍 ${userData.address || '-'}\n\n*Pesanan:*\n${itemsList}\nLayanan: Rp ${fee.toLocaleString()}\n*TOTAL: Rp ${grandTotal.toLocaleString()}*\nMetode: ${currentPaymentName}\n────────────────\nUser melampirkan bukti transfer.`;
+        const msg = `*ORDER BARU*\n────────────────\n👤 ${userData.name}\n📱 ${userData.wa || '-'}\n📍 ${userData.address || '-'}\n\n*Pesanan:*\n${itemsList}\nLayanan: Rp ${fee.toLocaleString()}\n*TOTAL: Rp ${grandTotal.toLocaleString()}*\nMetode: QRIS\n────────────────\nUser melampirkan bukti transfer.`;
 
         const url = `https://wa.me/${OWNER_WA}?text=${encodeURIComponent(msg)}`;
         window.open(url, '_blank');
@@ -595,13 +594,21 @@
         const container = document.getElementById('qrContainer');
         container.innerHTML = "";
         let qris = storeData.qris;
-        if(!qris) { container.innerHTML = "QRIS belum disetting"; return; }
-        if(qris.startsWith("http")) document.getElementById('qrNote').innerText = "⚠️ Input nominal manual";
-        else {
-            try { qris = injectAmount(qris, amount); document.getElementById('qrNote').innerText = "Nominal otomatis"; } 
-            catch(e) {}
+        if(!qris) { container.innerHTML = "<span class='text-sm text-red-400'>QRIS Belum diupload Admin</span>"; return; }
+        
+        if(qris.startsWith("http")) {
+            // QR Personal -> Ga bisa inject, fallback manual
+            document.getElementById('qrNote').innerHTML = "<i class='fas fa-info-circle text-orange-500'></i> Input nominal manual";
+        } else {
+            // QR Bisnis -> Inject
+            try { 
+                qris = injectAmount(qris, amount); 
+                document.getElementById('qrNote').innerHTML = "<i class='fas fa-check-circle text-green-500'></i> Nominal otomatis masuk";
+            } catch(e) {
+                console.log("Static QR fallback");
+            }
         }
-        new QRCode(container, { text: qris, width: 200, height: 200 });
+        new QRCode(container, { text: qris, width: 200, height: 200, colorDark : "#1e293b", colorLight : "#ffffff" });
     }
 
     function injectAmount(payload, amount) {
@@ -643,7 +650,14 @@
         const el = document.getElementById('adminProdList');
         el.innerHTML = "";
         storeData.products.forEach((p, i) => {
-            el.innerHTML += `<div class="flex justify-between p-2 bg-slate-50 border mb-1 text-sm"><span>${p.name}</span><button onclick="window.delProd(${i})" class="text-red-500">Hapus</button></div>`;
+            el.innerHTML += `
+            <div class="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl mb-2">
+                <div>
+                    <p class="text-sm font-bold text-slate-700">${p.name}</p>
+                    <p class="text-xs text-slate-400">Rp ${p.price} | Stok: ${p.stock}</p>
+                </div>
+                <button onclick="window.delProd(${i})" class="w-8 h-8 rounded-lg bg-white border border-red-100 text-red-500 hover:bg-red-50 transition"><i class="fas fa-trash-alt"></i></button>
+            </div>`;
         });
     }
 
@@ -653,6 +667,7 @@
         storeData.qris = document.getElementById('setQris').value;
         await update(ref(db, `stores/${STORE_ID}`), storeData);
         toastr.success("Tersimpan!");
+        setTimeout(() => location.reload(), 1000);
     }
 
     document.getElementById('qrisUpload').addEventListener('change', (e) => {
@@ -669,7 +684,7 @@
                 const imageData = ctx.getImageData(0,0,cvs.width,cvs.height);
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                 if(code) { document.getElementById('setQris').value = code.data; toastr.success("QRIS Terbaca!"); }
-                else toastr.error("QR Gagal");
+                else toastr.error("QR Gagal Dibaca. Pastikan jelas.");
             };
             img.src = ev.target.result;
         };
@@ -685,6 +700,11 @@
         });
         await update(ref(db, `stores/${STORE_ID}`), storeData);
         toastr.success("Ditambah");
+        
+        document.getElementById('newProdName').value = "";
+        document.getElementById('newProdPrice').value = "";
+        document.getElementById('newProdStock').value = "";
+        document.getElementById('newProdDesc').value = "";
         renderAdminList();
     }
 
@@ -709,8 +729,6 @@
     window.saveProfile = window.saveProfile;
     window.processCheckout = window.processCheckout;
     window.closePayment = window.closePayment;
-    window.switchPayMethod = window.switchPayMethod;
-    window.copyRek = window.copyRek;
     window.previewProofPayment = window.previewProofPayment;
     window.sendOrder = window.sendOrder;
     window.loginAdmin = window.loginAdmin;
