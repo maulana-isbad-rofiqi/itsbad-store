@@ -10,7 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
     .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #6366f1; width: 16px; height: 16px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -26,16 +27,18 @@
     .pulse-animation { animation: pulse 2s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
     .receipt-style { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   </style>
 </head>
-<body class="flex justify-center min-h-screen text-slate-800">
+<body class="flex justify-center items-start min-h-screen text-slate-800 p-0 m-0">
 
   <div class="w-full max-w-md bg-white shadow-2xl min-h-screen relative flex flex-col overflow-hidden">
     
     <!-- NAVBAR PREMIUM -->
-    <div class="glass-nav p-4 z-50 sticky top-0 flex justify-between items-center h-16 border-b border-slate-100">
+    <nav class="glass-nav p-4 z-50 sticky top-0 flex justify-between items-center h-16 border-b border-slate-100">
         <div class="flex items-center gap-3">
-            <div onclick="window.showProfile()" class="cursor-pointer">
+            <div onclick="showProfile()" class="cursor-pointer">
                 <div id="userAvatar" class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center overflow-hidden shadow-md">
                     <i class="fas fa-user text-white text-sm"></i>
                 </div>
@@ -47,31 +50,31 @@
         </div>
         
         <div class="flex items-center gap-3">
-            <button onclick="window.toggleCart()" class="relative p-2 text-slate-700 hover:text-indigo-600 transition-all duration-300">
+            <button onclick="toggleCart()" class="relative p-2 text-slate-700 hover:text-indigo-600 transition-all duration-300">
                 <div class="w-10 h-10 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full flex items-center justify-center shadow-sm">
                     <i class="fas fa-shopping-bag text-lg"></i>
                 </div>
                 <span id="cartCount" class="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full shadow-md hidden">0</span>
             </button>
         </div>
-    </div>
+    </nav>
 
     <!-- MAIN CONTENT -->
-    <div class="flex-1 overflow-y-auto bg-gradient-to-b from-slate-50 to-white relative no-scrollbar" id="mainContainer">
+    <main class="flex-1 overflow-y-auto bg-gradient-to-b from-slate-50 to-white relative no-scrollbar" id="mainContainer">
 
       <!-- AUTH OVERLAY PREMIUM -->
-      <div id="authOverlay" class="fixed inset-0 gradient-bg z-[60] flex flex-col items-center justify-center p-6 hidden">
+      <div id="authOverlay" class="fixed inset-0 gradient-bg z-[60] flex flex-col items-center justify-center p-6">
           <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-8 animate-bounce shadow-2xl border border-white/30">
               <i class="fas fa-store text-4xl text-white"></i>
           </div>
           <h2 class="text-3xl font-bold text-white mb-3">Itsbad Store</h2>
           <p class="text-white/80 text-sm mb-10 text-center max-w-xs">Toko online premium dengan pengalaman belanja terbaik</p>
           
-          <button onclick="window.loginGoogle()" class="w-full max-w-xs bg-white/90 backdrop-blur-sm border border-white/30 py-4 rounded-2xl font-bold text-slate-800 flex items-center justify-center gap-3 shadow-xl hover:bg-white transition-all duration-300 hover:scale-[1.02] mb-4">
+          <button onclick="loginGoogle()" class="w-full max-w-xs bg-white/90 backdrop-blur-sm border border-white/30 py-4 rounded-2xl font-bold text-slate-800 flex items-center justify-center gap-3 shadow-xl hover:bg-white transition-all duration-300 hover:scale-[1.02] mb-4">
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6"> Masuk dengan Google
           </button>
           
-          <button onclick="window.loginGuest()" class="w-full max-w-xs bg-white/20 backdrop-blur-sm py-4 rounded-2xl font-bold text-white hover:bg-white/30 transition-all duration-300 hover:scale-[1.02] border border-white/20">
+          <button onclick="loginGuest()" class="w-full max-w-xs bg-white/20 backdrop-blur-sm py-4 rounded-2xl font-bold text-white hover:bg-white/30 transition-all duration-300 hover:scale-[1.02] border border-white/20">
               Lanjut sebagai Tamu
           </button>
           
@@ -119,11 +122,11 @@
         </div>
       </div>
 
-    </div>
+    </main>
 
     <!-- CART MODAL PREMIUM -->
     <div id="cartModal" class="fixed inset-0 z-50 pointer-events-none">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="cartBackdrop" onclick="window.toggleCart()"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="cartBackdrop" onclick="toggleCart()"></div>
         
         <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-all duration-300 pointer-events-auto max-h-[85vh] flex flex-col" id="cartSheet">
             
@@ -132,7 +135,7 @@
                     <h3 class="font-bold text-xl text-slate-800">Keranjang Belanja</h3>
                     <p class="text-xs text-slate-500 mt-1"><span id="cartItemCount">0</span> item</p>
                 </div>
-                <button onclick="window.toggleCart()" class="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:from-slate-200 hover:to-slate-300 transition-all duration-300 shadow-sm">
+                <button onclick="toggleCart()" class="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:from-slate-200 hover:to-slate-300 transition-all duration-300 shadow-sm">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
@@ -170,7 +173,7 @@
                     <h2 class="text-2xl font-bold text-indigo-700" id="cartTotal">Rp 0</h2>
                 </div>
                 
-                <button onclick="window.processCheckout()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-3 group">
+                <button onclick="processCheckout()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-3 group">
                     <i class="fas fa-lock group-hover:scale-110 transition-transform"></i>
                     LANJUTKAN PEMBAYARAN
                 </button>
@@ -178,11 +181,11 @@
         </div>
     </div>
 
-    <!-- CHECKOUT MODAL (REPLACES PAYMENT MODAL) -->
+    <!-- CHECKOUT MODAL -->
     <div id="checkoutModal" class="fixed inset-0 bg-white z-[60] hidden flex-col">
         <div class="sticky top-0 bg-white p-5 border-b border-slate-100 shadow-sm z-10">
             <div class="flex items-center gap-3">
-                <button onclick="window.closeCheckout()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-200 transition">
+                <button onclick="closeCheckout()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-200 transition">
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <div>
@@ -328,7 +331,7 @@
 
         <!-- Action Button -->
         <div class="sticky bottom-0 bg-white p-5 border-t border-slate-100 shadow-lg">
-            <button onclick="window.confirmAndSend()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-green-600 hover:to-emerald-700 flex items-center justify-center gap-3 group">
+            <button onclick="confirmAndSend()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-green-600 hover:to-emerald-700 flex items-center justify-center gap-3 group">
                 <i class="fab fa-whatsapp text-xl group-hover:scale-110 transition-transform"></i>
                 KIRIM BUKTI KE WHATSAPP
             </button>
@@ -338,12 +341,12 @@
         </div>
     </div>
 
-    <!-- PRODUCT DETAIL MODAL PREMIUM -->
+    <!-- PRODUCT DETAIL MODAL -->
     <div id="productDetailModal" class="fixed inset-0 modal-overlay z-[80] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto no-scrollbar slide-up">
             <div class="sticky top-0 bg-white p-5 border-b border-slate-100 flex justify-between items-center z-10">
                 <h2 class="font-bold text-lg text-slate-800">Detail Produk</h2>
-                <button onclick="window.closeProductDetail()" class="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:from-slate-200 hover:to-slate-300 transition-all shadow-sm">
+                <button onclick="closeProductDetail()" class="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:from-slate-200 hover:to-slate-300 transition-all shadow-sm">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
@@ -383,10 +386,10 @@
                 
                 <!-- Action Buttons -->
                 <div class="flex gap-3">
-                    <button onclick="window.closeProductDetail()" class="flex-1 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 py-3.5 rounded-xl font-bold hover:from-slate-200 hover:to-slate-300 transition-all duration-300 shadow-sm">
+                    <button onclick="closeProductDetail()" class="flex-1 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 py-3.5 rounded-xl font-bold hover:from-slate-200 hover:to-slate-300 transition-all duration-300 shadow-sm">
                         Kembali
                     </button>
-                    <button id="detailAddToCart" onclick="window.addToCartFromDetail()" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-2">
+                    <button id="detailAddToCart" onclick="addToCartFromDetail()" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-2">
                         <i class="fas fa-cart-plus"></i> Keranjang
                     </button>
                 </div>
@@ -394,11 +397,11 @@
         </div>
     </div>
 
-    <!-- PROFILE MODAL PREMIUM -->
+    <!-- PROFILE MODAL -->
     <div id="profileModal" class="fixed inset-0 bg-white z-[70] hidden flex-col overflow-y-auto">
         <div class="sticky top-0 bg-white p-5 border-b border-slate-100 shadow-sm flex justify-between items-center z-10">
             <h2 class="font-bold text-xl text-slate-800">Profil Saya</h2>
-            <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-200 transition">
+            <button onclick="closeProfile()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-200 transition">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -410,10 +413,6 @@
                     <div id="profileAvatar" class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center overflow-hidden border-4 border-white shadow-2xl">
                         <i class="fas fa-user text-white text-5xl"></i>
                     </div>
-                    <div class="absolute -bottom-2 right-2 w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform cursor-pointer" onclick="document.getElementById('profileAvatarInput').click()">
-                        <i class="fas fa-camera text-sm"></i>
-                    </div>
-                    <input type="file" id="profileAvatarInput" accept="image/*" class="hidden">
                 </div>
                 <h3 class="font-bold text-2xl text-slate-800" id="profileName">Loading...</h3>
                 <p class="text-sm text-slate-500" id="profileEmail">Loading...</p>
@@ -470,11 +469,11 @@
 
             <!-- Action Buttons -->
             <div class="mt-8 space-y-3">
-                <button onclick="window.saveProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-3">
+                <button onclick="saveProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-3">
                     <i class="fas fa-save"></i> SIMPAN PERUBAHAN
                 </button>
                 
-                <button onclick="window.logout()" class="w-full bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 py-4 rounded-xl font-bold hover:from-slate-200 hover:to-slate-300 transition-all duration-300 shadow-sm flex items-center justify-center gap-3">
+                <button onclick="logout()" class="w-full bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 py-4 rounded-xl font-bold hover:from-slate-200 hover:to-slate-300 transition-all duration-300 shadow-sm flex items-center justify-center gap-3">
                     <i class="fas fa-sign-out-alt"></i> KELUAR AKUN
                 </button>
             </div>
@@ -486,13 +485,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
   <script type="module">
+    // Import Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
       authDomain: "kasir-online-c22bd.firebaseapp.com",
@@ -504,30 +504,40 @@
       measurementId: "G-QR6HPRX459"
     };
 
+    // Constants
     const STORE_ID = "itsbad-store-premium";
     const OWNER_WA = "6285236363128";
+    const DEFAULT_FEE = 2500;
 
-    let db, auth, user;
-    let storeData = { name: "Itsbad Store", fee: 2500, products: [] };
+    // Global variables
+    let db = null;
+    let auth = null;
+    let user = null;
+    let storeData = { 
+        name: "Itsbad Store", 
+        fee: DEFAULT_FEE, 
+        qris: "",
+        products: [] 
+    };
     let cart = JSON.parse(localStorage.getItem('myCart')) || [];
     let userProfile = JSON.parse(localStorage.getItem('userProfile')) || {};
     let currentProductDetail = null;
     
+    // Toastr configuration
     toastr.options = {
         "positionClass": "toast-top-center",
-        "timeOut": "2000",
+        "timeOut": "3000",
         "progressBar": true,
         "closeButton": true
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdminPage = urlParams.get('page') === 'admin';
-
+    // Initialize Firebase
     try {
         const app = initializeApp(firebaseConfig);
         db = getDatabase(app);
         auth = getAuth(app);
         
+        // Listen for auth state changes
         onAuthStateChanged(auth, (u) => {
             if (u) {
                 user = u;
@@ -538,69 +548,127 @@
                 document.getElementById('authOverlay').classList.remove('hidden');
             }
         });
-    } catch(e) { 
-        console.error("Firebase Error:", e);
-        toastr.error("Koneksi error, mode offline diaktifkan");
-        renderStore(); // Fallback
+        
+        console.log("Firebase initialized successfully");
+    } catch (error) {
+        console.error("Firebase initialization error:", error);
+        showError("Firebase gagal diinisialisasi. Mode offline diaktifkan.");
+        // Fallback: show store in offline mode
+        setTimeout(() => {
+            document.getElementById('authOverlay').classList.add('hidden');
+            renderStore();
+        }, 2000);
+    }
+
+    // --- HELPER FUNCTIONS ---
+    function showError(message) {
+        console.error(message);
+        toastr.error(message);
+    }
+
+    function showSuccess(message) {
+        toastr.success(message);
+    }
+
+    function showWarning(message) {
+        toastr.warning(message);
+    }
+
+    function showInfo(message) {
+        toastr.info(message);
     }
 
     // --- USER PROFILE FUNCTIONS ---
     async function loadUserProfile(uid) {
         try {
-            const snap = await get(child(ref(db), `users/${uid}`));
-            if(snap.exists()) {
-                userProfile = snap.val();
+            if (!db) throw new Error("Database not initialized");
+            
+            const userRef = ref(db, `users/${uid}`);
+            const snapshot = await get(userRef);
+            
+            if (snapshot.exists()) {
+                userProfile = snapshot.val();
                 localStorage.setItem('userProfile', JSON.stringify(userProfile));
             } else {
+                // Create default profile
                 userProfile = {
                     name: user.displayName || "Customer",
                     email: user.email || "",
                     phone: "",
                     address: "",
                     avatar: user.photoURL || "",
-                    joinDate: new Date().toISOString()
+                    joinDate: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
                 };
-                await set(ref(db, `users/${uid}`), userProfile);
+                await set(userRef, userProfile);
             }
             updateProfileDisplay();
-            loadOrderHistory(uid);
-        } catch(e) { 
-            console.log("Using local profile");
+            await loadOrderHistory(uid);
+        } catch (error) {
+            console.warn("Failed to load user profile:", error);
+            // Use local profile if available
+            if (Object.keys(userProfile).length === 0) {
+                userProfile = {
+                    name: user?.displayName || "Customer",
+                    email: user?.email || "",
+                    phone: "",
+                    address: ""
+                };
+            }
             updateProfileDisplay();
         }
     }
 
     function updateProfileDisplay() {
-        const userName = userProfile.name || user?.displayName || "Customer";
-        const userEmail = userProfile.email || user?.email || "";
-        
-        document.getElementById('userNameDisplay').innerText = userName;
-        document.getElementById('profileName').innerText = userName;
-        document.getElementById('profileEmail').innerText = userEmail;
-        document.getElementById('editName').value = userName;
-        document.getElementById('editPhone').value = userProfile.phone || "";
-        document.getElementById('editAddress').value = userProfile.address || "";
-        
-        // Update avatar
-        const avatarUrl = userProfile.avatar || user?.photoURL;
-        if(avatarUrl) {
-            document.getElementById('userAvatar').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\"fas fa-user text-white text-sm\"></i>'">`;
-            document.getElementById('profileAvatar').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\"fas fa-user text-white text-5xl\"></i>'">`;
+        try {
+            const userName = userProfile.name || user?.displayName || "Customer";
+            const userEmail = userProfile.email || user?.email || "";
+            
+            // Update UI elements
+            document.getElementById('userNameDisplay').textContent = userName;
+            document.getElementById('profileName').textContent = userName;
+            document.getElementById('profileEmail').textContent = userEmail;
+            document.getElementById('editName').value = userName;
+            document.getElementById('editPhone').value = userProfile.phone || "";
+            document.getElementById('editAddress').value = userProfile.address || "";
+            
+            // Update avatar
+            const avatarUrl = userProfile.avatar || user?.photoURL;
+            const userAvatarEl = document.getElementById('userAvatar');
+            const profileAvatarEl = document.getElementById('profileAvatar');
+            
+            if (avatarUrl) {
+                const imgHtml = `<img src="${avatarUrl}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\"fas fa-user text-white text-sm\"></i>'">`;
+                userAvatarEl.innerHTML = imgHtml;
+                profileAvatarEl.innerHTML = imgHtml.replace('text-sm', 'text-5xl');
+            }
+        } catch (error) {
+            console.error("Error updating profile display:", error);
         }
     }
 
-    window.showProfile = () => {
+    function showProfile() {
         document.getElementById('profileModal').classList.remove('hidden');
         document.getElementById('profileModal').classList.add('flex');
-    };
+    }
 
-    window.saveProfile = async () => {
-        const newName = document.getElementById('editName').value;
-        const newPhone = document.getElementById('editPhone').value;
-        const newAddress = document.getElementById('editAddress').value;
+    function closeProfile() {
+        document.getElementById('profileModal').classList.add('hidden');
+        document.getElementById('profileModal').classList.remove('flex');
+    }
+
+    async function saveProfile() {
+        const newName = document.getElementById('editName').value.trim();
+        const newPhone = document.getElementById('editPhone').value.trim();
+        const newAddress = document.getElementById('editAddress').value.trim();
         
-        if(!newName.trim()) {
-            toastr.warning("Nama tidak boleh kosong");
+        if (!newName) {
+            showWarning("Nama tidak boleh kosong");
+            return;
+        }
+        
+        if (newPhone && !/^[0-9]{9,13}$/.test(newPhone)) {
+            showWarning("Nomor WhatsApp tidak valid (minimal 9 digit angka)");
             return;
         }
         
@@ -609,462 +677,592 @@
         userProfile.address = newAddress;
         
         try {
-            await update(ref(db, `users/${user.uid}`), userProfile);
+            if (db && user) {
+                await update(ref(db, `users/${user.uid}`), {
+                    name: newName,
+                    phone: newPhone,
+                    address: newAddress,
+                    lastUpdate: new Date().toISOString()
+                });
+            }
             localStorage.setItem('userProfile', JSON.stringify(userProfile));
             updateProfileDisplay();
-            toastr.success("Profil berhasil diperbarui!");
-        } catch(e) {
-            toastr.error("Gagal menyimpan, coba lagi");
+            showSuccess("Profil berhasil diperbarui!");
+        } catch (error) {
+            showError("Gagal menyimpan profil: " + error.message);
         }
-    };
+    }
 
     // --- STORE FUNCTIONS ---
     async function initStore() {
         try {
-            const snap = await get(child(ref(db), `stores/${STORE_ID}`));
-            if(snap.exists()) {
-                storeData = snap.val();
-                if(!storeData.products) storeData.products = [];
+            if (!db) throw new Error("Database not initialized");
+            
+            const storeRef = ref(db, `stores/${STORE_ID}`);
+            const snapshot = await get(storeRef);
+            
+            if (snapshot.exists()) {
+                storeData = snapshot.val();
+                if (!storeData.products) storeData.products = [];
+                if (!storeData.fee) storeData.fee = DEFAULT_FEE;
             } else {
+                // Create default store
                 storeData = { 
                     name: "Itsbad Store Premium", 
-                    fee: 2500, 
+                    fee: DEFAULT_FEE, 
                     qris: "",
                     products: [
                         {
-                            name: "Sample Product 1",
-                            price: 15000,
+                            name: "Produk Sample 1",
+                            price: 25000,
                             stock: 10,
-                            desc: "Deskripsi produk contoh pertama dengan kualitas premium"
+                            desc: "Deskripsi produk contoh dengan kualitas premium"
+                        },
+                        {
+                            name: "Produk Sample 2",
+                            price: 45000,
+                            stock: 5,
+                            desc: "Produk eksklusif dengan fitur lengkap"
                         }
                     ]
                 };
-                await set(ref(db, `stores/${STORE_ID}`), storeData);
+                await set(storeRef, storeData);
             }
             renderStore();
-        } catch(e) { 
-            console.error("Store init error:", e);
-            renderStore(); // Fallback render
+        } catch (error) {
+            console.error("Failed to load store:", error);
+            // Use default store data
+            renderStore();
         }
     }
 
     function renderStore() {
-        document.getElementById('shopNameDisplay').innerText = storeData.name || "Itsbad Store";
-        
-        const grid = document.getElementById('productGrid');
-        if(!grid) return;
-        
-        grid.innerHTML = "";
-        
-        if(storeData.products && storeData.products.length > 0) {
-            document.getElementById('productCount').innerText = storeData.products.length;
+        try {
+            document.getElementById('shopNameDisplay').textContent = storeData.name || "Itsbad Store";
             
-            storeData.products.forEach((p, i) => {
-                const hasStock = parseInt(p.stock) > 0;
-                const randomColor = i % 3 === 0 ? 'from-blue-50 to-indigo-50' : 
-                                  i % 3 === 1 ? 'from-purple-50 to-pink-50' : 
-                                  'from-emerald-50 to-teal-50';
+            const grid = document.getElementById('productGrid');
+            if (!grid) return;
+            
+            if (storeData.products && storeData.products.length > 0) {
+                document.getElementById('productCount').textContent = storeData.products.length;
                 
-                grid.innerHTML += `
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm card-hover overflow-hidden slide-up fade-in">
-                    ${!hasStock ? '<div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center"><span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">HABIS</span></div>' : ''}
-                    <div onclick="window.showProductDetail(${i})" class="cursor-pointer">
-                        <div class="w-full h-40 ${randomColor} flex items-center justify-center">
-                            <i class="fas fa-box text-4xl opacity-30"></i>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-slate-800 leading-tight mb-2 line-clamp-2" style="height: 2.5rem;">${p.name}</h3>
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="font-bold text-lg text-indigo-600">Rp ${parseInt(p.price).toLocaleString()}</p>
-                                    <p class="text-xs text-slate-500 mt-1"><i class="fas fa-cube mr-1"></i> Stok: ${p.stock}</p>
+                let productsHTML = '';
+                storeData.products.forEach((p, i) => {
+                    const hasStock = parseInt(p.stock) > 0;
+                    const price = parseInt(p.price) || 0;
+                    const stock = parseInt(p.stock) || 0;
+                    
+                    productsHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm card-hover overflow-hidden slide-up fade-in">
+                        ${!hasStock ? '<div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center"><span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">HABIS</span></div>' : ''}
+                        <div onclick="showProductDetail(${i})" class="cursor-pointer">
+                            <div class="w-full h-40 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
+                                <i class="fas fa-box text-4xl text-indigo-300"></i>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-slate-800 leading-tight mb-2 line-clamp-2" style="height: 2.5rem;">${p.name}</h3>
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-bold text-lg text-indigo-600">Rp ${price.toLocaleString('id-ID')}</p>
+                                        <p class="text-xs text-slate-500 mt-1"><i class="fas fa-cube mr-1"></i> Stok: ${stock}</p>
+                                    </div>
+                                    <button onclick="event.stopPropagation(); addToCart(${i})" class="w-10 h-10 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-full flex items-center justify-center hover:from-indigo-600 hover:to-purple-600 transition-all ${!hasStock ? 'opacity-50 cursor-not-allowed' : ''}" ${!hasStock ? 'disabled' : ''}>
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </div>
-                                <button onclick="event.stopPropagation(); window.addToCart(${i})" class="w-10 h-10 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-full flex items-center justify-center hover:from-indigo-600 hover:to-purple-600 transition-all ${!hasStock ? 'opacity-50 cursor-not-allowed' : ''}" ${!hasStock ? 'disabled' : ''}>
-                                    <i class="fas fa-plus"></i>
-                                </button>
                             </div>
                         </div>
+                    </div>`;
+                });
+                
+                grid.innerHTML = productsHTML;
+            } else {
+                grid.innerHTML = `
+                <div class="col-span-2 text-center py-16">
+                    <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-box-open text-2xl text-slate-300"></i>
                     </div>
+                    <p class="text-sm font-medium text-slate-500">Belum ada produk tersedia</p>
+                    <p class="text-xs text-slate-400 mt-2">Admin akan segera menambahkan produk</p>
                 </div>`;
-            });
-        } else {
-            grid.innerHTML = `
-            <div class="col-span-2 text-center py-16">
-                <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-box-open text-2xl text-slate-300"></i>
-                </div>
-                <p class="text-sm font-medium text-slate-500">Belum ada produk tersedia</p>
-                <p class="text-xs text-slate-400 mt-2">Admin akan segera menambahkan produk</p>
-            </div>`;
+            }
+            updateCartBadge();
+        } catch (error) {
+            console.error("Error rendering store:", error);
+            showError("Gagal memuat produk");
         }
-        updateCartBadge();
     }
 
     // --- PRODUCT DETAIL FUNCTIONS ---
-    window.showProductDetail = (index) => {
-        currentProductDetail = index;
-        const p = storeData.products[index];
-        
-        if(!p) return;
-        
-        document.getElementById('detailName').innerText = p.name;
-        document.getElementById('detailPrice').innerText = `Rp ${parseInt(p.price).toLocaleString()}`;
-        document.getElementById('detailStock').innerHTML = `<i class="fas fa-cube"></i> Stok: <span class="font-medium">${p.stock}</span>`;
-        document.getElementById('detailDescription').innerText = p.desc || 'Tidak ada deskripsi';
-        
-        const addBtn = document.getElementById('detailAddToCart');
-        const hasStock = parseInt(p.stock) > 0;
-        
-        if(hasStock) {
-            addBtn.disabled = false;
-            addBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Tambah ke Keranjang';
-            addBtn.className = "flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-2";
-        } else {
-            addBtn.disabled = true;
-            addBtn.innerHTML = '<i class="fas fa-times"></i> Stok Habis';
-            addBtn.className = "flex-1 bg-gradient-to-r from-slate-300 to-slate-400 text-slate-500 py-3.5 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2";
+    function showProductDetail(index) {
+        try {
+            if (!storeData.products || !storeData.products[index]) return;
+            
+            currentProductDetail = index;
+            const p = storeData.products[index];
+            const price = parseInt(p.price) || 0;
+            const stock = parseInt(p.stock) || 0;
+            
+            document.getElementById('detailName').textContent = p.name;
+            document.getElementById('detailPrice').textContent = `Rp ${price.toLocaleString('id-ID')}`;
+            document.getElementById('detailStock').innerHTML = `<i class="fas fa-cube"></i> Stok: <span class="font-medium">${stock}</span>`;
+            document.getElementById('detailDescription').textContent = p.desc || 'Tidak ada deskripsi';
+            
+            const addBtn = document.getElementById('detailAddToCart');
+            const hasStock = stock > 0;
+            
+            if (hasStock) {
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Tambah ke Keranjang';
+                addBtn.className = "flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 flex items-center justify-center gap-2";
+            } else {
+                addBtn.disabled = true;
+                addBtn.innerHTML = '<i class="fas fa-times"></i> Stok Habis';
+                addBtn.className = "flex-1 bg-gradient-to-r from-slate-300 to-slate-400 text-slate-500 py-3.5 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2";
+            }
+            
+            document.getElementById('productDetailModal').classList.remove('hidden');
+        } catch (error) {
+            console.error("Error showing product detail:", error);
+            showError("Gagal memuat detail produk");
         }
-        
-        document.getElementById('productDetailModal').classList.remove('hidden');
-    };
+    }
 
-    window.closeProductDetail = () => {
+    function closeProductDetail() {
         document.getElementById('productDetailModal').classList.add('hidden');
-    };
+    }
 
-    window.addToCartFromDetail = () => {
-        if(currentProductDetail !== null) {
-            window.addToCart(currentProductDetail);
-            window.closeProductDetail();
+    function addToCartFromDetail() {
+        if (currentProductDetail !== null) {
+            addToCart(currentProductDetail);
+            closeProductDetail();
         }
-    };
+    }
 
     // --- CART FUNCTIONS ---
-    window.addToCart = (index) => {
-        const p = storeData.products[index];
-        if(!p) return;
-        
-        const hasStock = parseInt(p.stock) > 0;
-        if(!hasStock) {
-            toastr.warning("Stok produk habis!");
-            return;
-        }
-        
-        const exist = cart.find(c => c.index === index);
-        
-        if(exist) {
-            if(exist.qty < p.stock) {
-                exist.qty++;
-                toastr.success(`Ditambahkan (${exist.qty})`);
+    function addToCart(index) {
+        try {
+            if (!storeData.products || !storeData.products[index]) {
+                showError("Produk tidak ditemukan");
+                return;
+            }
+            
+            const p = storeData.products[index];
+            const stock = parseInt(p.stock) || 0;
+            const price = parseInt(p.price) || 0;
+            
+            if (stock <= 0) {
+                showWarning("Stok produk habis!");
+                return;
+            }
+            
+            const existingItem = cart.find(item => item.index === index);
+            
+            if (existingItem) {
+                if (existingItem.qty < stock) {
+                    existingItem.qty++;
+                    showSuccess(`${p.name} (${existingItem.qty})`);
+                } else {
+                    showWarning("Stok maksimal tercapai!");
+                }
             } else {
-                toastr.warning("Stok maksimal tercapai!");
+                cart.push({
+                    index: index,
+                    name: p.name,
+                    price: price,
+                    qty: 1,
+                    stock: stock
+                });
+                showSuccess("Ditambahkan ke keranjang!");
             }
-        } else {
-            cart.push({ 
-                index, 
-                name: p.name, 
-                price: parseInt(p.price), 
-                qty: 1, 
-                stock: parseInt(p.stock) 
-            });
-            toastr.success("Ditambahkan ke keranjang!");
+            
+            saveCart();
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+            showError("Gagal menambahkan ke keranjang");
         }
-        saveCart();
-    };
+    }
 
-    window.updateQty = (idx, change) => {
-        if(cart[idx].qty + change > 0 && cart[idx].qty + change <= cart[idx].stock) {
-            cart[idx].qty += change;
-        } else if (cart[idx].qty + change <= 0) {
-            if(confirm("Hapus item dari keranjang?")) {
-                cart.splice(idx, 1);
-                toastr.info("Item dihapus");
+    function updateQty(index, change) {
+        try {
+            if (!cart[index]) return;
+            
+            const newQty = cart[index].qty + change;
+            
+            if (newQty > 0 && newQty <= cart[index].stock) {
+                cart[index].qty = newQty;
+            } else if (newQty <= 0) {
+                if (confirm(`Hapus ${cart[index].name} dari keranjang?`)) {
+                    cart.splice(index, 1);
+                    showInfo("Item dihapus dari keranjang");
+                }
+            } else {
+                showWarning("Stok tidak mencukupi!");
             }
-        } else {
-            toastr.warning("Stok tidak mencukupi!");
+            
+            saveCart();
+        } catch (error) {
+            console.error("Error updating quantity:", error);
+            showError("Gagal mengupdate kuantitas");
         }
-        saveCart();
-    };
+    }
 
     function saveCart() {
-        localStorage.setItem('myCart', JSON.stringify(cart));
-        updateCartBadge();
-        renderCart();
+        try {
+            localStorage.setItem('myCart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCart();
+        } catch (error) {
+            console.error("Error saving cart:", error);
+        }
     }
 
     function updateCartBadge() {
-        const count = cart.reduce((a, b) => a + b.qty, 0);
-        const el = document.getElementById('cartCount');
-        if(count > 0) {
-            el.innerText = count > 9 ? '9+' : count;
-            el.classList.remove('hidden');
-        } else {
-            el.classList.add('hidden');
+        try {
+            const count = cart.reduce((total, item) => total + item.qty, 0);
+            const badgeEl = document.getElementById('cartCount');
+            
+            if (count > 0) {
+                badgeEl.textContent = count > 9 ? '9+' : count;
+                badgeEl.classList.remove('hidden');
+            } else {
+                badgeEl.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error("Error updating cart badge:", error);
         }
     }
 
-    window.toggleCart = () => {
-        const modal = document.getElementById('cartModal');
-        const sheet = document.getElementById('cartSheet');
-        
-        if(sheet.classList.contains('translate-y-full')) {
-            renderCart();
-            modal.classList.remove('pointer-events-none');
-            document.getElementById('cartBackdrop').classList.remove('opacity-0');
-            sheet.classList.remove('translate-y-full');
-        } else {
-            modal.classList.add('pointer-events-none');
-            document.getElementById('cartBackdrop').classList.add('opacity-0');
-            sheet.classList.add('translate-y-full');
+    function toggleCart() {
+        try {
+            const modal = document.getElementById('cartModal');
+            const sheet = document.getElementById('cartSheet');
+            const backdrop = document.getElementById('cartBackdrop');
+            
+            if (sheet.classList.contains('translate-y-full')) {
+                renderCart();
+                modal.classList.remove('pointer-events-none');
+                backdrop.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            } else {
+                modal.classList.add('pointer-events-none');
+                backdrop.classList.add('opacity-0');
+                sheet.classList.add('translate-y-full');
+            }
+        } catch (error) {
+            console.error("Error toggling cart:", error);
         }
-    };
+    }
 
     function renderCart() {
-        const el = document.getElementById('cartItems');
-        const itemCount = cart.reduce((a, b) => a + b.qty, 0);
-        document.getElementById('cartItemCount').innerText = itemCount;
-        
-        if(cart.length === 0) {
-            el.innerHTML = `
-            <div class="text-center text-slate-400 py-16">
-                <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-shopping-bag text-2xl text-slate-300"></i>
-                </div>
-                <p class="text-sm font-medium text-slate-500">Keranjang belanja kosong</p>
-                <p class="text-xs text-slate-400 mt-2">Tambahkan produk untuk mulai belanja</p>
-            </div>`;
-        } else {
-            let html = '';
-            let subtotal = 0;
+        try {
+            const itemsEl = document.getElementById('cartItems');
+            const itemCount = cart.reduce((total, item) => total + item.qty, 0);
             
-            cart.forEach((c, i) => {
-                const itemTotal = c.price * c.qty;
-                subtotal += itemTotal;
-                
-                html += `
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm slide-up">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-slate-800 flex-1">${c.name}</h4>
-                        <button onclick="window.updateQty(${i}, -c.qty)" class="text-slate-400 hover:text-red-500 transition">
-                            <i class="fas fa-trash text-xs"></i>
-                        </button>
+            document.getElementById('cartItemCount').textContent = itemCount;
+            
+            if (cart.length === 0) {
+                itemsEl.innerHTML = `
+                <div class="text-center text-slate-400 py-16">
+                    <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shopping-bag text-2xl text-slate-300"></i>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="text-sm text-indigo-600 font-bold">Rp ${c.price.toLocaleString()}</p>
-                            <p class="text-xs text-slate-500">Stok: ${c.stock}</p>
-                        </div>
-                        <div class="flex items-center gap-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg p-1">
-                            <button onclick="window.updateQty(${i}, -1)" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg transition">-</button>
-                            <span class="text-sm font-bold w-6 text-center">${c.qty}</span>
-                            <button onclick="window.updateQty(${i}, 1)" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg transition">+</button>
-                        </div>
-                    </div>
-                    <div class="text-right mt-2">
-                        <p class="text-xs text-slate-500">Subtotal: <span class="font-bold">Rp ${itemTotal.toLocaleString()}</span></p>
-                    </div>
+                    <p class="text-sm font-medium text-slate-500">Keranjang belanja kosong</p>
+                    <p class="text-xs text-slate-400 mt-2">Tambahkan produk untuk mulai belanja</p>
                 </div>`;
-            });
-            
-            el.innerHTML = html;
-        }
+            } else {
+                let itemsHTML = '';
+                let subtotal = 0;
+                
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.qty;
+                    subtotal += itemTotal;
+                    
+                    itemsHTML += `
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm slide-up">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-slate-800 flex-1 line-clamp-1">${item.name}</h4>
+                            <button onclick="removeFromCart(${index})" class="text-slate-400 hover:text-red-500 transition ml-2 flex-shrink-0">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-indigo-600 font-bold">Rp ${item.price.toLocaleString('id-ID')}</p>
+                                <p class="text-xs text-slate-500">Stok: ${item.stock}</p>
+                            </div>
+                            <div class="flex items-center gap-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg p-1">
+                                <button onclick="updateQty(${index}, -1)" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg transition">-</button>
+                                <span class="text-sm font-bold w-6 text-center">${item.qty}</span>
+                                <button onclick="updateQty(${index}, 1)" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg transition">+</button>
+                            </div>
+                        </div>
+                        <div class="text-right mt-2">
+                            <p class="text-xs text-slate-500">Subtotal: <span class="font-bold">Rp ${itemTotal.toLocaleString('id-ID')}</span></p>
+                        </div>
+                    </div>`;
+                });
+                
+                itemsEl.innerHTML = itemsHTML;
+            }
 
-        const fee = parseInt(storeData.fee || 0);
-        const total = subtotal + fee;
-        
-        document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString()}`;
-        document.getElementById('cartFee').innerText = `+ Rp ${fee.toLocaleString()}`;
-        document.getElementById('cartTotal').innerText = `Rp ${total.toLocaleString()}`;
+            const fee = parseInt(storeData.fee) || DEFAULT_FEE;
+            const total = subtotal + fee;
+            
+            document.getElementById('cartSubtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('cartFee').textContent = `+ Rp ${fee.toLocaleString('id-ID')}`;
+            document.getElementById('cartTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        } catch (error) {
+            console.error("Error rendering cart:", error);
+            showError("Gagal memuat keranjang");
+        }
+    }
+
+    function removeFromCart(index) {
+        try {
+            if (cart[index]) {
+                const itemName = cart[index].name;
+                if (confirm(`Hapus ${itemName} dari keranjang?`)) {
+                    cart.splice(index, 1);
+                    saveCart();
+                    showInfo(`${itemName} dihapus dari keranjang`);
+                }
+            }
+        } catch (error) {
+            console.error("Error removing from cart:", error);
+            showError("Gagal menghapus item");
+        }
     }
 
     // --- CHECKOUT FUNCTIONS ---
-    window.processCheckout = () => {
-        if(cart.length === 0) {
-            toastr.warning("Keranjang belanja kosong!");
-            return;
+    function processCheckout() {
+        try {
+            if (cart.length === 0) {
+                showWarning("Keranjang belanja kosong!");
+                return;
+            }
+            
+            // Validate user profile
+            if (!userProfile.phone || userProfile.phone.length < 9) {
+                showWarning("Lengkapi nomor WhatsApp Anda terlebih dahulu!");
+                showProfile();
+                toggleCart();
+                return;
+            }
+            
+            if (!userProfile.address) {
+                showWarning("Lengkapi alamat pengiriman Anda!");
+                showProfile();
+                toggleCart();
+                return;
+            }
+            
+            toggleCart();
+            
+            // Calculate totals
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.qty), 0);
+            const fee = parseInt(storeData.fee) || DEFAULT_FEE;
+            const total = subtotal + fee;
+            
+            // Update checkout display
+            document.getElementById('checkoutTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('checkoutName').textContent = userProfile.name || "Customer";
+            document.getElementById('checkoutPhone').textContent = userProfile.phone ? `+62${userProfile.phone}` : "-";
+            
+            // Show checkout modal
+            document.getElementById('checkoutModal').classList.remove('hidden');
+            document.getElementById('checkoutModal').classList.add('flex');
+            
+            // Generate QR Code
+            generateQR(total);
+        } catch (error) {
+            console.error("Error processing checkout:", error);
+            showError("Gagal memproses checkout");
         }
-        
-        // Validate user profile
-        if(user.isAnonymous && (!userProfile.phone || !userProfile.address)) {
-            toastr.warning("Lengkapi profil Anda terlebih dahulu!");
-            window.showProfile();
-            window.toggleCart();
-            return;
-        }
-        
-        if(!userProfile.phone || userProfile.phone.length < 10) {
-            toastr.warning("Nomor WhatsApp belum lengkap!");
-            window.showProfile();
-            window.toggleCart();
-            return;
-        }
-        
-        window.toggleCart();
-        
-        // Calculate totals
-        const subtotal = cart.reduce((a, b) => a + b.qty * b.price, 0);
-        const fee = parseInt(storeData.fee || 0);
-        const total = subtotal + fee;
-        
-        // Update checkout display
-        document.getElementById('checkoutTotal').innerText = `Rp ${total.toLocaleString()}`;
-        document.getElementById('checkoutName').innerText = userProfile.name || "Customer";
-        document.getElementById('checkoutPhone').innerText = userProfile.phone ? `+62${userProfile.phone}` : "-";
-        
-        // Show checkout modal
-        document.getElementById('checkoutModal').classList.remove('hidden');
-        document.getElementById('checkoutModal').classList.add('flex');
-        
-        // Generate QR Code
-        generateQR(total);
-    };
+    }
 
-    window.closeCheckout = () => {
+    function closeCheckout() {
         document.getElementById('checkoutModal').classList.add('hidden');
         document.getElementById('checkoutModal').classList.remove('flex');
-    };
+    }
 
     function generateQR(amount) {
-        const container = document.getElementById('qrContainer');
-        container.innerHTML = "";
-        
-        if(!storeData.qris) {
-            container.innerHTML = `
-            <div class="text-center p-5">
-                <div class="w-20 h-20 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-exclamation-triangle text-slate-400 text-2xl"></i>
-                </div>
-                <p class="text-sm font-medium text-slate-500">QRIS Belum Diatur</p>
-                <p class="text-xs text-slate-400 mt-1">Hubungi admin untuk pembayaran</p>
-            </div>`;
-            return;
-        }
-
-        let qris = storeData.qris;
-        
         try {
-            // Inject amount into QRIS payload
-            qris = injectAmount(qris, amount);
-        } catch(e) {
-            console.log("QRIS static, amount not injected");
+            const container = document.getElementById('qrContainer');
+            container.innerHTML = "";
+            
+            if (!storeData.qris) {
+                container.innerHTML = `
+                <div class="text-center p-5">
+                    <div class="w-20 h-20 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-slate-400 text-2xl"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500">QRIS Belum Diatur</p>
+                    <p class="text-xs text-slate-400 mt-1">Hubungi admin untuk pembayaran</p>
+                </div>`;
+                return;
+            }
+
+            // Clear previous QR code
+            container.innerHTML = '';
+            
+            try {
+                // Create QR Code
+                new QRCode(container, {
+                    text: storeData.qris,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#1e293b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (qrError) {
+                console.error("QR Code generation error:", qrError);
+                container.innerHTML = `
+                <div class="text-center p-5">
+                    <div class="w-20 h-20 bg-gradient-to-br from-red-200 to-red-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-circle text-red-400 text-2xl"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500">QRIS Tidak Valid</p>
+                    <p class="text-xs text-slate-400 mt-1">Admin perlu mengupdate QRIS</p>
+                </div>`;
+            }
+        } catch (error) {
+            console.error("Error generating QR:", error);
         }
-        
-        // Generate QR Code
-        new QRCode(container, {
-            text: qris,
-            width: 200,
-            height: 200,
-            colorDark: "#1e293b",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
     }
 
-    function injectAmount(payload, amount) {
-        if(!payload || payload.length < 50) return payload;
-        
+    async function confirmAndSend() {
         try {
-            let p = payload.slice(0, -4).replace("010211", "010212");
-            const amStr = amount + ".00";
-            const tag54 = "54" + amStr.length.toString().padStart(2,'0') + amStr;
+            if (cart.length === 0) {
+                showError("Keranjang kosong!");
+                return;
+            }
             
-            if(p.includes("5802ID")) {
-                const idx = p.indexOf("5802ID");
-                p = p.slice(0, idx) + tag54 + p.slice(idx);
+            if (!confirm("⚠️ PASTIKAN Anda sudah:\n\n1. Melakukan transfer\n2. Menyimpan screenshot bukti transfer\n\nLanjutkan ke WhatsApp?")) {
+                showInfo("Selesaikan transfer terlebih dahulu");
+                return;
+            }
+            
+            // Create order summary
+            let itemsList = "";
+            cart.forEach(item => {
+                const itemTotal = item.price * item.qty;
+                itemsList += `• ${item.name} (${item.qty}x) = Rp ${itemTotal.toLocaleString('id-ID')}\n`;
+            });
+            
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.qty), 0);
+            const fee = parseInt(storeData.fee) || DEFAULT_FEE;
+            const total = subtotal + fee;
+            
+            // Format WhatsApp message
+            const dateTime = new Date().toLocaleString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const msg = `*🛒 ORDER BARU - ITSBAD STORE*
+━━━━━━━━━━━━━━━━━━━━━━
+
+*👤 DATA PEMBELI*
+Nama: ${userProfile.name}
+WhatsApp: +62${userProfile.phone}
+Alamat: ${userProfile.address}
+
+*📋 DETAIL PESANAN*
+${itemsList}
+━━━━━━━━━━━━━━━━━━━━━━
+Subtotal: Rp ${subtotal.toLocaleString('id-ID')}
+Biaya Layanan: Rp ${fee.toLocaleString('id-ID')}
+*TOTAL: Rp ${total.toLocaleString('id-ID')}*
+━━━━━━━━━━━━━━━━━━━━━━
+*🕒 Waktu Order:* ${dateTime}
+*📸 BUKTI TRANSFER:* TERSEDIA (Screenshot)
+*💳 STATUS:* Menunggu Konfirmasi
+
+━━━━━━━━━━━━━━━━━━━━━━
+*📱 Silakan kirim screenshot bukti transfer sebagai balasan pesan ini.*`;
+            
+            // Save order to database
+            await saveOrderToDatabase(total, itemsList);
+            
+            // Open WhatsApp
+            const encodedMsg = encodeURIComponent(msg);
+            const waUrl = `https://wa.me/${OWNER_WA}?text=${encodedMsg}`;
+            
+            const newWindow = window.open(waUrl, '_blank');
+            
+            if (newWindow) {
+                // Clear cart
+                cart = [];
+                saveCart();
+                
+                // Close checkout modal
+                setTimeout(() => {
+                    closeCheckout();
+                    showSuccess("Pesanan berhasil dikirim! Admin akan menghubungi Anda.");
+                }, 1000);
             } else {
-                p = p + tag54;
+                showWarning("Popup diblokir! Buka WhatsApp secara manual.");
+                // Show message for manual copy
+                alert("Salin pesan berikut dan kirim ke Admin:\n\n" + msg);
             }
-            
-            return p + crc16(p);
-        } catch(e) {
-            return payload;
+        } catch (error) {
+            console.error("Error in confirmAndSend:", error);
+            showError("Gagal mengirim pesan: " + error.message);
         }
     }
-    
-    function crc16(s) {
-        let crc = 0xFFFF;
-        for (let i = 0; i < s.length; i++) {
-            crc ^= s.charCodeAt(i) << 8;
-            for (let j = 0; j < 8; j++) {
-                crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
-                crc = crc & 0xFFFF;
-            }
-        }
-        return crc.toString(16).toUpperCase().padStart(4, '0');
-    }
 
-    window.confirmAndSend = () => {
-        if(cart.length === 0) return;
-        
-        if(!confirm("Apakah Anda sudah melakukan transfer dan memiliki screenshot bukti transfer?")) {
-            toastr.info("Selesaikan transfer terlebih dahulu");
-            return;
-        }
-        
-        // Create order summary
-        let itemsList = "";
-        cart.forEach(c => {
-            itemsList += `• ${c.name} (${c.qty}x) = Rp ${(c.qty*c.price).toLocaleString()}\n`;
-        });
-        
-        const subtotal = cart.reduce((a, b) => a + b.qty * b.price, 0);
-        const fee = parseInt(storeData.fee || 0);
-        const total = subtotal + fee;
-        
-        // Format WhatsApp message
-        const msg = `*🛒 ORDER BARU - ITSBAD STORE*\n━━━━━━━━━━━━━━━━━━\n\n*👤 DATA PEMBELI*\nNama: ${userProfile.name}\nWhatsApp: +62${userProfile.phone}\nAlamat: ${userProfile.address}\n\n*📋 DETAIL PESANAN*\n${itemsList}\nSubtotal: Rp ${subtotal.toLocaleString()}\nBiaya Layanan: Rp ${fee.toLocaleString()}\n*TOTAL: Rp ${total.toLocaleString()}*\n\n━━━━━━━━━━━━━━━━━━\n*💳 STATUS: Menunggu Konfirmasi*\n*📸 Mohon kirim screenshot bukti transfer*`;
-        
-        // Save order to database
-        saveOrderToDatabase(total);
-        
-        // Open WhatsApp
-        const encodedMsg = encodeURIComponent(msg);
-        const waUrl = `https://wa.me/${OWNER_WA}?text=${encodedMsg}`;
-        
-        window.open(waUrl, '_blank');
-        
-        // Clear cart and show success
-        setTimeout(() => {
-            cart = [];
-            saveCart();
-            window.closeCheckout();
-            toastr.success("Pesanan berhasil dikirim! Admin akan menghubungi Anda.");
-        }, 1000);
-    };
-
-    async function saveOrderToDatabase(total) {
+    async function saveOrderToDatabase(total, itemsList) {
         try {
+            if (!db || !user) return;
+            
             const orderData = {
                 userId: user.uid,
                 userName: userProfile.name,
                 userPhone: userProfile.phone,
-                items: cart.map(c => `${c.name} (${c.qty}x)`).join(', '),
+                userAddress: userProfile.address,
+                items: cart.map(item => `${item.name} (${item.qty}x)`).join(', '),
+                subtotal: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
+                fee: storeData.fee || DEFAULT_FEE,
                 total: total,
                 status: "pending",
                 timestamp: Date.now(),
-                orderDate: new Date().toLocaleString('id-ID')
+                orderDate: new Date().toISOString()
             };
             
-            await push(ref(db, `orders/${user.uid}`), orderData);
-            console.log("Order saved to database");
-        } catch(e) {
-            console.error("Failed to save order:", e);
+            const orderRef = ref(db, `orders/${user.uid}`);
+            await push(orderRef, orderData);
+            
+            console.log("Order saved successfully");
+        } catch (error) {
+            console.error("Failed to save order:", error);
+            // Continue even if save fails
         }
     }
 
     async function loadOrderHistory(uid) {
         try {
-            const snap = await get(child(ref(db), `orders/${uid}`));
+            if (!db) return;
+            
+            const historyRef = ref(db, `orders/${uid}`);
+            const snapshot = await get(historyRef);
             const historyEl = document.getElementById('orderHistory');
             
-            if(snap.exists()) {
-                const orders = snap.val();
-                let html = '<div class="space-y-3">';
+            if (!historyEl) return;
+            
+            if (snapshot.exists()) {
+                const orders = snapshot.val();
+                let historyHTML = '<div class="space-y-3">';
                 
                 Object.entries(orders).reverse().slice(0, 3).forEach(([key, order]) => {
-                    const date = new Date(order.timestamp).toLocaleDateString('id-ID', {
+                    const date = new Date(order.timestamp || Date.now()).toLocaleDateString('id-ID', {
                         day: 'numeric',
-                        month: 'long',
+                        month: 'short',
                         year: 'numeric'
                     });
                     
@@ -1072,55 +1270,92 @@
                                       order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 
                                       'bg-amber-100 text-amber-800';
                     
-                    html += `
+                    historyHTML += `
                     <div class="bg-white p-4 rounded-xl border border-slate-100">
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-xs font-medium text-slate-600">${date}</span>
-                            <span class="text-xs px-2 py-1 rounded-full ${statusColor}">${order.status}</span>
+                            <span class="text-xs px-2 py-1 rounded-full ${statusColor}">${order.status || 'pending'}</span>
                         </div>
-                        <p class="text-sm text-slate-800 font-medium truncate">${order.items || "Pesanan"}</p>
+                        <p class="text-sm text-slate-800 font-medium line-clamp-2">${order.items || "Pesanan"}</p>
                         <div class="flex justify-between items-center mt-3">
-                            <span class="text-xs text-slate-500">No. Order: ${key.substring(0, 8)}</span>
-                            <span class="font-bold text-green-600">Rp ${parseInt(order.total || 0).toLocaleString()}</span>
+                            <span class="text-xs text-slate-500">ID: ${key.substring(0, 8)}</span>
+                            <span class="font-bold text-green-600">Rp ${parseInt(order.total || 0).toLocaleString('id-ID')}</span>
                         </div>
                     </div>`;
                 });
                 
-                html += '</div>';
-                historyEl.innerHTML = html;
+                historyHTML += '</div>';
+                historyEl.innerHTML = historyHTML;
             }
-        } catch(e) {
-            console.log("No order history or error:", e);
+        } catch (error) {
+            console.log("No order history or error:", error);
         }
     }
 
-    window.logout = async () => {
-        if(confirm("Yakin ingin keluar dari akun?")) {
-            await signOut(auth);
-            localStorage.removeItem('userProfile');
-            localStorage.removeItem('myCart');
-            document.getElementById('profileModal').classList.add('hidden');
-            toastr.info("Anda telah keluar");
-        }
-    };
-
     // --- AUTH FUNCTIONS ---
-    window.loginGoogle = () => {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider).catch(e => {
-            toastr.error("Login Google gagal: " + e.message);
-        });
-    };
+    async function loginGoogle() {
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+            showSuccess("Login berhasil!");
+        } catch (error) {
+            console.error("Google login error:", error);
+            showError("Login Google gagal: " + error.message);
+        }
+    }
     
-    window.loginGuest = () => {
-        signInAnonymously(auth).catch(e => {
-            toastr.error("Login tamu gagal: " + e.message);
-        });
-    };
+    async function loginGuest() {
+        try {
+            await signInAnonymously(auth);
+            showInfo("Login sebagai tamu berhasil");
+        } catch (error) {
+            console.error("Guest login error:", error);
+            showError("Login tamu gagal: " + error.message);
+        }
+    }
+
+    async function logout() {
+        if (confirm("Yakin ingin keluar dari akun?")) {
+            try {
+                await signOut(auth);
+                localStorage.removeItem('userProfile');
+                localStorage.removeItem('myCart');
+                cart = [];
+                userProfile = {};
+                closeProfile();
+                showInfo("Anda telah keluar");
+            } catch (error) {
+                showError("Gagal logout: " + error.message);
+            }
+        }
+    }
+
+    // --- GLOBAL FUNCTIONS ---
+    // Make functions globally accessible
+    window.showProfile = showProfile;
+    window.closeProfile = closeProfile;
+    window.saveProfile = saveProfile;
+    window.loginGoogle = loginGoogle;
+    window.loginGuest = loginGuest;
+    window.logout = logout;
+    window.toggleCart = toggleCart;
+    window.addToCart = addToCart;
+    window.updateQty = updateQty;
+    window.removeFromCart = removeFromCart;
+    window.processCheckout = processCheckout;
+    window.closeCheckout = closeCheckout;
+    window.confirmAndSend = confirmAndSend;
+    window.showProductDetail = showProductDetail;
+    window.closeProductDetail = closeProductDetail;
+    window.addToCartFromDetail = addToCartFromDetail;
 
     // Initialize
     updateCartBadge();
-    if(!auth) renderStore(); // Fallback if Firebase fails
+
+    // Auto-hide auth overlay if already logged in (for page refresh)
+    if (auth?.currentUser) {
+        document.getElementById('authOverlay').classList.add('hidden');
+    }
 
   </script>
 </body>
