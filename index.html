@@ -10,6 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
@@ -268,57 +269,105 @@
     let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[]}, cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, tempAdmImg="", currentDetailIdx=-1, activeCategory='all', isGuestMode=false;
     toastr.options={"positionClass":"toast-top-center","timeOut":"2000","showMethod":"slideDown","hideMethod":"slideUp","closeButton":false,"progressBar":true};
 
-    // --- QRIS ENGINE (FIXED) ---
-    function generateCRC16(str) {
+    // ==============================================
+    // QRIS UTILITY (TLV LOGIC - RAY CONVERTER ADAPTATION)
+    // ==============================================
+    
+    // 1. Generate CRC16-CCITT (Standar ISO/IEC 13239)
+    function generateCRC16(data) {
         let crc = 0xFFFF;
-        for (let c = 0; c < str.length; c++) {
-            crc ^= str.charCodeAt(c) << 8;
-            for (let i = 0; i < 8; i++) {
-                if (crc & 0x8000) crc = (crc << 1) ^ 0x1021; else crc = crc << 1;
+        for (let i = 0; i < data.length; i++) {
+            crc ^= data.charCodeAt(i) << 8;
+            for (let j = 0; j < 8; j++) {
+                if ((crc & 0x8000) !== 0) {
+                    crc = (crc << 1) ^ 0x1021;
+                } else {
+                    crc = crc << 1;
+                }
+                crc = crc & 0xFFFF;
             }
         }
-        let hex = (crc & 0xFFFF).toString(16).toUpperCase();
-        return hex.length === 4 ? hex : "0".repeat(4 - hex.length) + hex;
+        return crc.toString(16).toUpperCase().padStart(4, "0");
     }
 
+    // 2. Parser TLV (Tag-Length-Value)
+    function parseTLV(payload) {
+        const items = [];
+        let pos = 0;
+        while (pos < payload.length) {
+            const id = payload.substr(pos, 2);
+            const lenStr = payload.substr(pos + 2, 2);
+            const len = parseInt(lenStr, 10);
+            if (isNaN(len)) break;
+            const val = payload.substr(pos + 4, len);
+            items.push({ id, val });
+            pos += 4 + len;
+        }
+        return items;
+    }
+
+    // 3. Builder TLV (Susun ulang string QRIS)
+    function buildTLV(items) {
+        return items.map(item => {
+            const len = item.val.length.toString().padStart(2, '0');
+            return item.id + len + item.val;
+        }).join('');
+    }
+
+    // 4. Format QRIS (Logic Utama)
     function formatQrisAmount(qrisRaw, amount) {
-        let qris = qrisRaw.trim();
-        // 1. Bersihkan CRC Lama (Cari 6304 terakhir dan potong)
-        const idxCRC = qris.lastIndexOf("6304");
-        if(idxCRC > -1) qris = qris.substring(0, idxCRC);
-        
-        // 2. Force Dynamic
-        qris = qris.replace("010211", "010212");
+        // Parsing raw string menjadi array object TLV
+        let tlv = parseTLV(qrisRaw.trim());
 
-        // 3. HAPUS TAG 55 (TIPS) - Ini penyebab utama "Invalid"
-        // Regex ini menghapus Tag 55 beserta panjangnya (biasanya 02) dan isinya (01/02/03)
-        // Format umum: 550201, 550202, 550203
-        qris = qris.replace(/55020[0-9]/g, "");
+        // A. Hapus Tag CRC lama (ID 63)
+        tlv = tlv.filter(x => x.id !== '63');
 
-        // 4. Inject Nominal (Tag 54)
-        // Hapus Tag 54 lama jika ada (biar gak double)
-        // Note: Regex sederhana, asumsi tidak ada tag lain yg mirip pattern ini
-        qris = qris.replace(/54\d{2}\d+/g, "");
-
-        // Buat Tag 54 Baru
-        const amountStr = amount.toString();
-        const tag54 = "54" + amountStr.length.toString().padStart(2, '0') + amountStr;
-
-        // Cari posisi inject: Sebelum Tag 58 (Country)
-        const idx58 = qris.indexOf("5802ID");
-        if(idx58 > -1) {
-            qris = qris.slice(0, idx58) + tag54 + qris.slice(idx58);
-        } else {
-            // Fallback: Masukkan di akhir sebelum CRC
-            qris += tag54;
+        // B. Paksa QRIS menjadi Dinamis (Tag 01 = '12')
+        const idx01 = tlv.findIndex(x => x.id === '01');
+        if (idx01 >= 0) {
+            tlv[idx01].val = '12';
         }
 
-        // 5. Hitung CRC Baru
-        qris += "6304";
-        return qris + generateCRC16(qris);
+        // C. Hapus Tag 55 (Tips) agar tidak bentrok dengan nominal tetap
+        tlv = tlv.filter(x => x.id !== '55');
+
+        // D. Siapkan Nominal (Tag 54)
+        // Menggunakan integer string untuk kompatibilitas Rupiah (IDR)
+        const amountStr = amount.toString(); 
+        const tag54 = { id: '54', val: amountStr };
+
+        // Cek posisi Tag
+        const idx54 = tlv.findIndex(x => x.id === '54'); // Tag nominal lama
+        const idx53 = tlv.findIndex(x => x.id === '53'); // Tag Mata Uang (360=IDR)
+
+        if (idx54 >= 0) {
+            // Jika sudah ada tag 54, update nilainya
+            tlv[idx54] = tag54; 
+        } else if (idx53 >= 0) {
+            // Jika belum ada, selipkan TEPAT SETELAH Tag Mata Uang (Standar EMVCo)
+            tlv.splice(idx53 + 1, 0, tag54); 
+        } else {
+            // Fallback (jarang terjadi): sisipkan sebelum Tag 58 (Country)
+            const idx58 = tlv.findIndex(x => x.id === '58');
+            if (idx58 >= 0) {
+                tlv.splice(idx58, 0, tag54);
+            } else {
+                tlv.push(tag54);
+            }
+        }
+
+        // E. Susun ulang string body
+        let body = buildTLV(tlv);
+
+        // F. Hitung CRC Baru
+        const crcInput = body + "6304";
+        const crc = generateCRC16(crcInput);
+
+        // Return QRIS Lengkap
+        return body + "6304" + crc;
     }
 
-    // --- MAIN FUNCTIONS ---
+    // --- MAIN APP LOGIC ---
     window.loginWithGoogle = async () => {
         try { if(!auth)throw 0; const r=await signInWithPopup(auth,new GoogleAuthProvider()); user=r.user; isGuestMode=false; 
         if(user.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase()){document.getElementById('adminHeaderBtn').classList.remove('hidden');document.getElementById('nav-admin').classList.remove('hidden');}
@@ -348,7 +397,7 @@
         });
     };
     
-    // CART & CHECKOUT
+    // CART & PAYMENT LOGIC
     window.addToCart=(i)=>{const p=storeData.products[i]; if(!p||parseInt(p.stock)<=0)return toastr.error("Stok Habis"); const x=cart.find(c=>c.idx===i); if(x)x.qty++; else cart.push({idx:i,name:p.name,price:parseInt(p.price),qty:1}); saveCart(); toastr.success("Masuk Keranjang");};
     window.saveCart=()=>{localStorage.setItem('cart',JSON.stringify(cart)); updateCartBadge();};
     window.updateCartBadge=()=>{const t=cart.reduce((a,b)=>a+(b.qty||0),0); const b=document.getElementById('cartBadge'); b.innerText=t>99?'99+':t; t>0?b.classList.remove('hidden'):b.classList.add('hidden');};
@@ -372,11 +421,11 @@
                 try {
                     let final=raw; let txt="Scan Manual"; let cls="text-orange-600 bg-orange-50";
                     if(raw.length>20){ 
-                        // PANGGIL FUNGSI BARU DI SINI
+                        // MENGGUNAKAN LOGIKA TLV BARU
                         final=formatQrisAmount(raw, tot); 
                         txt="Nominal Otomatis"; cls="text-green-600 bg-green-50"; 
                     }
-                    qc.innerHTML=""; new QRCode(qc,{text:final,width:180,height:180,correctLevel:QRCode.CorrectLevel.L});
+                    qc.innerHTML=""; new QRCode(qc,{text:final,width:180,height:180,correctLevel:QRCode.CorrectLevel.M});
                     qs.innerHTML=txt; qs.className=`text-[10px] ${cls} py-1 rounded mt-2`;
                 } catch(e){qc.innerHTML='<p class="text-xs text-red-500">Error QR</p>';}
             },300);
@@ -395,12 +444,12 @@
         document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('receiptModal').classList.remove('hidden');
     };
     
-    // ADMIN & UTILS
+    // ADMIN, PROFILE, UTILS
     window.checkAdmin=()=>{if(document.getElementById('adminPin').value===ADMIN_PIN){document.getElementById('adminLoginModal').classList.add('hidden');document.getElementById('adminModal').classList.remove('hidden');document.getElementById('admStoreName').value=storeData.name;document.getElementById('admFee').value=storeData.fee;document.getElementById('admQris').value=storeData.qris;renderAdmList();}else toastr.error("PIN Salah");};
     window.renderAdmList=()=>{const l=document.getElementById('admList');l.innerHTML="";storeData.products.forEach((p,i)=>{l.innerHTML+=`<div class="flex justify-between items-center bg-white p-3 text-xs border rounded-lg mb-2"><div class="flex-1"><b>${p.name}</b><br>Stok: ${p.stock}</div><div><button onclick="editAdm(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="delAdm(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div></div>`;});};
     window.handleQrisUpload=(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;c.getContext('2d').drawImage(i,0,0);try{const code=jsQR(c.getContext('2d').getImageData(0,0,c.width,c.height).data,c.width,c.height);if(code)document.getElementById('admQris').value=code.data;}catch(e){}};i.src=e.target.result;};r.readAsDataURL(f);}};
     
-    // EXPORTS
+    // EXPORTS TO WINDOW
     Object.assign(window,{
         openDetail:(i)=>{currentDetailIdx=i;const p=storeData.products[i];document.getElementById('detailImg').src=p.image;document.getElementById('detailName').innerText=p.name;document.getElementById('detailPrice').innerText="Rp "+parseInt(p.price).toLocaleString();document.getElementById('detailStock').innerText="Stok: "+p.stock;document.getElementById('detailDesc').innerText=p.desc;document.getElementById('detailCat').innerText=p.category;const b=document.getElementById('btnAddToCart');if(parseInt(p.stock)>0){b.disabled=false;b.innerHTML="TAMBAH";b.classList.remove('bg-slate-300');b.classList.add('bg-slate-900');}else{b.disabled=true;b.innerHTML="HABIS";b.classList.remove('bg-slate-900');b.classList.add('bg-slate-300');}document.getElementById('detailModal').classList.remove('hidden');},
         closeDetail:()=>{document.getElementById('detailModal').classList.add('hidden');},
@@ -430,7 +479,6 @@
         loadProfile:async(uid)=>{const s=await get(child(ref(db),`users/${uid}`));if(s.exists())userProfile=s.val();else userProfile={name:user.displayName,email:user.email};document.getElementById('headerGreeting').innerText=userProfile.name;if(userProfile.avatar){document.getElementById('headerAvatar').src=userProfile.avatar;document.getElementById('profileAvatarEdit').src=userProfile.avatar;}document.getElementById('profName').value=userProfile.name||"";document.getElementById('profPhone').value=userProfile.phone||"";document.getElementById('profAddress').value=userProfile.address||"";const h=await get(child(ref(db),`orders/${uid}`));const hl=document.getElementById('historyList');hl.innerHTML="";if(h.exists())Object.values(h.val()).forEach(o=>hl.innerHTML+=`<div class="p-2 border-b text-xs">${new Date(o.date).toLocaleDateString()} - Rp ${parseInt(o.total).toLocaleString()}</div>`);}
     });
 
-    // INIT
     try{const app=initializeApp(firebaseConfig);db=getDatabase(app);auth=getAuth(app);document.getElementById('pinForm').addEventListener('submit',(e)=>{e.preventDefault();window.checkAdmin();});document.getElementById('togglePin').addEventListener('click',()=>{const i=document.getElementById('adminPin');i.type=i.type==='password'?'text':'password';});onAuthStateChanged(auth,(u)=>{if(u){user=u;isGuestMode=false;if(u.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase()){document.getElementById('adminHeaderBtn').classList.remove('hidden');document.getElementById('nav-admin').classList.remove('hidden');}document.getElementById('loginModal').classList.add('hidden');document.getElementById('app').classList.remove('hidden');loadProfile(u.uid);initStore();if(new URLSearchParams(window.location.search).get('page')==='admin')setTimeout(openAdminLogin,500);}else{document.getElementById('loginModal').classList.remove('hidden');}});}catch(e){toastr.error("Init Error");}
   </script>
 </body>
