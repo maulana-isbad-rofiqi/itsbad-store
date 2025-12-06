@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Itsbad Store</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234f46e5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23ec4899;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='white' /%3E%3Cpath d='M30,35 L70,35 L65,85 L35,85 Z M40,35 L40,25 Q50,10 60,25 L60,35' fill='none' stroke='url(%23grad)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -59,8 +62,6 @@
     /* Animation */
     .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    
-    .category-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -103,8 +104,16 @@
             <button onclick="window.loginGoogle()" class="bg-white text-orange-600 px-3 py-1 rounded-lg text-xs font-bold border border-orange-100">Login</button>
         </div>
 
-        <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
+        <div class="mb-5">
+            <div class="relative">
+                <select id="categorySelect" onchange="window.filterCat(this.value)" class="w-full appearance-none bg-white border border-slate-200 text-slate-700 py-3 px-4 pr-8 rounded-xl leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-sm font-bold shadow-sm">
+                    <option value="all">Semua Kategori</option>
+                    </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </div>
             </div>
+        </div>
 
         <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20">
             <div class="col-span-2 text-center py-10 text-slate-400 text-xs">Memuat Produk...</div>
@@ -368,7 +377,7 @@
         } catch(e) { console.log(e); }
     }
 
-    // --- DYNAMIC CATEGORIES & PRODUCTS ---
+    // --- DYNAMIC CATEGORIES (DROPDOWN) ---
     function renderCategories() {
         const cats = ['all'];
         if(storeData.products) {
@@ -378,19 +387,21 @@
             });
         }
 
-        const container = document.getElementById('categoryContainer');
-        container.innerHTML = "";
+        const select = document.getElementById('categorySelect');
+        select.innerHTML = "";
 
         cats.forEach(c => {
-            const label = c === 'all' ? 'Semua' : c;
-            const activeClass = c === activeCategory ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600';
-            container.innerHTML += `<button onclick="window.filterCat('${c}')" class="category-btn px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition shadow-sm ${activeClass}">${label}</button>`;
+            const label = c === 'all' ? 'Semua Kategori' : c;
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.innerText = label;
+            if(c === activeCategory) opt.selected = true;
+            select.appendChild(opt);
         });
     }
 
     window.filterCat = (c) => {
         activeCategory = c;
-        renderCategories(); 
         renderProducts();
     };
 
@@ -504,7 +515,7 @@
     window.openCart = () => { window.switchTab('cart'); renderCartList(); document.getElementById('cartModal').classList.remove('hidden'); };
     window.closeCart = () => { document.getElementById('cartModal').classList.add('hidden'); window.switchTab('home'); };
 
-    // --- REVISI LOGIC KERANJANG (FIX NaN & FEE) ---
+    // --- FIX CART LOGIC ---
     function renderCartList() {
         const l = document.getElementById('cartList'); 
         l.innerHTML = ""; 
@@ -512,15 +523,14 @@
         
         const btn = document.getElementById('btnCheckout');
 
-        // Jika Keranjang Kosong
         if(cart.length === 0) {
             l.innerHTML = `<div class="text-center text-xs text-slate-400 py-10">Keranjang Kosong</div>`;
             document.getElementById('cartTotalDisplay').innerText = "Rp 0";
-            btn.disabled = true; // Disable tombol bayar
+            btn.disabled = true; 
             return;
         }
 
-        btn.disabled = false; // Enable tombol bayar
+        btn.disabled = false;
 
         cart.forEach((c, i) => {
             const itemTotal = (c.price || 0) * (c.qty || 0);
@@ -528,7 +538,6 @@
             l.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl"><div><h4 class="font-bold text-xs text-slate-700">${c.name}</h4><p class="text-xs text-blue-600 font-bold">Rp ${c.price.toLocaleString()}</p></div><div class="flex items-center gap-3 bg-slate-50 rounded-lg px-2 py-1"><button onclick="window.modQty(${i},-1)" class="w-5 font-bold">-</button><span class="text-xs font-bold w-3 text-center">${c.qty}</span><button onclick="window.modQty(${i},1)" class="w-5 font-bold">+</button></div></div>`;
         });
 
-        // Validasi Fee
         const fee = parseInt(storeData.fee) || 0; 
         const finalTotal = tot + fee;
         document.getElementById('cartTotalDisplay').innerText = "Rp " + finalTotal.toLocaleString();
@@ -573,7 +582,6 @@
         const date = new Date().toLocaleString('id-ID');
 
         if(user) {
-            // FIX: Ensure no NaN is saved
             try { await push(ref(db,`orders/${user.uid}`), { items:cart, total:tot || 0, note, date:Date.now() }); } catch(e){}
         }
 
@@ -627,7 +635,7 @@
             if(hs.exists()) {
                 const h = document.getElementById('historyList'); h.innerHTML="";
                 Object.values(hs.val()).reverse().slice(0,3).forEach(o => {
-                    const safeTotal = parseInt(o.total) || 0; // Fix NaN History
+                    const safeTotal = parseInt(o.total) || 0; 
                     h.innerHTML += `<div class="text-[10px] bg-slate-50 p-2 rounded flex justify-between"><span>${new Date(o.date).toLocaleDateString()}</span><span class="font-bold">Rp ${safeTotal.toLocaleString()}</span></div>`;
                 });
             }
@@ -671,7 +679,7 @@
         const i = parseInt(document.getElementById('admEditIdx').value);
         const p = {
             name: document.getElementById('admPName').value,
-            category: document.getElementById('admPCat').value, // NEW CATEGORY
+            category: document.getElementById('admPCat').value,
             price: document.getElementById('admPPrice').value,
             stock: document.getElementById('admPStock').value,
             desc: document.getElementById('admPDesc').value,
