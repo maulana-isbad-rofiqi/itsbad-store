@@ -35,47 +35,16 @@
     .cat-btn { transition: all 0.2s; white-space: nowrap; }
     .cat-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
     
-    /* Custom styles untuk disabled button */
     .btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-checkout:not(:disabled):hover { background-color: #1e293b; transform: translateY(-1px); }
     
     /* Login Modal Styles */
-    #loginModal { 
-      transition: all 0.3s ease !important; 
-      display: flex !important; 
-      opacity: 1 !important; 
-      visibility: visible !important;
-      z-index: 9999 !important;
-    }
-    
-    #loginModal.hidden { 
-      display: none !important; 
-      opacity: 0 !important; 
-      visibility: hidden !important;
-    }
-    
-    .login-option { 
-      transition: all 0.2s ease;
-      border: 1px solid #e2e8f0;
-    }
-    
-    .login-option:hover { 
-      transform: translateY(-2px); 
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-    }
-    
-    .guest-warning { 
-      animation: pulse 2s infinite;
-      background-color: #fffbeb;
-      border: 1px solid #fde68a;
-      border-radius: 12px;
-    }
-    
-    @keyframes pulse { 
-      0% { opacity: 0.9; } 
-      50% { opacity: 1; } 
-      100% { opacity: 0.9; } 
-    }
+    #loginModal { transition: all 0.3s ease !important; display: flex !important; opacity: 1 !important; visibility: visible !important; z-index: 9999 !important; }
+    #loginModal.hidden { display: none !important; opacity: 0 !important; visibility: hidden !important; }
+    .login-option { transition: all 0.2s ease; border: 1px solid #e2e8f0; }
+    .login-option:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .guest-warning { animation: pulse 2s infinite; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; }
+    @keyframes pulse { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -90,12 +59,12 @@
     </div>
     
     <div class="w-full max-w-xs space-y-4">
-      <button id="googleLoginBtn" class="login-option w-full bg-white border border-slate-200 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50">
+      <button id="googleLoginBtn" onclick="window.loginWithGoogle()" class="login-option w-full bg-white border border-slate-200 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50">
         <i class="fab fa-google text-red-500 text-lg"></i>
         <span>Login dengan Google</span>
       </button>
       
-      <button id="guestLoginBtn" class="login-option w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800">
+      <button id="guestLoginBtn" onclick="window.continueAsGuest()" class="login-option w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800">
         <i class="fas fa-user-clock text-lg"></i>
         <span>Lanjut sebagai Tamu</span>
       </button>
@@ -105,7 +74,7 @@
           <i class="fas fa-exclamation-circle text-orange-500 mt-0.5"></i>
           <div class="text-left">
             <h4 class="font-bold text-xs text-orange-700">Mode Tamu</h4>
-            <p class="text-[10px] text-orange-600">Riwayat pesanan tidak akan tersimpan dan beberapa fitur terbatas.</p>
+            <p class="text-[10px] text-orange-600">Riwayat pesanan tidak akan tersimpan.</p>
           </div>
         </div>
       </div>
@@ -119,77 +88,25 @@
   <div id="adminLoginModal" class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
     <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md mx-4">
       <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-        </div>
         <h2 class="text-2xl font-bold text-gray-800">Admin Access</h2>
-        <p class="text-gray-600 mt-2">Masukkan PIN Admin untuk melanjutkan</p>
+        <p class="text-gray-600 mt-2">Masukkan PIN Admin</p>
       </div>
-
       <form id="pinForm" class="space-y-6">
         <div>
-          <label for="adminPin" class="block text-sm font-medium text-gray-700 mb-2">PIN Admin</label>
           <div class="relative">
-            <input
-              type="password"
-              id="adminPin"
-              maxlength="6"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-center text-2xl tracking-widest font-mono"
-              placeholder="••••••"
-              autocomplete="off"
-              required
-            />
-            <button type="button" id="togglePin" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-            </button>
-          </div>
-          <p class="text-xs text-gray-500 mt-2">PIN terdiri dari 6 digit angka</p>
-        </div>
-
-        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-          <div class="flex items-start">
-            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span class="text-sm text-blue-700">Anda harus sudah login dengan akun Google <strong>isbadd84@gmail.com</strong> untuk mengakses panel admin</span>
+            <input type="password" id="adminPin" maxlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest font-mono" placeholder="••••••" autocomplete="off" required />
+            <button type="button" id="togglePin" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"><i class="fas fa-eye"></i></button>
           </div>
         </div>
-
         <div class="flex space-x-3">
-          <button
-            type="button"
-            onclick="closeAdminLogin()"
-            class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium"
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Buka Panel
-          </button>
+          <button type="button" onclick="closeAdminLogin()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">Batal</button>
+          <button type="submit" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Buka Panel</button>
         </div>
       </form>
-
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <div class="flex items-center justify-center text-sm text-gray-500">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-          Akses Terbatas • Admin Only
-        </div>
-      </div>
     </div>
   </div>
 
   <div class="app-container hidden" id="app">
-    
     <div class="sticky top-0 z-40 bg-white/90 backdrop-blur-md px-5 py-3 border-b border-slate-50 flex items-center justify-between">
         <div class="flex items-center gap-3">
              <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
@@ -201,9 +118,7 @@
              </div>
         </div>
         <div class="flex items-center gap-2">
-            <button id="adminHeaderBtn" onclick="openAdminLogin()" class="hidden w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Admin Panel">
-                <i class="fas fa-cog text-sm"></i>
-            </button>
+            <button id="adminHeaderBtn" onclick="openAdminLogin()" class="hidden w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Admin Panel"><i class="fas fa-cog text-sm"></i></button>
             <button onclick="toggleSearch()" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fas fa-search"></i></button>
         </div>
     </div>
@@ -256,7 +171,7 @@
                 <p id="detailDesc" class="text-sm text-slate-500 leading-relaxed mb-6 whitespace-pre-wrap">...</p>
             </div>
             <div class="p-4 border-t border-slate-100 bg-white">
-                <button id="btnAddToCart" onclick="addToCartFromDetail()" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-95 transition-all disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"><i class="fas fa-plus"></i> TAMBAH KE KERANJANG</button>
+                <button id="btnAddToCart" onclick="addToCartFromDetail()" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-slate-900 active:scale-95 transition-all disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"><i class="fas fa-plus"></i> TAMBAH KE KERANJANG</button>
             </div>
         </div>
     </div>
@@ -435,28 +350,17 @@
     let activeCategory = 'all';
     let isGuestMode = false;
     
-    toastr.options = { 
-        "positionClass": "toast-top-center", 
-        "timeOut": "2000", 
-        "showMethod": "slideDown", 
-        "hideMethod": "slideUp", 
-        "closeButton": false, 
-        "progressBar": true 
-    };
+    toastr.options = { "positionClass": "toast-top-center", "timeOut": "2000", "showMethod": "slideDown", "hideMethod": "slideUp", "closeButton": false, "progressBar": true };
 
     // ==============================================
-    // QRIS UTILITY (NEW - FIX FOR QRIS ERROR)
+    // QRIS UTILITY (CRC16)
     // ==============================================
     function generateCRC16(str) {
         let crc = 0xFFFF;
         for (let c = 0; c < str.length; c++) {
             crc ^= str.charCodeAt(c) << 8;
             for (let i = 0; i < 8; i++) {
-                if (crc & 0x8000) {
-                    crc = (crc << 1) ^ 0x1021;
-                } else {
-                    crc = crc << 1;
-                }
+                if (crc & 0x8000) crc = (crc << 1) ^ 0x1021; else crc = crc << 1;
             }
         }
         let hex = (crc & 0xFFFF).toString(16).toUpperCase();
@@ -465,193 +369,84 @@
 
     function formatQrisAmount(qrisRaw, amount) {
         let qris = qrisRaw.trim();
-        // 1. Bersihkan CRC lama
-        if (qris.slice(-4).match(/[0-9A-Fa-f]{4}/)) {
-            qris = qris.slice(0, -4);
-        }
+        if (qris.slice(-4).match(/[0-9A-Fa-f]{4}/)) qris = qris.slice(0, -4);
         if (!qris.endsWith("6304")) {
              const idx63 = qris.lastIndexOf("6304");
-             if(idx63 > -1) qris = qris.substring(0, idx63 + 4);
-             else qris += "6304";
+             if(idx63 > -1) qris = qris.substring(0, idx63 + 4); else qris += "6304";
         }
-
-        // 2. Siapkan Tag 54
         const amountStr = amount.toString();
-        const amountLen = amountStr.length.toString().padStart(2, '0');
-        const tag54 = "54" + amountLen + amountStr;
-
-        // 3. Inject Tag 54
-        if (qris.includes("54")) {
-            qris = qris.replace(/54\d{2}[0-9]+/, tag54);
-        } else {
+        const tag54 = "54" + amountStr.length.toString().padStart(2, '0') + amountStr;
+        
+        if (qris.includes("54")) qris = qris.replace(/54\d{2}[0-9]+/, tag54);
+        else {
             const idx58 = qris.indexOf("5802ID");
-            if (idx58 > -1) {
-                qris = qris.slice(0, idx58) + tag54 + qris.slice(idx58);
-            } else {
-                const idx53 = qris.indexOf("5303360");
-                 if (idx53 > -1) {
-                    qris = qris.slice(0, idx53) + tag54 + qris.slice(idx53);
-                } else {
-                    const idx63 = qris.indexOf("6304");
-                    qris = qris.slice(0, idx63) + tag54 + qris.slice(idx63);
-                }
+            if (idx58 > -1) qris = qris.slice(0, idx58) + tag54 + qris.slice(idx58);
+            else {
+                const idx63 = qris.indexOf("6304");
+                qris = qris.slice(0, idx63) + tag54 + qris.slice(idx63);
             }
         }
-
-        // 4. Pastikan Dynamic (010212)
-        if (qris.includes("010211")) {
-            qris = qris.replace("010211", "010212");
-        }
-
-        // 5. Hitung CRC baru
-        const newCRC = generateCRC16(qris);
-        return qris + newCRC;
+        if (qris.includes("010211")) qris = qris.replace("010211", "010212");
+        return qris + generateCRC16(qris);
     }
 
     // ==============================================
-    // ADMIN LOGIN FUNCTIONS
+    // CORE FUNCTIONS & EXPORTS
     // ==============================================
-    function openAdminLogin() {
-      if (!user || user === null) {
-        toastr.warning('Silakan login dengan Google terlebih dahulu!');
-        if (typeof loginWithGoogle === 'function') {
-          loginWithGoogle();
-        } else {
-          showLoginOptions();
-        }
-        return;
-      }
-      
-      const userEmail = user.email ? user.email.toLowerCase() : '';
-      const adminEmail = ADMIN_EMAIL.toLowerCase();
-      
-      if (userEmail !== adminEmail) {
-        toastr.error('Akses Ditolak', 'Hanya admin dengan email isbadd84@gmail.com yang bisa mengakses!');
-        return;
-      }
-      
-      document.getElementById('adminLoginModal').classList.remove('hidden');
-      document.getElementById('adminPin').focus();
-    }
-
-    function closeAdminLogin() {
-      document.getElementById('adminLoginModal').classList.add('hidden');
-      document.getElementById('adminPin').value = '';
-    }
-
-    function checkAdmin() {
-      const adminPin = document.getElementById('adminPin').value;
-      
-      if (!user || user === null) {
-        toastr.error('Akses Ditolak', 'Anda harus login dengan akun Google terlebih dahulu!');
-        return false;
-      }
-      
-      const userEmail = user.email ? user.email.toLowerCase() : '';
-      const adminEmail = ADMIN_EMAIL.toLowerCase();
-      
-      if (userEmail !== adminEmail) {
-        toastr.error('Akses Ditolak', 'Hanya admin dengan email isbadd84@gmail.com yang bisa mengakses!');
-        return false;
-      }
-      
-      if (adminPin !== ADMIN_PIN) {
-        toastr.error('PIN Salah', 'PIN yang Anda masukkan tidak benar!');
-        document.getElementById('adminPin').value = '';
-        document.getElementById('adminPin').focus();
-        return false;
-      }
-      
-      document.getElementById('adminLoginModal').classList.add('hidden');
-      document.getElementById('adminModal').classList.remove('hidden');
-      
-      document.getElementById('admStoreName').value = storeData.name || "";
-      document.getElementById('admFee').value = storeData.fee || 0;
-      document.getElementById('admQris').value = storeData.qris || "";
-      
-      renderAdmList();
-      toastr.success('Panel Admin berhasil dibuka!');
-      document.getElementById('adminPin').value = '';
-      return true;
-    }
-
-    function closeAdminPanel() {
-      document.getElementById('adminModal').classList.add('hidden');
-    }
-
-    // ==============================================
-    // FUNGSI LOGIN USER
-    // ==============================================
-    async function loginWithGoogle() {
+    
+    // LOGIN FUNCTIONS (DEFINED AS WINDOW GLOBALS FOR SAFETY)
+    window.loginWithGoogle = async function() {
       try {
-        if (!auth) throw new Error("Firebase auth not initialized");
+        if (!auth) throw new Error("Firebase belum siap. Periksa koneksi.");
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
+        user = result.user; isGuestMode = false;
         
-        user = result.user;
-        isGuestMode = false;
-        
-        const userEmail = user.email ? user.email.toLowerCase() : '';
-        const adminEmail = ADMIN_EMAIL.toLowerCase();
-        
-        const adminHeaderBtn = document.getElementById('adminHeaderBtn');
-        const adminNavBtn = document.getElementById('nav-admin');
-        
-        if (userEmail === adminEmail) {
-          if (adminHeaderBtn) adminHeaderBtn.classList.remove('hidden');
-          if (adminNavBtn) adminNavBtn.classList.remove('hidden');
+        if(user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+            document.getElementById('adminHeaderBtn').classList.remove('hidden');
+            document.getElementById('nav-admin').classList.remove('hidden');
         }
-        
         toastr.success("Login berhasil!");
         document.getElementById('loginModal').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
-        
-        loadProfile(user.uid);
-        initStore();
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('page') === 'admin') {
-          setTimeout(() => { openAdminLogin(); }, 500);
-        }
-        
+        loadProfile(user.uid); initStore();
+        if(new URLSearchParams(window.location.search).get('page') === 'admin') setTimeout(openAdminLogin, 500);
       } catch (error) {
         console.error("Login error:", error);
         toastr.error("Login gagal: " + error.message);
       }
-    }
+    };
 
-    function continueAsGuest() {
+    window.continueAsGuest = function() {
       isGuestMode = true;
-      user = {
-        uid: 'guest_' + Date.now(),
-        displayName: 'Tamu',
-        isAnonymous: true,
-        email: null,
-        photoURL: null
-      };
-      
+      user = { uid: 'guest_' + Date.now(), displayName: 'Tamu', isAnonymous: true };
       userProfile = { name: 'Tamu', email: '', avatar: '', phone: '', address: '' };
-      
       toastr.success("Masuk sebagai tamu");
       document.getElementById('loginModal').classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
       document.getElementById('authAlert').classList.remove('hidden');
-      
       document.getElementById('headerAvatar').src = "https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff";
       document.getElementById('headerGreeting').innerText = "Mode Tamu";
-      
       initStore();
-    }
+    };
 
-    function showLoginOptions() {
+    window.showLoginOptions = function() {
       document.getElementById('app').classList.add('hidden');
       document.getElementById('loginModal').classList.remove('hidden');
-    }
+    };
 
-    // ==============================================
-    // CORE FUNCTIONS
-    // ==============================================
-    async function initStore() {
+    // ADMIN FUNCTIONS
+    window.openAdminLogin = function() {
+      if (!user) { toastr.warning('Login Google dulu!'); window.showLoginOptions(); return; }
+      if (user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { toastr.error('Akses Ditolak'); return; }
+      document.getElementById('adminLoginModal').classList.remove('hidden');
+      document.getElementById('adminPin').focus();
+    };
+
+    window.closeAdminLogin = function() { document.getElementById('adminLoginModal').classList.add('hidden'); document.getElementById('adminPin').value = ''; };
+
+    // STORE LOGIC
+    window.initStore = async function() {
       try {
         const snap = await get(child(ref(db), `stores/${STORE_ID}`));
         if(snap.exists()) {
@@ -659,71 +454,38 @@
           if (!storeData.products) storeData.products = [];
           if (!storeData.fee) storeData.fee = 0;
           if (!storeData.name) storeData.name = "Itsbad Store";
-        } else {
-          await set(ref(db, `stores/${STORE_ID}`), storeData);
-        }
-        
+        } else await set(ref(db, `stores/${STORE_ID}`), storeData);
         document.getElementById('shopNameDisplay').innerText = storeData.name;
-        renderCategories();
-        renderProducts();
-        updateCartBadge();
-      } catch(e) { 
-        console.error("Store init error:", e);
-      }
-    }
+        renderCategories(); renderProducts(); updateCartBadge();
+      } catch(e) { console.error("Store init error:", e); }
+    };
 
-    function renderCategories() {
+    window.renderCategories = function() {
       const cats = ['all'];
       const datalist = document.getElementById('catList');
       datalist.innerHTML = "";
-
-      if(storeData.products && storeData.products.length > 0) {
-        storeData.products.forEach(p => {
+      if(storeData.products) storeData.products.forEach(p => {
           const c = p.category || 'Umum';
           if(!cats.includes(c)) cats.push(c);
           if(!Array.from(datalist.options).some(opt => opt.value === c)) {
-            const opt = document.createElement('option');
-            opt.value = c;
-            datalist.appendChild(opt);
+            const opt = document.createElement('option'); opt.value = c; datalist.appendChild(opt);
           }
-        });
-      }
-
+      });
       const container = document.getElementById('categoryContainer');
       container.innerHTML = "";
-
       cats.forEach(c => {
-        const label = c === 'all' ? 'Semua' : c;
         const activeClass = c === activeCategory ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600';
-        container.innerHTML += `
-            <button onclick="filterCat('${c}')" 
-                    class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass} 
-                           hover:bg-slate-800 hover:text-white transition-colors">
-                ${label}
-            </button>`;
+        container.innerHTML += `<button onclick="filterCat('${c}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass} hover:bg-slate-800 hover:text-white transition-colors">${c === 'all' ? 'Semua' : c}</button>`;
       });
-    }
+    };
 
-    function filterCat(c) { 
-      activeCategory = c; 
-      renderCategories(); 
-      renderProducts(); 
-    }
+    window.filterCat = function(c) { activeCategory = c; renderCategories(); renderProducts(); };
+    window.filterProducts = function() { window.renderProducts(document.getElementById('searchInput').value.toLowerCase()); };
 
-    function filterProducts() { 
-      const q = document.getElementById('searchInput').value.toLowerCase(); 
-      renderProducts(q); 
-    }
-
-    function renderProducts(query = "") {
+    window.renderProducts = function(query = "") {
       const grid = document.getElementById('productGrid');
       grid.innerHTML = "";
-      
-      if (!storeData.products || storeData.products.length === 0) {
-        grid.innerHTML = '<div class="col-span-2 text-center py-10 text-slate-400 text-xs">Belum ada produk</div>';
-        return;
-      }
-      
+      if (!storeData.products || storeData.products.length === 0) { grid.innerHTML = '<div class="col-span-2 text-center py-10 text-slate-400 text-xs">Belum ada produk</div>'; return; }
       let filtered = storeData.products;
       if(activeCategory !== 'all') filtered = filtered.filter(p => (p.category || 'Umum') === activeCategory);
       if(query) filtered = filtered.filter(p => p.name.toLowerCase().includes(query));
@@ -732,38 +494,24 @@
         const originalIdx = storeData.products.findIndex(prod => prod === p);
         const hasStock = parseInt(p.stock) > 0;
         const img = p.image || `https://placehold.co/200x200/e2e8f0/94a3b8?text=${encodeURIComponent(p.name.charAt(0))}`;
-        
         grid.innerHTML += `
             <div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden hover:shadow-md transition-shadow" onclick="openDetail(${originalIdx})">
                 ${!hasStock ? '<div class="absolute inset-0 bg-white/70 z-10 flex items-center justify-center font-bold text-red-500 text-xs backdrop-blur-sm">HABIS</div>' : ''}
-                <div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden">
-                    <img src="${img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-                </div>
-                <div class="mb-1">
-                    <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category || 'Umum'}</span>
-                </div>
+                <div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden"><img src="${img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"></div>
+                <div class="mb-1"><span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category || 'Umum'}</span></div>
                 <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-tight mb-1 min-h-[2rem]">${p.name}</h3>
-                <div class="mt-auto flex justify-between items-center">
-                    <span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
-                    <button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] hover:bg-slate-800 transition-colors">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>`;
+                <div class="mt-auto flex justify-between items-center"><span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
+                <button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] hover:bg-slate-800 transition-colors"><i class="fas fa-arrow-right"></i></button></div></div>`;
       });
-    }
-
-    function toggleSearch() {
-      const searchBar = document.getElementById('searchBar');
-      searchBar.classList.toggle('hidden');
-      if (!searchBar.classList.contains('hidden')) document.getElementById('searchInput').focus();
-    }
-
-    // ==============================================
-    // DETAIL & CART FUNCTIONS
-    // ==============================================
-    function openDetail(idx) {
-      if (idx < 0 || idx >= storeData.products.length) return;
+    };
+    
+    // UI HELPERS
+    window.toggleSearch = function() { 
+        const sb = document.getElementById('searchBar'); sb.classList.toggle('hidden'); 
+        if(!sb.classList.contains('hidden')) document.getElementById('searchInput').focus(); 
+    };
+    window.openDetail = function(idx) {
+      if (idx < 0) return;
       currentDetailIdx = idx;
       const p = storeData.products[idx];
       document.getElementById('detailImg').src = p.image || `https://placehold.co/400x400?text=${encodeURIComponent(p.name)}`;
@@ -772,472 +520,186 @@
       document.getElementById('detailStock').innerText = "Stok: " + p.stock;
       document.getElementById('detailDesc').innerText = p.desc || "Tidak ada deskripsi.";
       document.getElementById('detailCat').innerText = p.category || "Umum";
-      
       const btn = document.getElementById('btnAddToCart');
       if(parseInt(p.stock) > 0) {
-        btn.disabled = false; 
-        btn.innerHTML = `<i class="fas fa-plus"></i> TAMBAH KE KERANJANG`; 
-        btn.classList.remove('bg-slate-400', 'cursor-not-allowed');
-        btn.classList.add('bg-slate-900', 'hover:bg-slate-800');
+        btn.disabled = false; btn.innerHTML = `<i class="fas fa-plus"></i> TAMBAH KE KERANJANG`; 
+        btn.className = "w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-95 transition-all";
       } else {
-        btn.disabled = true; 
-        btn.innerHTML = `STOK HABIS`; 
-        btn.classList.remove('bg-slate-900', 'hover:bg-slate-800');
-        btn.classList.add('bg-slate-400', 'cursor-not-allowed');
+        btn.disabled = true; btn.innerHTML = `STOK HABIS`; 
+        btn.className = "w-full bg-slate-300 text-slate-500 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed";
       }
       document.getElementById('detailModal').classList.remove('hidden');
-    }
-
-    function closeDetail() { document.getElementById('detailModal').classList.add('hidden'); }
-    function addToCartFromDetail() { if(currentDetailIdx > -1) { addToCart(currentDetailIdx); closeDetail(); } }
-
-    function addToCart(idx) {
+    };
+    window.closeDetail = function() { document.getElementById('detailModal').classList.add('hidden'); };
+    window.addToCartFromDetail = function() { if(currentDetailIdx > -1) { window.addToCart(currentDetailIdx); window.closeDetail(); } };
+    
+    window.addToCart = function(idx) {
       const p = storeData.products[idx];
-      if(!p || parseInt(p.stock) <= 0) {
-        toastr.error("Stok Habis");
-        return;
-      }
+      if(!p || parseInt(p.stock) <= 0) { toastr.error("Stok Habis"); return; }
       const exist = cart.find(c => c.idx === idx);
       if(exist) exist.qty++; else cart.push({ idx, name: p.name, price: parseInt(p.price), qty: 1 });
-      saveCart(); 
-      toastr.success("Ditambahkan ke Keranjang");
-      updateCartBadge();
-    }
+      window.saveCart(); toastr.success("Masuk Keranjang");
+    };
 
-    function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); updateCartBadge(); }
+    window.saveCart = function() { localStorage.setItem('cart', JSON.stringify(cart)); window.updateCartBadge(); };
+    window.updateCartBadge = function() { 
+      const t = cart.reduce((s, i) => s + (i.qty || 0), 0);
+      const b = document.getElementById('cartBadge');
+      b.innerText = t > 99 ? '99+' : t; t > 0 ? b.classList.remove('hidden') : b.classList.add('hidden');
+    };
+    window.openCart = function() { window.switchTab('cart'); window.renderCartList(); document.getElementById('cartModal').classList.remove('hidden'); if(cart.length) setTimeout(() => document.getElementById('orderNote').focus(), 300); };
+    window.closeCart = function() { document.getElementById('cartModal').classList.add('hidden'); window.switchTab('home'); };
     
-    function updateCartBadge() { 
-      const totalQty = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
-      const badge = document.getElementById('cartBadge');
-      badge.innerText = totalQty > 99 ? '99+' : totalQty;
-      totalQty > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
-    }
-    
-    function openCart() { 
-      switchTab('cart'); 
-      renderCartList(); 
-      document.getElementById('cartModal').classList.remove('hidden');
-      if (cart.length > 0) setTimeout(() => { document.getElementById('orderNote').focus(); }, 300);
-    }
-
-    function closeCart() { document.getElementById('cartModal').classList.add('hidden'); switchTab('home'); }
-
-    function renderCartList() {
-      const list = document.getElementById('cartList');
-      const totalDisplay = document.getElementById('cartTotalDisplay');
-      const checkoutBtn = document.getElementById('btnCheckout');
-      list.innerHTML = "";
-      
-      if(cart.length === 0) {
-        list.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs">Keranjang kosong</div>';
-        totalDisplay.innerText = "Rp 0";
-        checkoutBtn.disabled = true;
-        return;
+    window.renderCartList = function() {
+      const l = document.getElementById('cartList'); l.innerHTML = "";
+      if(cart.length === 0) { 
+        l.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs">Keranjang kosong</div>';
+        document.getElementById('cartTotalDisplay').innerText = "Rp 0"; document.getElementById('btnCheckout').disabled = true; return; 
       }
-      
-      let subtotal = 0;
-      cart.forEach((item, index) => {
-        const itemTotal = (parseInt(item.price) || 0) * (parseInt(item.qty) || 1);
-        subtotal += itemTotal;
-        list.innerHTML += `
-            <div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl hover:shadow-sm">
-                <div class="flex-1 min-w-0 mr-3">
-                    <h4 class="font-bold text-xs text-slate-700 truncate">${item.name}</h4>
-                    <p class="text-xs text-blue-600 font-bold mt-1">Rp ${item.price.toLocaleString('id-ID')}</p>
-                </div>
-                <div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1">
-                    <button onclick="modQty(${index}, -1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">−</button>
-                    <span class="text-xs font-bold w-5 text-center">${item.qty}</span>
-                    <button onclick="modQty(${index}, 1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">+</button>
-                </div>
-            </div>`;
+      let sub = 0;
+      cart.forEach((i, x) => {
+        sub += (i.price*i.qty);
+        l.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl hover:shadow-sm"><div class="flex-1 min-w-0 mr-3"><h4 class="font-bold text-xs text-slate-700 truncate">${i.name}</h4><p class="text-xs text-blue-600 font-bold mt-1">Rp ${i.price.toLocaleString('id-ID')}</p></div><div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1"><button onclick="modQty(${x}, -1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">−</button><span class="text-xs font-bold w-5 text-center">${i.qty}</span><button onclick="modQty(${x}, 1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">+</button></div></div>`;
       });
-      const total = subtotal + (parseInt(storeData.fee) || 0);
-      totalDisplay.innerText = "Rp " + total.toLocaleString('id-ID');
-      checkoutBtn.disabled = false;
-    }
+      document.getElementById('cartTotalDisplay').innerText = "Rp " + (sub + (parseInt(storeData.fee)||0)).toLocaleString('id-ID');
+      document.getElementById('btnCheckout').disabled = false;
+    };
+    window.modQty = function(x, d) { if(!cart[x])return; cart[x].qty+=d; if(cart[x].qty<=0)cart.splice(x,1); window.saveCart(); window.renderCartList(); };
 
-    function modQty(index, delta) {
-      if (!cart[index]) return;
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) cart.splice(index, 1);
-      saveCart();
-      renderCartList();
-    }
-
-    // ==============================================
-    // PAYMENT & RECEIPT (UPDATED FOR QRIS FIX)
-    // ==============================================
-    function initPayment() {
-      if(cart.length === 0) { toastr.warning("Keranjang kosong"); return; }
-      
-      const note = document.getElementById('orderNote').value.trim();
-      if(!note) {
-        toastr.warning("Isi catatan terlebih dahulu");
-        document.getElementById('orderNote').classList.add('border-red-300');
-        return;
-      }
-      
-      const subtotal = cart.reduce((t, i) => t + (i.price * i.qty), 0);
-      const total = subtotal + (parseInt(storeData.fee) || 0);
-      
-      document.getElementById('payAmountDisplay').innerText = "Rp " + total.toLocaleString('id-ID');
-      
-      const qrContainer = document.getElementById('qrContainer');
-      const qrStatus = document.getElementById('qrStatus');
-      const qrisRaw = storeData.qris || "";
-      
-      if(!qrisRaw) {
-        qrContainer.innerHTML = '<p class="text-xs text-red-500 text-center">QRIS belum diatur Admin</p>';
-        qrStatus.classList.add('hidden');
-      } else {
-        qrContainer.innerHTML = '<div class="text-center py-8"><p class="text-xs text-slate-400">Loading QR...</p></div>';
-        qrStatus.classList.remove('hidden');
+    window.initPayment = function() {
+        if(cart.length === 0) return;
+        if(!document.getElementById('orderNote').value.trim()) { toastr.warning("Isi catatan dulu"); return; }
+        const sub = cart.reduce((t,i)=>t+(i.price*i.qty),0);
+        const total = sub + (parseInt(storeData.fee)||0);
+        document.getElementById('payAmountDisplay').innerText = "Rp " + total.toLocaleString('id-ID');
+        const qc = document.getElementById('qrContainer');
+        const qs = document.getElementById('qrStatus');
+        const raw = storeData.qris || "";
         
-        setTimeout(() => {
-          try {
-            // FIX: GUNAKAN LOGIKA CRC16 DISINI
-            let finalQR = qrisRaw;
-            let statusText = "Scan QRIS Manual";
-            let statusClass = "text-orange-600 bg-orange-50";
-
-            if(qrisRaw.length > 20) {
-                 finalQR = formatQrisAmount(qrisRaw, total);
-                 statusText = "Nominal Otomatis: Rp " + total.toLocaleString('id-ID');
-                 statusClass = "text-green-600 bg-green-50";
-            }
-
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, {
-              text: finalQR,
-              width: 180,
-              height: 180,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.L // Low Level agar mudah discan
-            });
-            
-            qrStatus.innerHTML = statusText;
-            qrStatus.className = `text-[10px] ${statusClass} py-1 rounded mt-2`;
-          } catch (error) {
-            console.error(error);
-            qrContainer.innerHTML = '<p class="text-xs text-red-500">Error QR Code</p>';
-          }
-        }, 300);
-      }
-      
-      document.getElementById('cartModal').classList.add('hidden');
-      document.getElementById('paymentModal').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function closePayment() { document.getElementById('paymentModal').classList.add('hidden'); }
-
-    async function generateReceipt() {
-      const note = document.getElementById('orderNote').value.trim();
-      const subtotal = cart.reduce((t, i) => t + (i.price * i.qty), 0);
-      const fee = parseInt(storeData.fee) || 0;
-      const total = subtotal + fee;
-      
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      
-      document.getElementById('recStoreName').innerText = storeData.name || "Store";
-      document.getElementById('receiptDate').innerText = dateStr;
-      document.getElementById('receiptName').innerText = userProfile.name || "Tamu";
-      document.getElementById('receiptTotal').innerText = "Rp " + total.toLocaleString('id-ID');
-      
-      const itemsContainer = document.getElementById('receiptItems');
-      itemsContainer.innerHTML = "";
-      cart.forEach(item => {
-        itemsContainer.innerHTML += `
-            <div class="flex justify-between text-xs">
-                <span class="truncate max-w-[60%]">${item.name} ×${item.qty}</span>
-                <span class="font-medium">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</span>
-            </div>`;
-      });
-      if(fee > 0) itemsContainer.innerHTML += `<div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed"><span>Biaya Admin</span><span>Rp ${fee.toLocaleString('id-ID')}</span></div>`;
-      
-      document.getElementById('receiptNoteBox').innerText = "📝 " + note;
-      
-      if (user && !isGuestMode) {
-        try {
-          await push(ref(db, `orders/${user.uid}`), {
-            items: [...cart], subtotal, fee, total, note, date: Date.now(), status: "pending",
-            customerName: userProfile.name, customerPhone: userProfile.phone
-          });
-        } catch (e) { console.error(e); }
-      }
-      
-      document.getElementById('paymentModal').classList.add('hidden');
-      document.getElementById('receiptModal').classList.remove('hidden');
-    }
-
-    function sendToWhatsapp() {
-      const note = document.getElementById('orderNote').value.trim();
-      const subtotal = cart.reduce((t, i) => t + (i.price * i.qty), 0);
-      const fee = parseInt(storeData.fee) || 0;
-      const total = subtotal + fee;
-      
-      let msg = `*STRUK PEMESANAN - ${storeData.name}*\n----------------\n👤 ${userProfile.name || 'Tamu'}\n📅 ${new Date().toLocaleString('id-ID')}\n----------------\n`;
-      cart.forEach(i => msg += `➡️ ${i.name} (${i.qty}) : Rp ${(i.price*i.qty).toLocaleString('id-ID')}\n`);
-      msg += `----------------\n💰 Sub: Rp ${subtotal.toLocaleString('id-ID')}\n💼 Fee: Rp ${fee.toLocaleString('id-ID')}\n💵 *TOTAL: Rp ${total.toLocaleString('id-ID')}*\n----------------\n📝 Note: ${note}\n✅ LUNAS (QRIS)`;
-      
-      window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(msg)}`, '_blank');
-      setTimeout(() => { cart = []; saveCart(); location.reload(); }, 1500);
-    }
-    
-    function closeReceipt() { cart = []; saveCart(); location.reload(); }
-
-    // ==============================================
-    // PROFILE & OTHER UTILS
-    // ==============================================
-    async function loadProfile(uid) {
-      try {
-        const snap = await get(child(ref(db), `users/${uid}`));
-        if(snap.exists()) userProfile = snap.val();
-        else userProfile = { name: user.displayName, email: user.email, avatar: user.photoURL, phone: "", address: "" };
-        
-        document.getElementById('headerGreeting').innerText = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak";
-        if(userProfile.avatar) {
-          document.getElementById('headerAvatar').src = userProfile.avatar;
-          document.getElementById('profileAvatarEdit').src = userProfile.avatar;
+        if(!raw) { qc.innerHTML = '<p class="text-xs text-red-500 text-center">QRIS belum diset</p>'; qs.classList.add('hidden'); }
+        else {
+            qc.innerHTML = '<div class="text-center py-8"><p class="text-xs text-slate-400">Membuat QR...</p></div>'; qs.classList.remove('hidden');
+            setTimeout(() => {
+                try {
+                    let final = raw; let txt = "Scan Manual"; let cls = "text-orange-600 bg-orange-50";
+                    if(raw.length > 20) { final = formatQrisAmount(raw, total); txt = "Nominal Otomatis"; cls = "text-green-600 bg-green-50"; }
+                    qc.innerHTML = ""; new QRCode(qc, { text: final, width: 180, height: 180, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+                    qs.innerHTML = txt; qs.className = `text-[10px] ${cls} py-1 rounded mt-2`;
+                } catch(e) { qc.innerHTML = '<p class="text-xs text-red-500">Error QR</p>'; }
+            }, 300);
         }
-        document.getElementById('profName').value = userProfile.name || "";
-        document.getElementById('profPhone').value = userProfile.phone || "";
-        document.getElementById('profAddress').value = userProfile.address || "";
+        document.getElementById('cartModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('hidden');
+    };
+    window.closePayment = function() { document.getElementById('paymentModal').classList.add('hidden'); };
+
+    window.generateReceipt = async function() {
+        const note = document.getElementById('orderNote').value;
+        const sub = cart.reduce((t,i)=>t+(i.price*i.qty),0);
+        const fee = parseInt(storeData.fee)||0;
+        const total = sub+fee;
+        document.getElementById('recStoreName').innerText = storeData.name;
+        document.getElementById('receiptDate').innerText = new Date().toLocaleDateString('id-ID');
+        document.getElementById('receiptName').innerText = userProfile.name||"Tamu";
+        document.getElementById('receiptTotal').innerText = "Rp "+total.toLocaleString('id-ID');
+        const ri = document.getElementById('receiptItems'); ri.innerHTML = "";
+        cart.forEach(i => ri.innerHTML += `<div class="flex justify-between text-xs"><span class="truncate max-w-[60%]">${i.name} ×${i.qty}</span><span class="font-medium">Rp ${(i.price*i.qty).toLocaleString('id-ID')}</span></div>`);
+        if(fee>0) ri.innerHTML += `<div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed"><span>Biaya Admin</span><span>Rp ${fee.toLocaleString('id-ID')}</span></div>`;
+        document.getElementById('receiptNoteBox').innerText = "📝 "+note;
         
-        // Load History
-        const hSnap = await get(child(ref(db), `orders/${uid}`));
-        const hList = document.getElementById('historyList');
-        hList.innerHTML = "";
-        if(hSnap.exists()) {
-           Object.values(hSnap.val()).sort((a,b)=>b.date-a.date).slice(0,5).forEach(o => {
-             hList.innerHTML += `<div class="text-[10px] bg-slate-50 p-2 rounded flex justify-between items-center mb-1"><div><span class="font-medium">${new Date(o.date).toLocaleDateString('id-ID')}</span></div><span class="font-bold">Rp ${parseInt(o.total).toLocaleString('id-ID')}</span></div>`;
-           });
-        } else { hList.innerHTML = '<p class="text-xs text-slate-400 text-center">Belum ada pesanan</p>'; }
-      } catch(e) {}
-    }
+        if(user && !isGuestMode) {
+             try { await push(ref(db, `orders/${user.uid}`), { items: [...cart], subtotal: sub, fee, total, note, date: Date.now(), status: "pending", customerName: userProfile.name, customerPhone: userProfile.phone }); } catch(e){}
+        }
+        document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('receiptModal').classList.remove('hidden');
+    };
 
-    function handleAvatarUpload(input) {
-      const file = input.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const maxSize = 300;
-          let w = img.width, h = img.height;
-          if (w > maxSize) { h = (h * maxSize) / w; w = maxSize; }
-          canvas.width = w; canvas.height = h;
-          ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          document.getElementById('profileAvatarEdit').src = dataUrl;
-          userProfile.tempAvatar = dataUrl;
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+    window.sendToWhatsapp = function() {
+        const note = document.getElementById('orderNote').value;
+        const sub = cart.reduce((t,i)=>t+(i.price*i.qty),0);
+        const fee = parseInt(storeData.fee)||0;
+        const total = sub+fee;
+        let msg = `*STRUK - ${storeData.name}*\n👤 ${userProfile.name||'Tamu'}\n`;
+        cart.forEach(i => msg += `➡️ ${i.name} (${i.qty}) : Rp ${(i.price*i.qty).toLocaleString('id-ID')}\n`);
+        msg += `💰 Total: Rp ${total.toLocaleString('id-ID')}\n📝 ${note}\n✅ LUNAS (QRIS)`;
+        window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(msg)}`, '_blank');
+        setTimeout(() => { cart=[]; window.saveCart(); location.reload(); }, 1500);
+    };
+    window.closeReceipt = function() { cart=[]; window.saveCart(); location.reload(); };
 
-    async function saveProfileData() {
-      if(!user || isGuestMode) return;
-      userProfile.name = document.getElementById('profName').value.trim();
-      userProfile.phone = document.getElementById('profPhone').value.trim();
-      userProfile.address = document.getElementById('profAddress').value.trim();
-      if(userProfile.tempAvatar) { userProfile.avatar = userProfile.tempAvatar; delete userProfile.tempAvatar; }
-      
-      try {
-        await update(ref(db, `users/${user.uid}`), userProfile);
-        document.getElementById('headerGreeting').innerText = "Halo, " + userProfile.name.split(' ')[0];
-        if(userProfile.avatar) document.getElementById('headerAvatar').src = userProfile.avatar;
-        toastr.success("Profil disimpan");
-      } catch (e) { toastr.error("Gagal simpan"); }
-    }
-
-    // ==============================================
-    // ADMIN ACTIONS
-    // ==============================================
-    function handleAdmImg(input) {
-      const file = input.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const cvs = document.createElement('canvas');
-          const ctx = cvs.getContext('2d');
-          const max = 300;
-          let w = img.width, h = img.height;
-          if(w > max) { h = (h*max)/w; w = max; }
-          cvs.width = w; cvs.height = h;
-          ctx.drawImage(img,0,0,w,h);
-          tempAdmImg = cvs.toDataURL('image/jpeg', 0.7);
-          document.getElementById('admImgPrev').src = tempAdmImg;
-          document.getElementById('admImgPrev').classList.remove('hidden');
-          document.getElementById('admImgIcon').classList.add('hidden');
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function handleQrisUpload(input) {
-      const file = input.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const cvs = document.createElement("canvas");
-          cvs.width = img.width; cvs.height = img.height;
-          const ctx = cvs.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          try {
-            const code = jsQR(ctx.getImageData(0,0,cvs.width,cvs.height).data, cvs.width, cvs.height);
-            if (code) { document.getElementById('admQris').value = code.data; toastr.success("QRIS terbaca!"); }
-            else toastr.error("QRIS tidak terbaca");
-          } catch (e) {}
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function saveAdmProd() {
-      const idx = parseInt(document.getElementById('admEditIdx').value);
-      const prod = {
-        name: document.getElementById('admPName').value.trim(),
-        category: document.getElementById('admPCat').value.trim() || "Umum",
-        price: document.getElementById('admPPrice').value || 0,
-        stock: document.getElementById('admPStock').value || 0,
-        desc: document.getElementById('admPDesc').value.trim(),
-        image: tempAdmImg || (idx > -1 ? storeData.products[idx].image : "")
-      };
-      if(!prod.name) return;
-      
-      if(idx > -1) storeData.products[idx] = prod; else storeData.products.push(prod);
-      await update(ref(db, `stores/${STORE_ID}`), storeData);
-      resetAdmForm(); renderAdmList(); renderCategories(); renderProducts();
-      toastr.success("Produk disimpan");
-    }
-
-    function resetAdmForm() {
-      document.getElementById('admPName').value = "";
-      document.getElementById('admPCat').value = "";
-      document.getElementById('admPPrice').value = "";
-      document.getElementById('admPStock').value = "";
-      document.getElementById('admPDesc').value = "";
-      document.getElementById('admEditIdx').value = "-1";
-      tempAdmImg = "";
-      document.getElementById('admImgPrev').classList.add('hidden');
-      document.getElementById('admImgIcon').classList.remove('hidden');
-    }
-
-    function renderAdmList() {
-      const list = document.getElementById('admList');
-      list.innerHTML = "";
-      storeData.products.forEach((p, i) => {
-        list.innerHTML += `
-            <div class="flex justify-between items-center bg-white p-3 text-xs border rounded-lg mb-2">
-                <div class="flex-1 min-w-0">
-                    <b>${p.name}</b><br>
-                    <span class="text-slate-500">Rp ${parseInt(p.price).toLocaleString()} | Stok: ${p.stock}</span>
-                </div>
-                <div>
-                    <button onclick="editAdm(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button>
-                    <button onclick="delAdm(${i})" class="text-red-500"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-      });
-    }
-
-    function editAdm(i) {
-      const p = storeData.products[i];
-      document.getElementById('admPName').value = p.name;
-      document.getElementById('admPCat').value = p.category;
-      document.getElementById('admPPrice').value = p.price;
-      document.getElementById('admPStock').value = p.stock;
-      document.getElementById('admPDesc').value = p.desc;
-      document.getElementById('admEditIdx').value = i;
-      if(p.image) {
-        tempAdmImg = p.image;
-        document.getElementById('admImgPrev').src = p.image;
-        document.getElementById('admImgPrev').classList.remove('hidden');
-        document.getElementById('admImgIcon').classList.add('hidden');
-      }
-    }
-
-    async function delAdm(i) {
-      if(!confirm('Hapus?')) return;
-      storeData.products.splice(i, 1);
-      await update(ref(db, `stores/${STORE_ID}`), storeData);
-      renderAdmList(); renderProducts();
-    }
-
-    async function saveAdmSettings() {
-      storeData.name = document.getElementById('admStoreName').value.trim();
-      storeData.fee = parseInt(document.getElementById('admFee').value) || 0;
-      storeData.qris = document.getElementById('admQris').value.trim();
-      await update(ref(db, `stores/${STORE_ID}`), storeData);
-      toastr.success("Pengaturan disimpan"); setTimeout(() => location.reload(), 500);
-    }
-
-    function doLogout() {
-      if(confirm("Logout?")) {
-        if (isGuestMode) location.reload();
-        else signOut(auth).then(() => location.reload());
-      }
-    }
-
-    function switchTab(tab) {
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      document.getElementById(`nav-${tab}`).classList.add('active');
-    }
-
-    // EXPORT TO WINDOW
-    Object.assign(window, {
-        loginWithGoogle, continueAsGuest, showLoginOptions, initStore, filterCat, filterProducts, toggleSearch,
-        openDetail, closeDetail, addToCartFromDetail, addToCart, modQty, openCart, closeCart,
-        initPayment, closePayment, generateReceipt, sendToWhatsapp, closeReceipt,
-        handleAvatarUpload, saveProfileData, checkAdmin, openAdminLogin, closeAdminLogin, closeAdminPanel,
-        handleAdmImg, handleQrisUpload, saveAdmProd, resetAdmForm, editAdm, delAdm, saveAdmSettings,
-        doLogout, switchTab, openProfile, closeProfile: () => { document.getElementById('profileModal').classList.add('hidden'); switchTab('home'); }
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const isAdminPage = urlParams.get('page') === 'admin';
-        document.getElementById('googleLoginBtn').addEventListener('click', loginWithGoogle);
-        document.getElementById('guestLoginBtn').addEventListener('click', continueAsGuest);
-        document.getElementById('pinForm').addEventListener('submit', (e) => { e.preventDefault(); checkAdmin(); });
-        document.getElementById('togglePin').addEventListener('click', function() {
-            const pinInp = document.getElementById('adminPin');
-            pinInp.type = pinInp.type === 'password' ? 'text' : 'password';
+    // ADMIN & PROFILE
+    window.checkAdmin = function() {
+        if(!user || user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
+        if(document.getElementById('adminPin').value === ADMIN_PIN) {
+             document.getElementById('adminLoginModal').classList.add('hidden');
+             document.getElementById('adminModal').classList.remove('hidden');
+             document.getElementById('admStoreName').value = storeData.name;
+             document.getElementById('admFee').value = storeData.fee;
+             document.getElementById('admQris').value = storeData.qris;
+             window.renderAdmList();
+        } else toastr.error("PIN Salah");
+    };
+    window.closeAdminPanel = function() { document.getElementById('adminModal').classList.add('hidden'); };
+    
+    window.renderAdmList = function() {
+        const l = document.getElementById('admList'); l.innerHTML = "";
+        storeData.products.forEach((p,i) => {
+            l.innerHTML += `<div class="flex justify-between items-center bg-white p-3 text-xs border rounded-lg mb-2"><div class="flex-1"><b>${p.name}</b><br>Stok: ${p.stock}</div><div><button onclick="editAdm(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="delAdm(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div></div>`;
         });
+    };
+    window.editAdm = function(i) {
+        const p = storeData.products[i];
+        document.getElementById('admPName').value = p.name; document.getElementById('admPCat').value = p.category;
+        document.getElementById('admPPrice').value = p.price; document.getElementById('admPStock').value = p.stock;
+        document.getElementById('admPDesc').value = p.desc; document.getElementById('admEditIdx').value = i;
+        if(p.image) { tempAdmImg = p.image; document.getElementById('admImgPrev').src = p.image; document.getElementById('admImgPrev').classList.remove('hidden'); document.getElementById('admImgIcon').classList.add('hidden'); }
+    };
+    window.delAdm = async function(i) { if(confirm('Hapus?')) { storeData.products.splice(i,1); await update(ref(db, `stores/${STORE_ID}`), storeData); window.renderAdmList(); window.renderProducts(); } };
+    window.saveAdmProd = async function() {
+        const i = parseInt(document.getElementById('admEditIdx').value);
+        const p = { name: document.getElementById('admPName').value, category: document.getElementById('admPCat').value, price: document.getElementById('admPPrice').value, stock: document.getElementById('admPStock').value, desc: document.getElementById('admPDesc').value, image: tempAdmImg || (i > -1 ? storeData.products[i].image : "") };
+        if(i > -1) storeData.products[i] = p; else storeData.products.push(p);
+        await update(ref(db, `stores/${STORE_ID}`), storeData); window.resetAdmForm(); window.renderAdmList(); window.renderProducts();
+    };
+    window.resetAdmForm = function() { document.getElementById('admPName').value=""; document.getElementById('admEditIdx').value="-1"; tempAdmImg=""; document.getElementById('admImgPrev').classList.add('hidden'); document.getElementById('admImgIcon').classList.remove('hidden'); };
+    window.saveAdmSettings = async function() { storeData.name = document.getElementById('admStoreName').value; storeData.fee = document.getElementById('admFee').value; storeData.qris = document.getElementById('admQris').value; await update(ref(db, `stores/${STORE_ID}`), storeData); toastr.success("Disimpan"); setTimeout(() => location.reload(), 500); };
+    window.handleAdmImg = function(input) { const f=input.files[0]; if(f) { const r=new FileReader(); r.onload=(e)=>{const i=new Image(); i.onload=()=>{const c=document.createElement('canvas'); const ctx=c.getContext('2d'); let w=i.width,h=i.height; if(w>300){h=(h*300)/w;w=300;} c.width=w;c.height=h;ctx.drawImage(i,0,0,w,h); tempAdmImg=c.toDataURL('image/jpeg',0.7); document.getElementById('admImgPrev').src=tempAdmImg; document.getElementById('admImgPrev').classList.remove('hidden'); document.getElementById('admImgIcon').classList.add('hidden');}; i.src=e.target.result;}; r.readAsDataURL(f); }};
+    window.handleQrisUpload = function(input) { const f=input.files[0]; if(f) { const r=new FileReader(); r.onload=(e)=>{const i=new Image(); i.onload=()=>{const c=document.createElement('canvas'); c.width=i.width;c.height=i.height; c.getContext('2d').drawImage(i,0,0); try{const code=jsQR(c.getContext('2d').getImageData(0,0,c.width,c.height).data,c.width,c.height); if(code)document.getElementById('admQris').value=code.data;}catch(e){}}; i.src=e.target.result;}; r.readAsDataURL(f); }};
 
+    window.switchTab = function(t) { document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active')); document.getElementById(`nav-${t}`).classList.add('active'); };
+    window.doLogout = function() { if(confirm("Logout?")) signOut(auth).then(()=>location.reload()); };
+    window.openProfile = function() { if(!user||isGuestMode) window.showLoginOptions(); else { window.switchTab('profile'); document.getElementById('profileModal').classList.remove('hidden'); } };
+    window.closeProfile = function() { document.getElementById('profileModal').classList.add('hidden'); window.switchTab('home'); };
+    window.handleAvatarUpload = function(input) { const f=input.files[0]; if(f) { const r=new FileReader(); r.onload=(e)=>{const i=new Image(); i.onload=()=>{const c=document.createElement('canvas'); const ctx=c.getContext('2d'); let w=i.width,h=i.height; if(w>300){h=(h*300)/w;w=300;} c.width=w;c.height=h;ctx.drawImage(i,0,0,w,h); const d=c.toDataURL('image/jpeg',0.7); document.getElementById('profileAvatarEdit').src=d; userProfile.tempAvatar=d; }; i.src=e.target.result;}; r.readAsDataURL(f); }};
+    window.saveProfileData = async function() { userProfile.name = document.getElementById('profName').value; userProfile.phone = document.getElementById('profPhone').value; userProfile.address = document.getElementById('profAddress').value; if(userProfile.tempAvatar) { userProfile.avatar = userProfile.tempAvatar; delete userProfile.tempAvatar; } await update(ref(db, `users/${user.uid}`), userProfile); toastr.success("Profil disimpan"); document.getElementById('headerGreeting').innerText = "Halo, " + userProfile.name.split(' ')[0]; if(userProfile.avatar) document.getElementById('headerAvatar').src = userProfile.avatar; };
+    window.loadProfile = async function(uid) { const s = await get(child(ref(db), `users/${uid}`)); if(s.exists()) userProfile=s.val(); else userProfile={name:user.displayName,email:user.email,avatar:user.photoURL}; document.getElementById('headerGreeting').innerText = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak"; if(userProfile.avatar) { document.getElementById('headerAvatar').src = userProfile.avatar; document.getElementById('profileAvatarEdit').src = userProfile.avatar; } document.getElementById('profName').value = userProfile.name||""; document.getElementById('profPhone').value = userProfile.phone||""; document.getElementById('profAddress').value = userProfile.address||""; const h = await get(child(ref(db), `orders/${uid}`)); const hl = document.getElementById('historyList'); hl.innerHTML=""; if(h.exists()) { Object.values(h.val()).sort((a,b)=>b.date-a.date).slice(0,5).forEach(o=>{ hl.innerHTML+=`<div class="text-[10px] bg-slate-50 p-2 rounded flex justify-between items-center mb-1"><div><span class="font-medium">${new Date(o.date).toLocaleDateString('id-ID')}</span></div><span class="font-bold">Rp ${parseInt(o.total).toLocaleString('id-ID')}</span></div>`; }); } else hl.innerHTML='<p class="text-xs text-slate-400 text-center">Belum ada pesanan</p>'; };
+
+    // INITIALIZATION
+    try {
         const app = initializeApp(firebaseConfig);
         db = getDatabase(app);
         auth = getAuth(app);
         
-        onAuthStateChanged(auth, (userData) => {
-            if (userData) {
-                user = userData; isGuestMode = false;
-                if(user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        document.getElementById('pinForm').addEventListener('submit', (e) => { e.preventDefault(); window.checkAdmin(); });
+        document.getElementById('togglePin').addEventListener('click', function() { const i = document.getElementById('adminPin'); i.type = i.type === 'password' ? 'text' : 'password'; });
+
+        onAuthStateChanged(auth, (u) => {
+            if (u) {
+                user = u; isGuestMode = false;
+                if(u.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('adminHeaderBtn').classList.remove('hidden');
                     document.getElementById('nav-admin').classList.remove('hidden');
                 }
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                loadProfile(user.uid); initStore();
-                if(isAdminPage) setTimeout(openAdminLogin, 1000);
+                loadProfile(u.uid); initStore();
+                if(new URLSearchParams(window.location.search).get('page') === 'admin') setTimeout(openAdminLogin, 500);
             } else {
                 document.getElementById('loginModal').classList.remove('hidden');
             }
         });
-    });
+    } catch(e) {
+        console.error("Firebase Init Error:", e);
+        toastr.error("Gagal memuat sistem: Periksa Internet");
+    }
   </script>
 </body>
 </html>
