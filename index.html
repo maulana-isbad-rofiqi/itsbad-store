@@ -29,8 +29,11 @@
     .card-product:active { transform: scale(0.97); transition: 0.1s; }
     .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .category-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
     #qrContainer img { margin: 0 auto; border: 4px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
+    
+    /* Category Scroll */
+    .cat-btn { transition: all 0.2s; white-space: nowrap; }
+    .cat-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -67,14 +70,8 @@
             <button onclick="window.loginGoogle()" class="bg-white text-orange-600 px-3 py-1 rounded-lg text-xs font-bold border border-orange-100">Login</button>
         </div>
 
-        <div class="mb-5">
-            <div class="relative">
-                <select id="categorySelect" onchange="window.filterCat(this.value)" class="w-full appearance-none bg-white border border-slate-200 text-slate-700 py-3 px-4 pr-8 rounded-xl focus:outline-none text-sm font-bold shadow-sm">
-                    <option value="all">Semua Kategori</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500"><i class="fas fa-chevron-down text-xs"></i></div>
+        <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
             </div>
-        </div>
 
         <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20">
             <div class="col-span-2 text-center py-10 text-slate-400 text-xs">Memuat Produk...</div>
@@ -117,8 +114,8 @@
             <div id="cartList" class="flex-1 overflow-y-auto no-scrollbar space-y-3"></div>
             <div class="pt-4 border-t border-slate-100 mt-2">
                 <div class="bg-blue-50 p-3 rounded-xl mb-3 border border-blue-100">
-                    <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1">Target / No. HP / Catatan</label>
-                    <input type="text" id="orderNote" class="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 text-xs focus:outline-none" placeholder="Contoh: 08123xxxx (Wajib diisi)">
+                    <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1">Target / No. HP / Catatan (Wajib)</label>
+                    <input type="text" id="orderNote" class="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 text-xs focus:outline-none" placeholder="Contoh: 08123xxxx">
                 </div>
                 <div class="flex justify-between items-center mb-4"><span class="text-sm text-slate-500">Total + Fee</span><span class="text-xl font-bold text-blue-600" id="cartTotalDisplay">Rp 0</span></div>
                 <button onclick="window.initPayment()" id="btnCheckout" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg disabled:bg-slate-300 disabled:text-slate-500">Lanjut Pembayaran</button>
@@ -206,20 +203,18 @@
                 <button onclick="window.checkAdmin()" class="bg-slate-900 text-white px-6 py-2 rounded-lg text-sm">Masuk</button>
             </div>
             <div id="adminDash" class="hidden space-y-6">
-                
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                      <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Pengaturan Toko</h3>
                      <input id="admStoreName" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Nama Toko">
                      <input id="admFee" type="number" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Fee Admin">
                      
                      <div class="bg-blue-50 border border-blue-100 p-2 rounded mb-2">
-                         <p class="text-[10px] font-bold text-blue-600 mb-1">Upload QRIS (Gambar)</p>
+                         <p class="text-[10px] font-bold text-blue-600 mb-1">Upload QRIS (Screenshot)</p>
                          <input type="file" id="qrisFileInp" class="w-full text-xs" onchange="window.handleQrisUpload(this)">
                      </div>
                      <input id="admQris" class="w-full border p-2 rounded mb-2 text-xs bg-slate-50" placeholder="String QRIS (Terisi Otomatis)" readonly>
                      <button onclick="window.saveAdmSettings()" class="w-full bg-blue-600 text-white py-2 rounded text-xs font-bold">Simpan Config</button>
                 </div>
-
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Input Produk</h3>
                     <div class="flex gap-2 mb-2">
@@ -230,7 +225,9 @@
                         <input type="file" id="admImgInp" class="hidden" onchange="window.handleAdmImg(this)">
                         <div class="flex-1 space-y-2">
                             <input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk">
-                            <input id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori (misal: Telkomsel)">
+                            
+                            <input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori (Ketik/Pilih)">
+                            <datalist id="catList"></datalist>
                         </div>
                     </div>
                     <div class="flex gap-2 mb-2">
@@ -322,27 +319,36 @@
         } catch(e) { console.log(e); }
     }
 
-    // --- DYNAMIC CATEGORIES ---
+    // --- HORIZONTAL SCROLL CATEGORIES ---
     function renderCategories() {
         const cats = ['all'];
+        const datalist = document.getElementById('catList');
+        datalist.innerHTML = "";
+
         if(storeData.products) {
             storeData.products.forEach(p => {
                 const c = p.category || 'Umum';
                 if(!cats.includes(c)) cats.push(c);
+                // Populate Datalist for Admin
+                if(!Array.from(datalist.options).some(opt => opt.value === c)) {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    datalist.appendChild(opt);
+                }
             });
         }
-        const select = document.getElementById('categorySelect');
-        select.innerHTML = "";
+
+        const container = document.getElementById('categoryContainer');
+        container.innerHTML = "";
+
         cats.forEach(c => {
-            const label = c === 'all' ? 'Semua Kategori' : c;
-            const opt = document.createElement('option');
-            opt.value = c; opt.innerText = label;
-            if(c === activeCategory) opt.selected = true;
-            select.appendChild(opt);
+            const label = c === 'all' ? 'Semua' : c;
+            const activeClass = c === activeCategory ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600';
+            container.innerHTML += `<button onclick="window.filterCat('${c}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass}">${label}</button>`;
         });
     }
 
-    window.filterCat = (c) => { activeCategory = c; renderProducts(); };
+    window.filterCat = (c) => { activeCategory = c; renderCategories(); renderProducts(); };
     window.filterProducts = () => { const q = document.getElementById('searchInput').value.toLowerCase(); renderProducts(q); };
 
     function renderProducts(query = "") {
@@ -426,32 +432,36 @@
     }
     window.modQty = (i, d) => { cart[i].qty+=d; if(cart[i].qty<=0)cart.splice(i,1); saveCart(); renderCartList(); };
 
-    // --- CHECKOUT & QRIS ---
+    // --- CHECKOUT & QRIS FIX ---
     window.initPayment = () => {
         if(cart.length===0) return toastr.warning("Kosong");
         const note = document.getElementById('orderNote').value;
-        if(!note) return toastr.warning("Wajib isi Catatan/No.HP!");
+        if(!note) return toastr.warning("Mohon isi Tujuan/No.HP");
         
         const sub = cart.reduce((a,b)=>a+b.qty*b.price,0); const fee = parseInt(storeData.fee) || 0; const tot = sub + fee;
         document.getElementById('payAmountDisplay').innerText="Rp "+tot.toLocaleString();
         
-        const c = document.getElementById('qrContainer'); c.innerHTML=""; let q = storeData.qris;
+        const c = document.getElementById('qrContainer'); c.innerHTML=""; 
         const n = document.getElementById('qrStatus');
+        let q = storeData.qris;
 
-        if(q) {
+        if(!q) {
+            c.innerHTML="<div class='text-center text-xs text-red-500 py-10'>Admin belum set QRIS</div>";
+            n.classList.add('hidden');
+        } else {
+             n.classList.remove('hidden');
              try {
+                // Try dynamic injection
                 let raw = q.slice(0,-4).replace("010211","010212"); const s=tot+".00"; const t="54"+s.length.toString().padStart(2,'0')+s;
                 raw = raw.includes("5802ID") ? raw.replace(/(5802ID.*?)(?=59)/, "$1"+t) : raw+t;
                 let crc=0xFFFF; for(let i=0;i<raw.length;i++){crc^=raw.charCodeAt(i)<<8;for(let j=0;j<8;j++)crc=(crc&0x8000)?(crc<<1)^0x1021:crc<<1;}
                 q=raw+(crc&0xFFFF).toString(16).toUpperCase().padStart(4,'0');
                 n.innerHTML = "Nominal Otomatis"; n.className = "text-[10px] text-green-600 bg-green-50 py-1 rounded mt-2";
              } catch(e){ 
-                 console.log("Static");
-                 n.innerHTML = "Input Manual"; n.className = "text-[10px] text-orange-600 bg-orange-50 py-1 rounded mt-2";
+                 console.log("Static Fallback");
+                 n.innerHTML = "Input Nominal Manual"; n.className = "text-[10px] text-orange-600 bg-orange-50 py-1 rounded mt-2";
              }
              new QRCode(c, { text:q, width:180, height:180 });
-        } else {
-            c.innerHTML="<span class='text-xs text-red-500'>QRIS belum diset admin</span>";
         }
         document.getElementById('cartModal').classList.add('hidden');
         document.getElementById('paymentModal').classList.remove('hidden');
@@ -522,7 +532,6 @@
     // --- ADMIN ---
     window.checkAdmin = () => { if(document.getElementById('adminPin').value==="110603"){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminDash').classList.remove('hidden'); document.getElementById('admStoreName').value=storeData.name; document.getElementById('admFee').value=storeData.fee; document.getElementById('admQris').value=storeData.qris||""; renderAdmList();} else toastr.error("Salah"); };
     
-    // IMAGE COMPRESS
     window.handleAdmImg = (inp) => {
         const f = inp.files[0]; if(!f) return;
         const r = new FileReader(); r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const m=300;let w=i.width,h=i.height;if(w>m){h*=m/w;w=m;}c.width=w;c.height=h;x.drawImage(i,0,0,w,h);tempAdmImg=c.toDataURL('image/jpeg',0.7);document.getElementById('admImgPrev').src=tempAdmImg;document.getElementById('admImgPrev').classList.remove('hidden');document.getElementById('admImgIcon').classList.add('hidden');};i.src=e.target.result;};r.readAsDataURL(f);
