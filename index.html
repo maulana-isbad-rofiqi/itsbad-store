@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Merchant Payment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    /* Hide scrollbar */
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen text-slate-800">
+
+  <div class="w-full max-w-md bg-white shadow-2xl min-h-screen relative overflow-hidden flex flex-col">
+    
+    <div class="bg-blue-600 text-white p-5 pt-8 rounded-b-[2rem] shadow-lg z-10 relative transition-all duration-300">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Checkout</h1>
+          <p class="text-blue-100 text-sm opacity-90">Selesaikan pembayaran Anda</p>
+        </div>
+        <button onclick="resetConfig()" class="bg-white/20 p-2 rounded-full backdrop-blur-sm hover:bg-white/30 transition">
+          <i class="fas fa-cog text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="bg-white text-slate-800 p-4 rounded-xl shadow-md flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+          <i class="fas fa-store"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-xs text-slate-500 font-semibold uppercase">Merchant</p>
+          <h2 id="storeNameDisplay" class="font-bold text-lg leading-tight">...</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-5 pb-24 relative">
+      
+      <div id="setupPanel" class="hidden mb-6 bg-yellow-50 border border-yellow-200 p-4 rounded-xl shadow-sm">
+        <h3 class="font-bold text-yellow-800 mb-2 flex items-center gap-2">
+            <i class="fas fa-wrench"></i> Setup Toko (Admin)
+        </h3>
+        <p class="text-xs text-yellow-700 mb-3">Data akan disimpan otomatis di HP ini.</p>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-slate-500">Upload QRIS Asli</label>
+            <input type="file" id="qrisFile" accept="image/*" class="w-full mt-1 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+          </div>
+          <input type="text" id="storeNameInput" placeholder="Nama Toko" class="w-full p-2 border rounded text-sm">
+          <input type="text" id="waNumber" placeholder="Nomor WA (08xxxxx)" class="w-full p-2 border rounded text-sm">
+          <div class="relative">
+             <span class="absolute left-3 top-2 text-slate-400 text-sm">Rp</span>
+             <input type="number" id="nominalSet" placeholder="Nominal (0 = Bebas)" class="w-full p-2 pl-9 border rounded text-sm">
+          </div>
+          <button onclick="saveAndApply()" class="w-full bg-slate-800 text-white py-2 rounded-lg font-semibold text-sm shadow-lg hover:bg-slate-900 transition">💾 Simpan Data Toko</button>
+        </div>
+      </div>
+
+      <div id="paymentSection" class="hidden animate-fade-in">
+        <div class="text-center mb-6">
+          <p class="text-slate-500 text-sm mb-1">Total Pembayaran</p>
+          <h2 id="amountDisplay" class="text-3xl font-bold text-slate-800">Rp 0</h2>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center relative overflow-hidden">
+          <div class="absolute top-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+          
+          <div class="bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full mb-3 mt-2">QRIS AUTO</div>
+          
+          <div id="qrContainer" class="p-2 border border-slate-200 rounded-lg"></div>
+          
+          <p class="text-[10px] text-center text-slate-400 mt-3 flex items-center gap-1">
+             <i class="fas fa-shield-alt"></i> Verified by System
+          </p>
+        </div>
+
+        <div class="mt-8">
+          <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <i class="far fa-check-circle text-green-500"></i> Konfirmasi
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs font-semibold text-slate-500 ml-1">Nama Kamu</label>
+              <input type="text" id="custName" class="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition shadow-sm" placeholder="Isi nama pengirim...">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-500 ml-1">Catatan</label>
+              <textarea id="custNote" rows="1" class="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition shadow-sm" placeholder="Contoh: Beli Pulsa / Token"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="bottomBar" class="hidden p-4 bg-white border-t border-slate-100 absolute bottom-0 w-full z-20">
+      <button onclick="sendToWhatsapp()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex items-center justify-center gap-2">
+        <i class="fab fa-whatsapp text-xl"></i>
+        <span>Konfirmasi via WhatsApp</span>
+      </button>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // --- APP STATE ---
+    let appConfig = {
+      name: "Toko",
+      wa: "",
+      amount: 0,
+      qrisRaw: ""
+    };
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+      loadSettings();
+    };
+
+    function loadSettings() {
+      const saved = localStorage.getItem("myQrisConfig");
+      if (saved) {
+        appConfig = JSON.parse(saved);
+        renderPaymentUI();
+      } else {
+        showSetupUI();
+      }
+    }
+
+    function showSetupUI() {
+      document.getElementById('setupPanel').classList.remove('hidden');
+      document.getElementById('paymentSection').classList.add('hidden');
+      document.getElementById('bottomBar').classList.add('hidden');
+      document.getElementById('storeNameDisplay').innerText = "Mode Setup";
+    }
+
+    // --- CORE FUNCTIONS ---
+    function saveAndApply() {
+      const name = document.getElementById('storeNameInput').value;
+      const wa = document.getElementById('waNumber').value;
+      const amount = document.getElementById('nominalSet').value;
+      const fileInput = document.getElementById('qrisFile');
+
+      if (!name || !wa) { alert("Nama & WA wajib diisi!"); return; }
+
+      // Jika ada file baru
+      if (fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const code = decodeQRFromImage(img);
+            if (code) {
+              // Update Config
+              appConfig.name = name;
+              appConfig.wa = formatWA(wa);
+              appConfig.amount = amount ? parseInt(amount) : 0;
+              appConfig.qrisRaw = code;
+
+              // Save to Storage
+              localStorage.setItem("myQrisConfig", JSON.stringify(appConfig));
+              renderPaymentUI();
+            } else {
+              alert("QRIS tidak valid/buram.");
+            }
+          };
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        // Jika cuma update nama/nominal tanpa ganti QR
+        if(!appConfig.qrisRaw) { alert("Upload QRIS dulu!"); return; }
+        
+        appConfig.name = name;
+        appConfig.wa = formatWA(wa);
+        appConfig.amount = amount ? parseInt(amount) : 0;
+        localStorage.setItem("myQrisConfig", JSON.stringify(appConfig));
+        renderPaymentUI();
+      }
+    }
+
+    function renderPaymentUI() {
+      document.getElementById('setupPanel').classList.add('hidden');
+      document.getElementById('paymentSection').classList.remove('hidden');
+      document.getElementById('bottomBar').classList.remove('hidden');
+
+      // Update Texts
+      document.getElementById('storeNameDisplay').innerText = appConfig.name;
+      document.getElementById('amountDisplay').innerText = appConfig.amount > 0 
+        ? "Rp " + appConfig.amount.toLocaleString('id-ID') 
+        : "Input Manual";
+
+      // Generate QR
+      generateDisplayQR();
+    }
+
+    function resetConfig() {
+      if(confirm("Masuk ke mode edit toko?")) {
+        // Pre-fill inputs
+        document.getElementById('storeNameInput').value = appConfig.name;
+        document.getElementById('waNumber').value = appConfig.wa;
+        document.getElementById('nominalSet').value = appConfig.amount || "";
+        showSetupUI();
+      }
+    }
+
+    // --- HELPERS & LOGIC ---
+    function formatWA(num) {
+      let n = num.replace(/\D/g, '');
+      if(n.startsWith('0')) n = '62' + n.substring(1);
+      return n;
+    }
+
+    function decodeQRFromImage(img) {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, canvas.width, canvas.height);
+      return code ? code.data : null;
+    }
+
+    function generateDisplayQR() {
+      let finalString = appConfig.qrisRaw;
+      
+      if (appConfig.amount > 0) {
+        try {
+          finalString = createDynamicQRIS(appConfig.qrisRaw, appConfig.amount);
+        } catch (e) { console.error(e); }
+      }
+
+      const container = document.getElementById('qrContainer');
+      container.innerHTML = "";
+      new QRCode(container, {
+        text: finalString,
+        width: 220,
+        height: 220,
+        colorDark : "#1e293b",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+      });
+    }
+
+    // CRC16 & TLV Logic (Minified)
+    function createDynamicQRIS(p,a){let t=parseTLV(p);t=t.filter(x=>x.id!=='63');let i01=t.findIndex(x=>x.id==='01');if(i01>=0)t[i01].val='12';let as=parseFloat(a).toFixed(2);let t54={id:'54',val:as};let i54=t.findIndex(x=>x.id==='54');let i53=t.findIndex(x=>x.id==='53');if(i54>=0)t[i54]=t54;else if(i53>=0)t.splice(i53+1,0,t54);else t.push(t54);let b=t.map(i=>i.id+i.val.length.toString().padStart(2,'0')+i.val).join('');return b+"6304"+crc16(b+"6304")}
+    function parseTLV(p){let i=[],x=0;while(x<p.length){let id=p.substr(x,2),l=parseInt(p.substr(x+2,2));if(isNaN(l))break;i.push({id,val:p.substr(x+4,l)});x+=4+l}return i}
+    function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d.charCodeAt(i)<<8;for(let j=0;j<8;j++){c=(c&0x8000)?(c<<1)^0x1021:c<<1;c=c&0xFFFF}}return c.toString(16).toUpperCase().padStart(4,"0")}
+
+    // --- WHATSAPP ---
+    function sendToWhatsapp() {
+      const name = document.getElementById('custName').value;
+      const note = document.getElementById('custNote').value;
+      if (!name) { alert("Isi nama dulu bos!"); return; }
+
+      const total = appConfig.amount > 0 ? "Rp " + appConfig.amount.toLocaleString('id-ID') : "Sesuai Aplikasi";
+      
+      let text = `*PEMBAYARAN QRIS*\n`;
+      text += `------------------\n`;
+      text += `🛒 Toko: ${appConfig.name}\n`;
+      text += `👤 Pembeli: *${name}*\n`;
+      text += `💰 Nominal: *${total}*\n`;
+      text += `📝 Note: ${note || '-'}\n`;
+      text += `------------------\n`;
+      text += `Bukti transfer terlampir 📸`;
+
+      window.open(`https://wa.me/${appConfig.wa}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  </script>
+</body>
+</html>
