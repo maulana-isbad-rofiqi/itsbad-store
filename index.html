@@ -114,11 +114,11 @@
             <div id="cartList" class="flex-1 overflow-y-auto no-scrollbar space-y-3"></div>
             <div class="pt-4 border-t border-slate-100 mt-2">
                 <div class="bg-blue-50 p-3 rounded-xl mb-3 border border-blue-100">
-                    <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1">Target / No. HP / Catatan (Wajib)</label>
+                    <label class="text-[10px] font-bold text-blue-500 uppercase block mb-1">Target / No. HP / Catatan (Opsional)</label>
                     <input type="text" id="orderNote" class="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 text-xs focus:outline-none" placeholder="Contoh: 08123xxxx">
                 </div>
                 <div class="flex justify-between items-center mb-4"><span class="text-sm text-slate-500">Total + Fee</span><span class="text-xl font-bold text-blue-600" id="cartTotalDisplay">Rp 0</span></div>
-                <button onclick="window.initPayment()" id="btnCheckout" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg disabled:bg-slate-300 disabled:text-slate-500">Lanjut Pembayaran</button>
+                <button onclick="window.initPayment()" id="btnCheckout" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg">Lanjut Pembayaran</button>
             </div>
         </div>
     </div>
@@ -435,8 +435,9 @@
     // --- CHECKOUT & QRIS FIX ---
     window.initPayment = () => {
         if(cart.length===0) return toastr.warning("Kosong");
-        const note = document.getElementById('orderNote').value;
-        if(!note) return toastr.warning("Mohon isi Tujuan/No.HP");
+        
+        // CATATAN SEKARANG OPSIONAL
+        const note = document.getElementById('orderNote').value || "-";
         
         const sub = cart.reduce((a,b)=>a+b.qty*b.price,0); const fee = parseInt(storeData.fee) || 0; const tot = sub + fee;
         document.getElementById('payAmountDisplay').innerText="Rp "+tot.toLocaleString();
@@ -470,7 +471,7 @@
 
     // --- RECEIPT ---
     window.generateReceipt = async () => {
-        const note = document.getElementById('orderNote').value;
+        const note = document.getElementById('orderNote').value || "-";
         const sub = cart.reduce((a,b)=>a+b.qty*b.price,0); const fee = parseInt(storeData.fee) || 0; const tot = sub + fee;
         const date = new Date().toLocaleString('id-ID');
         if(user) { try { await push(ref(db,`orders/${user.uid}`), { items:cart, total:tot||0, note, date:Date.now() }); } catch(e){} }
@@ -491,7 +492,7 @@
         t += `👤 ${userProfile.name||'Tamu'} | 📅 ${new Date().toLocaleDateString()}\n--------------------------\n`;
         cart.forEach(c => t += `${c.name} (${c.qty}) : Rp ${(c.price*c.qty).toLocaleString()}\n`);
         t += `--------------------------\n`;
-        const note = document.getElementById('orderNote').value;
+        const note = document.getElementById('orderNote').value || "-";
         t += `📝 *Catatan:* ${note}\n💰 *TOTAL: ${document.getElementById('receiptTotal').innerText}*\n✅ Lunas via QRIS`;
         window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(t)}`, '_blank');
         cart=[]; saveCart(); setTimeout(()=>window.location.reload(),1000);
