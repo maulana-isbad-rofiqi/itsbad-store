@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Itsbad Store</title>
   
+  <script>
+    window.onerror = function(msg, url, line) {
+        alert("Error Teknis: " + msg + "\nBaris: " + line);
+        return false;
+    };
+  </script>
+
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234f46e5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23ec4899;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='white' /%3E%3Cpath d='M30,35 L70,35 L65,85 L35,85 Z M40,35 L40,25 Q50,10 60,25 L60,35' fill='none' stroke='url(%23grad)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,8 +37,6 @@
     .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     #qrContainer img { margin: 0 auto; border: 4px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
-    
-    /* Category Scroll */
     .cat-btn { transition: all 0.2s; white-space: nowrap; }
     .cat-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
   </style>
@@ -70,8 +75,7 @@
             <button onclick="window.loginGoogle()" class="bg-white text-orange-600 px-3 py-1 rounded-lg text-xs font-bold border border-orange-100">Login</button>
         </div>
 
-        <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
-            </div>
+        <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2"></div>
 
         <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20">
             <div class="col-span-2 text-center py-10 text-slate-400 text-xs">Memuat Produk...</div>
@@ -118,8 +122,7 @@
                     <input type="text" id="orderNote" class="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 text-xs focus:outline-none" placeholder="Contoh: 08123xxxx">
                 </div>
                 <div class="flex justify-between items-center mb-4"><span class="text-sm text-slate-500">Total + Fee</span><span class="text-xl font-bold text-blue-600" id="cartTotalDisplay">Rp 0</span></div>
-                
-                <button onclick="window.initPayment()" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">Lanjut Pembayaran</button>
+                <button onclick="window.initPayment()" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg">Lanjut Pembayaran</button>
             </div>
         </div>
     </div>
@@ -226,8 +229,7 @@
                         <input type="file" id="admImgInp" class="hidden" onchange="window.handleAdmImg(this)">
                         <div class="flex-1 space-y-2">
                             <input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk">
-                            
-                            <input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori (Ketik/Pilih)">
+                            <input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori">
                             <datalist id="catList"></datalist>
                         </div>
                     </div>
@@ -320,7 +322,7 @@
         } catch(e) { console.log(e); }
     }
 
-    // --- HORIZONTAL SCROLL CATEGORIES ---
+    // --- CATEGORIES ---
     function renderCategories() {
         const cats = ['all'];
         const datalist = document.getElementById('catList');
@@ -332,8 +334,7 @@
                 if(!cats.includes(c)) cats.push(c);
                 if(!Array.from(datalist.options).some(opt => opt.value === c)) {
                     const opt = document.createElement('option');
-                    opt.value = c;
-                    datalist.appendChild(opt);
+                    opt.value = c; datalist.appendChild(opt);
                 }
             });
         }
@@ -417,7 +418,7 @@
 
     function renderCartList() {
         const l = document.getElementById('cartList'); l.innerHTML = ""; let tot = 0;
-        // Logic tombol di sini tidak lagi mendisable tombol
+        
         if(cart.length === 0) {
             l.innerHTML = `<div class="text-center text-xs text-slate-400 py-10">Keranjang Kosong</div>`;
             document.getElementById('cartTotalDisplay').innerText = "Rp 0";
@@ -433,13 +434,11 @@
     }
     window.modQty = (i, d) => { cart[i].qty+=d; if(cart[i].qty<=0)cart.splice(i,1); saveCart(); renderCartList(); };
 
-    // --- CHECKOUT & QRIS FIX ---
+    // --- CHECKOUT FIX ---
     window.initPayment = () => {
         if(cart.length===0) return toastr.warning("Keranjang kosong!");
         
-        // HAPUS VALIDASI WAJIB CATATAN
-        // const note = document.getElementById('orderNote').value;
-        // if(!note) return toastr.warning("Wajib isi Catatan/No.HP!");
+        const note = document.getElementById('orderNote').value || "-";
         
         const sub = cart.reduce((a,b)=>a+b.qty*b.price,0); const fee = parseInt(storeData.fee) || 0; const tot = sub + fee;
         document.getElementById('payAmountDisplay').innerText="Rp "+tot.toLocaleString();
