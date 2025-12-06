@@ -38,11 +38,56 @@
     /* Custom styles untuk disabled button */
     .btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-checkout:not(:disabled):hover { background-color: #1e293b; transform: translateY(-1px); }
+    
+    /* Login Modal Styles */
+    #loginModal { transition: all 0.3s ease; }
+    .login-option:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .guest-warning { animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-  <div class="app-container" id="app">
+  <!-- LOGIN MODAL (Muncul Pertama) -->
+  <div id="loginModal" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-5">
+    <div class="text-center mb-8">
+      <div class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center">
+        <i class="fas fa-store text-white text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-800 mb-2">Selamat Datang</h1>
+      <p class="text-sm text-slate-500">Itsbad Store - Premium Digital Services</p>
+    </div>
+    
+    <div class="w-full max-w-xs space-y-4">
+      <button onclick="window.loginWithGoogle()" 
+              class="login-option w-full bg-white border border-slate-200 py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all">
+        <i class="fab fa-google text-red-500 text-lg"></i>
+        <span>Login dengan Google</span>
+      </button>
+      
+      <button onclick="window.continueAsGuest()" 
+              class="login-option w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all">
+        <i class="fas fa-user-clock text-lg"></i>
+        <span>Lanjut sebagai Tamu</span>
+      </button>
+      
+      <div class="guest-warning bg-orange-50 border border-orange-100 rounded-xl p-3 mt-4">
+        <div class="flex items-start gap-2">
+          <i class="fas fa-exclamation-circle text-orange-500 mt-0.5"></i>
+          <div class="text-left">
+            <h4 class="font-bold text-xs text-orange-700">Mode Tamu</h4>
+            <p class="text-[10px] text-orange-600">Riwayat pesanan tidak akan tersimpan dan beberapa fitur terbatas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="absolute bottom-6 left-0 right-0 text-center">
+      <p class="text-xs text-slate-400">© 2024 Itsbad Store. All rights reserved.</p>
+    </div>
+  </div>
+
+  <div class="app-container hidden" id="app">
     
     <div class="sticky top-0 z-40 bg-white/90 backdrop-blur-md px-5 py-3 border-b border-slate-50 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -50,8 +95,8 @@
                  <img id="headerAvatar" src="https://ui-avatars.com/api/?name=Guest" class="w-full h-full object-cover">
              </div>
              <div>
-                 <h1 class="text-sm font-bold text-slate-800 leading-none" id="shopNameDisplay">Loading...</h1>
-                 <p class="text-[10px] text-slate-400 mt-1" id="headerGreeting">Selamat Datang</p>
+                 <h1 class="text-sm font-bold text-slate-800 leading-none" id="shopNameDisplay">Itsbad Store</h1>
+                 <p class="text-[10px] text-slate-400 mt-1" id="headerGreeting">Loading...</p>
              </div>
         </div>
         <button onclick="window.toggleSearch()" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fas fa-search"></i></button>
@@ -71,7 +116,7 @@
         <div id="authAlert" class="hidden bg-orange-50 border border-orange-100 rounded-xl p-3 mb-6 flex items-center gap-3">
             <i class="fas fa-exclamation-circle text-orange-500"></i>
             <div class="flex-1"><h3 class="font-bold text-xs text-orange-700">Mode Tamu</h3><p class="text-[10px] text-orange-600">Login untuk akses fitur penuh.</p></div>
-            <button onclick="window.loginGoogle()" class="bg-white text-orange-600 px-3 py-1 rounded-lg text-xs font-bold border border-orange-100">Login</button>
+            <button onclick="window.showLoginOptions()" class="bg-white text-orange-600 px-3 py-1 rounded-lg text-xs font-bold border border-orange-100">Login</button>
         </div>
 
         <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
@@ -263,6 +308,9 @@
     import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // ==============================================
+    // KONFIGURASI FIREBASE - GANTI DENGAN MILIK ANDA!
+    // ==============================================
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
       authDomain: "kasir-online-c22bd.firebaseapp.com",
@@ -272,17 +320,19 @@
       messagingSenderId: "1052259146588",
       appId: "1:1052259146588:web:a3f4e9c31982cbfa2dff99"
     };
+    // ==============================================
 
     const STORE_ID = "itsbad-store";
     const OWNER_WA = "6285236363128";
 
     let db, auth, user;
-    let storeData = { name: "Toko", fee: 0, products: [] };
+    let storeData = { name: "Itsbad Store", fee: 0, products: [] };
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     let userProfile = {};
     let tempAdmImg = "";
     let currentDetailIdx = -1;
     let activeCategory = 'all';
+    let isGuestMode = false;
     
     toastr.options = { 
         "positionClass": "toast-top-center", 
@@ -293,43 +343,107 @@
         "progressBar": true 
     };
 
+    // Inisialisasi Firebase
     try {
         const app = initializeApp(firebaseConfig);
         db = getDatabase(app);
         auth = getAuth(app);
         
-        onAuthStateChanged(auth, (u) => {
-            if (u) {
-                user = u;
-                document.getElementById('authAlert').classList.add('hidden');
-                loadProfile(u.uid);
-            } else {
-                document.getElementById('authAlert').classList.remove('hidden');
-                document.getElementById('headerAvatar').src = "https://ui-avatars.com/api/?name=Guest";
-                document.getElementById('headerGreeting').innerText = "Mode Tamu";
-            }
-            initStore();
-        });
+        console.log("Firebase initialized successfully");
         
+        // Cek jika langsung ke admin page
         if(new URLSearchParams(location.search).get('page') === 'admin') {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
             document.getElementById('adminModal').classList.remove('hidden');
+            initStore();
         }
-
+        
     } catch(e) { 
-        console.error("Firebase init error:", e);
-        document.getElementById('shopNameDisplay').innerText = "Error Connection";
+        console.error("Firebase initialization error:", e);
+        showError("Koneksi Firebase gagal. Periksa konfigurasi.");
     }
 
-    // --- CORE ---
+    // --- LOGIN FUNCTIONS ---
+    window.loginWithGoogle = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            
+            toastr.success("Login berhasil!");
+            document.getElementById('loginModal').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                initStore();
+            }, 300);
+            
+        } catch (error) {
+            console.error("Google login error:", error);
+            toastr.error("Login gagal: " + error.message);
+        }
+    };
+
+    window.continueAsGuest = () => {
+        isGuestMode = true;
+        
+        // Set user sebagai guest
+        user = {
+            uid: 'guest_' + Date.now(),
+            displayName: 'Tamu',
+            isAnonymous: true
+        };
+        
+        userProfile = {
+            name: 'Tamu',
+            email: '',
+            avatar: '',
+            phone: '',
+            address: ''
+        };
+        
+        toastr.success("Masuk sebagai tamu");
+        document.getElementById('loginModal').style.opacity = '0';
+        
+        setTimeout(() => {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            
+            // Tampilkan auth alert untuk guest
+            document.getElementById('authAlert').classList.remove('hidden');
+            document.getElementById('headerAvatar').src = "https://ui-avatars.com/api/?name=Guest";
+            document.getElementById('headerGreeting').innerText = "Mode Tamu";
+            
+            initStore();
+        }, 300);
+    };
+
+    window.showLoginOptions = () => {
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('loginModal').style.opacity = '1';
+    };
+
+    function showError(message) {
+        toastr.error(message);
+    }
+
+    // --- CORE FUNCTIONS ---
     async function initStore() {
         try {
+            console.log("Initializing store...");
             const snap = await get(child(ref(db), `stores/${STORE_ID}`));
+            
             if(snap.exists()) {
                 storeData = snap.val();
+                console.log("Store data loaded:", storeData);
+                
                 if (!storeData.products) storeData.products = [];
                 if (!storeData.fee) storeData.fee = 0;
                 if (!storeData.name) storeData.name = "Itsbad Store";
             } else {
+                console.log("Creating new store...");
                 await set(ref(db, `stores/${STORE_ID}`), storeData);
             }
             
@@ -337,9 +451,17 @@
             renderCategories();
             renderProducts();
             updateCartBadge();
+            
         } catch(e) { 
-            console.log("Store init error:", e);
-            document.getElementById('productGrid').innerHTML = '<div class="col-span-2 text-center text-red-400 text-xs py-10">Error loading store</div>';
+            console.error("Store init error:", e);
+            document.getElementById('productGrid').innerHTML = `
+                <div class="col-span-2 text-center py-10">
+                    <div class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                    </div>
+                    <p class="text-sm text-red-500 font-medium">Gagal memuat toko</p>
+                    <p class="text-xs text-slate-400 mt-1">Periksa koneksi internet</p>
+                </div>`;
         }
     }
 
@@ -353,7 +475,7 @@
             storeData.products.forEach(p => {
                 const c = p.category || 'Umum';
                 if(!cats.includes(c)) cats.push(c);
-                // Populate Datalist for Admin
+                
                 if(!Array.from(datalist.options).some(opt => opt.value === c)) {
                     const opt = document.createElement('option');
                     opt.value = c;
@@ -368,7 +490,12 @@
         cats.forEach(c => {
             const label = c === 'all' ? 'Semua' : c;
             const activeClass = c === activeCategory ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600';
-            container.innerHTML += `<button onclick="window.filterCat('${c}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass} hover:bg-slate-800 hover:text-white transition-colors">${label}</button>`;
+            container.innerHTML += `
+                <button onclick="window.filterCat('${c}')" 
+                        class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass} 
+                               hover:bg-slate-800 hover:text-white transition-colors">
+                    ${label}
+                </button>`;
         });
     }
 
@@ -388,7 +515,14 @@
         grid.innerHTML = "";
         
         if (!storeData.products || storeData.products.length === 0) {
-            grid.innerHTML = `<div class="col-span-2 text-center text-slate-400 text-xs py-10">Belum ada produk</div>`;
+            grid.innerHTML = `
+                <div class="col-span-2 text-center py-10">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-box-open text-slate-300"></i>
+                    </div>
+                    <p class="text-sm text-slate-400 font-medium">Belum ada produk</p>
+                    <p class="text-xs text-slate-300 mt-1">Admin perlu menambahkan produk</p>
+                </div>`;
             return;
         }
         
@@ -401,7 +535,14 @@
         }
         
         if(filtered.length === 0) {
-            grid.innerHTML = `<div class="col-span-2 text-center text-slate-400 text-xs py-10">Tidak ada produk ditemukan</div>`;
+            grid.innerHTML = `
+                <div class="col-span-2 text-center py-10">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-search text-slate-300"></i>
+                    </div>
+                    <p class="text-sm text-slate-400 font-medium">Tidak ada produk ditemukan</p>
+                    <p class="text-xs text-slate-300 mt-1">Coba kata kunci lain</p>
+                </div>`;
             return;
         }
 
@@ -409,23 +550,24 @@
             const originalIdx = storeData.products.findIndex(prod => prod === p);
             const hasStock = parseInt(p.stock) > 0;
             const img = p.image || `https://placehold.co/200x200/e2e8f0/94a3b8?text=${encodeURIComponent(p.name.charAt(0))}`;
+            
             grid.innerHTML += `
-            <div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden hover:shadow-md transition-shadow" onclick="window.openDetail(${originalIdx})">
-                ${!hasStock ? '<div class="absolute inset-0 bg-white/70 z-10 flex items-center justify-center font-bold text-red-500 text-xs backdrop-blur-sm">HABIS</div>' : ''}
-                <div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden">
-                    <img src="${img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-                </div>
-                <div class="mb-1">
-                    <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category || 'Umum'}</span>
-                </div>
-                <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-tight mb-1 min-h-[2rem]">${p.name}</h3>
-                <div class="mt-auto flex justify-between items-center">
-                    <span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
-                    <button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] hover:bg-slate-800 transition-colors">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>`;
+                <div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden hover:shadow-md transition-shadow" onclick="window.openDetail(${originalIdx})">
+                    ${!hasStock ? '<div class="absolute inset-0 bg-white/70 z-10 flex items-center justify-center font-bold text-red-500 text-xs backdrop-blur-sm">HABIS</div>' : ''}
+                    <div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden">
+                        <img src="${img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="mb-1">
+                        <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category || 'Umum'}</span>
+                    </div>
+                    <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-tight mb-1 min-h-[2rem]">${p.name}</h3>
+                    <div class="mt-auto flex justify-between items-center">
+                        <span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
+                        <button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] hover:bg-slate-800 transition-colors">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>`;
         });
     }
 
@@ -437,7 +579,7 @@
         }
     };
 
-    // --- DETAIL ---
+    // --- DETAIL FUNCTIONS ---
     window.openDetail = (idx) => {
         if (idx < 0 || idx >= storeData.products.length) return;
         
@@ -474,7 +616,7 @@
         } 
     };
 
-    // --- CART ---
+    // --- CART FUNCTIONS ---
     window.addToCart = (idx) => {
         const p = storeData.products[idx];
         if(!p) return;
@@ -518,7 +660,6 @@
         renderCartList(); 
         document.getElementById('cartModal').classList.remove('hidden');
         
-        // Auto-focus ke input note jika cart tidak kosong
         if (cart.length > 0) {
             setTimeout(() => {
                 document.getElementById('orderNote').focus();
@@ -601,15 +742,13 @@
         renderCartList();
     };
 
-    // --- CHECKOUT & QRIS FIX ---
+    // --- CHECKOUT & PAYMENT FUNCTIONS ---
     window.initPayment = () => {
-        // Validasi keranjang tidak kosong
         if(cart.length === 0) {
             toastr.warning("Keranjang belanja masih kosong");
             return;
         }
         
-        // Validasi catatan tidak kosong
         const note = document.getElementById('orderNote').value.trim();
         if(!note) {
             toastr.warning("Mohon isi Target/No.HP/Catatan terlebih dahulu");
@@ -621,7 +760,6 @@
             return;
         }
         
-        // Hitung total dengan aman
         const subtotal = cart.reduce((total, item) => {
             const price = parseInt(item.price) || 0;
             const qty = parseInt(item.qty) || 1;
@@ -631,10 +769,8 @@
         const fee = parseInt(storeData.fee) || 0;
         const total = subtotal + fee;
         
-        // Update display total
         document.getElementById('payAmountDisplay').innerText = "Rp " + total.toLocaleString('id-ID');
         
-        // Siapkan QR Container
         const qrContainer = document.getElementById('qrContainer');
         const qrStatus = document.getElementById('qrStatus');
         qrContainer.innerHTML = "";
@@ -642,7 +778,6 @@
         let qrisString = storeData.qris || "";
         
         if(!qrisString) {
-            // Jika QRIS belum diatur
             qrContainer.innerHTML = `
                 <div class="text-center p-4">
                     <div class="w-24 h-24 mx-auto bg-red-100 rounded-lg flex items-center justify-center mb-2">
@@ -653,7 +788,6 @@
                 </div>`;
             qrStatus.classList.add('hidden');
         } else {
-            // Tampilkan loading
             qrContainer.innerHTML = `
                 <div class="text-center py-8">
                     <div class="animate-pulse">
@@ -664,20 +798,16 @@
             
             qrStatus.classList.remove('hidden');
             
-            // Generate QR setelah delay kecil
             setTimeout(() => {
                 try {
                     let qrContent = qrisString;
                     let statusText = "QRIS Siap";
                     let statusClass = "text-green-600 bg-green-50";
                     
-                    // Coba parse QRIS untuk menambahkan nominal
                     if (qrContent.includes("54")) {
-                        // Format nominal: 54 + panjang + nominal + ".00"
                         const amountStr = total + ".00";
                         const amountTag = "54" + (amountStr.length.toString().padStart(2, '0')) + amountStr;
                         
-                        // Cari dan ganti tag 54
                         const regex = /(54\d{2}[0-9.]+)/;
                         if (qrContent.match(regex)) {
                             qrContent = qrContent.replace(regex, amountTag);
@@ -691,7 +821,6 @@
                         statusClass = "text-orange-600 bg-orange-50";
                     }
                     
-                    // Generate QR Code
                     qrContainer.innerHTML = "";
                     new QRCode(qrContainer, {
                         text: qrContent,
@@ -702,7 +831,6 @@
                         correctLevel: QRCode.CorrectLevel.H
                     });
                     
-                    // Update status
                     qrStatus.innerHTML = statusText;
                     qrStatus.className = `text-[10px] ${statusClass} py-1 rounded mt-2`;
                     
@@ -722,11 +850,9 @@
             }, 500);
         }
         
-        // Tutup cart modal dan buka payment modal
         document.getElementById('cartModal').classList.add('hidden');
         document.getElementById('paymentModal').classList.remove('hidden');
         
-        // Scroll ke atas
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -734,7 +860,7 @@
         document.getElementById('paymentModal').classList.add('hidden');
     };
 
-    // --- RECEIPT ---
+    // --- RECEIPT FUNCTIONS ---
     window.generateReceipt = async () => {
         const note = document.getElementById('orderNote').value.trim();
         if(!note) {
@@ -747,7 +873,6 @@
             return;
         }
         
-        // Hitung total
         const subtotal = cart.reduce((total, item) => {
             const price = parseInt(item.price) || 0;
             const qty = parseInt(item.qty) || 1;
@@ -757,7 +882,6 @@
         const fee = parseInt(storeData.fee) || 0;
         const total = subtotal + fee;
         
-        // Format tanggal
         const now = new Date();
         const dateStr = now.toLocaleDateString('id-ID', {
             weekday: 'long',
@@ -769,13 +893,11 @@
             second: '2-digit'
         });
         
-        // Update receipt UI
         document.getElementById('recStoreName').innerText = storeData.name || "Itsbad Store";
         document.getElementById('receiptDate').innerText = dateStr;
         document.getElementById('receiptName').innerText = userProfile.name || "Tamu";
         document.getElementById('receiptTotal').innerText = "Rp " + total.toLocaleString('id-ID');
         
-        // Tampilkan items
         const itemsContainer = document.getElementById('receiptItems');
         itemsContainer.innerHTML = "";
         
@@ -788,7 +910,6 @@
                 </div>`;
         });
         
-        // Tambah fee jika ada
         if (fee > 0) {
             itemsContainer.innerHTML += `
                 <div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed">
@@ -797,14 +918,12 @@
                 </div>`;
         }
         
-        // Tampilkan catatan
         document.getElementById('receiptNoteBox').innerText = "📝 Catatan: " + note;
         
-        // Simpan ke database jika user login
-        if (user) {
+        if (user && !isGuestMode) {
             try {
                 const orderData = {
-                    items: [...cart], // Copy array
+                    items: [...cart],
                     subtotal: subtotal,
                     fee: fee,
                     total: total,
@@ -823,7 +942,6 @@
             }
         }
         
-        // Tampilkan receipt modal
         document.getElementById('paymentModal').classList.add('hidden');
         document.getElementById('receiptModal').classList.remove('hidden');
     };
@@ -864,14 +982,11 @@
         message += `============================\n`;
         message += `Terima kasih telah berbelanja!`;
         
-        // Encode message untuk URL
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/${OWNER_WA}?text=${encodedMessage}`;
         
-        // Buka WhatsApp
         window.open(whatsappUrl, '_blank');
         
-        // Reset cart dan refresh halaman setelah beberapa detik
         setTimeout(() => {
             cart = [];
             saveCart();
@@ -886,7 +1001,7 @@
         window.location.reload();
     };
 
-    // --- PROFILE ---
+    // --- PROFILE FUNCTIONS ---
     async function loadProfile(uid) {
         try {
             const snap = await get(child(ref(db), `users/${uid}`));
@@ -902,7 +1017,6 @@
                 };
             }
             
-            // Update header
             const greeting = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak";
             document.getElementById('headerGreeting').innerText = greeting;
             
@@ -911,12 +1025,10 @@
                 document.getElementById('profileAvatarEdit').src = userProfile.avatar;
             }
             
-            // Update form
             document.getElementById('profName').value = userProfile.name || "";
             document.getElementById('profPhone').value = userProfile.phone || "";
             document.getElementById('profAddress').value = userProfile.address || "";
             
-            // Load order history
             const historySnap = await get(child(ref(db), `orders/${uid}`));
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = "";
@@ -959,7 +1071,7 @@
             return;
         }
         
-        if(file.size > 5 * 1024 * 1024) { // 5MB limit
+        if(file.size > 5 * 1024 * 1024) {
             toastr.error("Ukuran file maksimal 5MB");
             return;
         }
@@ -971,7 +1083,6 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Resize image to max 300px
                 const maxSize = 300;
                 let width = img.width;
                 let height = img.height;
@@ -985,7 +1096,6 @@
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Convert to data URL with compression
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                 document.getElementById('profileAvatarEdit').src = dataUrl;
                 userProfile.tempAvatar = dataUrl;
@@ -998,12 +1108,11 @@
     };
 
     window.saveProfileData = async () => {
-        if(!user) {
+        if(!user || isGuestMode) {
             toastr.warning("Silakan login terlebih dahulu");
             return;
         }
         
-        // Update userProfile dengan data dari form
         userProfile.name = document.getElementById('profName').value.trim();
         userProfile.phone = document.getElementById('profPhone').value.trim();
         userProfile.address = document.getElementById('profAddress').value.trim();
@@ -1016,12 +1125,10 @@
         try {
             await update(ref(db, `users/${user.uid}`), userProfile);
             
-            // Update header avatar
             if(userProfile.avatar) {
                 document.getElementById('headerAvatar').src = userProfile.avatar;
             }
             
-            // Update greeting
             const greeting = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak";
             document.getElementById('headerGreeting').innerText = greeting;
             
@@ -1032,7 +1139,7 @@
         }
     };
 
-    // --- ADMIN ---
+    // --- ADMIN FUNCTIONS ---
     window.checkAdmin = () => {
         const pin = document.getElementById('adminPin').value;
         if(pin === "110603") {
@@ -1083,7 +1190,6 @@
         reader.readAsDataURL(file);
     };
 
-    // QRIS DECODER
     window.handleQrisUpload = (input) => {
         const file = input.files[0];
         if(!file) return;
@@ -1134,7 +1240,6 @@
             image: tempAdmImg || (editIdx > -1 ? storeData.products[editIdx].image : "")
         };
         
-        // Validasi
         if(!product.name) {
             toastr.warning("Nama produk harus diisi");
             document.getElementById('admPName').focus();
@@ -1148,11 +1253,9 @@
         }
         
         if(editIdx > -1) {
-            // Update existing product
             storeData.products[editIdx] = product;
             toastr.success("Produk diupdate");
         } else {
-            // Add new product
             storeData.products.push(product);
             toastr.success("Produk ditambahkan");
         }
@@ -1233,7 +1336,6 @@
             document.getElementById('admImgIcon').classList.add('hidden');
         }
         
-        // Scroll ke form
         document.getElementById('admPName').scrollIntoView({ behavior: 'smooth' });
         document.getElementById('admPName').focus();
         
@@ -1276,7 +1378,6 @@
             document.getElementById('shopNameDisplay').innerText = newStoreName;
             toastr.success("Pengaturan disimpan");
             
-            // Refresh halaman setelah 1 detik
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -1286,28 +1387,24 @@
         }
     };
 
-    // --- EXPORTS ---
-    window.loginGoogle = () => {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider)
-            .then(() => toastr.success("Login berhasil"))
-            .catch(error => {
-                console.error("Login error:", error);
-                toastr.error("Login gagal: " + error.message);
-            });
-    };
-
+    // --- EXPORT FUNCTIONS ---
     window.doLogout = () => {
         if(confirm("Yakin ingin logout?")) {
-            signOut(auth)
-                .then(() => {
-                    toastr.success("Logout berhasil");
-                    setTimeout(() => window.location.reload(), 1000);
-                })
-                .catch(error => {
-                    console.error("Logout error:", error);
-                    toastr.error("Logout gagal");
-                });
+            if (isGuestMode) {
+                cart = [];
+                saveCart();
+                window.location.reload();
+            } else {
+                signOut(auth)
+                    .then(() => {
+                        toastr.success("Logout berhasil");
+                        setTimeout(() => window.location.reload(), 1000);
+                    })
+                    .catch(error => {
+                        console.error("Logout error:", error);
+                        toastr.error("Logout gagal");
+                    });
+            }
         }
     };
 
@@ -1317,9 +1414,9 @@
     };
 
     window.openProfile = () => {
-        if(!user) {
+        if(isGuestMode || !user) {
             if(confirm("Login dulu untuk mengakses profil?")) {
-                window.loginGoogle();
+                window.showLoginOptions();
             }
             return;
         }
@@ -1361,7 +1458,9 @@
         delAdm,
         saveAdmSettings,
         handleQrisUpload,
-        loginGoogle,
+        loginWithGoogle,
+        continueAsGuest,
+        showLoginOptions,
         doLogout,
         switchTab,
         openProfile,
