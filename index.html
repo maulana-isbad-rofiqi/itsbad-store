@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Itsbad Store</title>
+  <title>Toko Online Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -185,7 +185,7 @@
                 </div>
             </div>
 
-            <div id="paymentDisplayArea" class="hidden bg-slate-50 border p-5 rounded-2xl text-center animate-pulse-once">
+            <div id="paymentDisplayArea" class="hidden bg-slate-50 border p-5 rounded-2xl text-center">
                 <p class="text-xs font-bold text-indigo-600 mb-4 uppercase" id="payInstruction">SCAN MENGGUNAKAN APLIKASI BANK</p>
                 <div id="qrContainer" class="flex justify-center min-h-[200px] items-center bg-white p-2 rounded-xl shadow-sm mb-4"></div>
                 <p class="text-[10px] text-slate-400" id="qrNote">Nominal otomatis masuk</p>
@@ -270,7 +270,7 @@
     import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // --- CONFIG ---
+    // --- CONFIG FIREBASE ASLI (SUDAH FIX 100%) ---
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
       authDomain: "kasir-online-c22bd.firebaseapp.com",
@@ -288,7 +288,7 @@
     // STATE
     toastr.options = { "positionClass": "toast-top-center", "timeOut": "2000" };
     let db, auth, user;
-    let storeData = { name: "Loading...", fee: 0, products: [] };
+    let storeData = { name: "Loading...", fee: 0, products: [], qris: "" };
     let cart = JSON.parse(localStorage.getItem('myCart')) || [];
     let userData = { name: "", wa: "", address: "", avatar: "" };
     let currentPaymentName = "QRIS";
@@ -315,7 +315,7 @@
                 document.getElementById('authOverlay').classList.remove('hidden');
             }
         });
-    } catch(e) { alert("Firebase Config Error"); }
+    } catch(e) { alert("Firebase Config Error: " + e.message); }
 
     // --- USER PROFILE ---
     async function loadUserProfile(uid) {
@@ -525,8 +525,6 @@
         
         // Hide display initially until method selected
         document.getElementById('paymentDisplayArea').classList.add('hidden');
-        
-        // Reset active states
         document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
     };
 
@@ -538,23 +536,17 @@
     window.selectPayment = (methodName) => {
         currentPaymentName = methodName;
         
-        // Visual Selection
         document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
         event.currentTarget.classList.add('active');
         
-        // Show Display Area
         const display = document.getElementById('paymentDisplayArea');
         display.classList.remove('hidden');
         
-        // Update Instruction
         const instruction = document.getElementById('payInstruction');
         if(methodName === 'QRIS') instruction.innerText = "SCAN QRIS DI BAWAH";
-        else instruction.innerText = `BUKA ${methodName} & SCAN QR DI BAWAH`;
+        else instruction.innerText = `BUKA ${methodName} & SCAN QRIS DI BAWAH`;
         
-        // Generate QR
         generateQR(grandTotal);
-        
-        // Auto scroll to QR
         display.scrollIntoView({ behavior: 'smooth' });
     };
 
@@ -717,7 +709,7 @@
     window.saveProfile = window.saveProfile;
     window.processCheckout = window.processCheckout;
     window.closePayment = window.closePayment;
-    window.selectPayment = window.selectPayment;
+    window.switchPayMethod = window.switchPayMethod;
     window.copyRek = window.copyRek;
     window.previewProofPayment = window.previewProofPayment;
     window.sendOrder = window.sendOrder;
