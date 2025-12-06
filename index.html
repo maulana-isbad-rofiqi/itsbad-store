@@ -418,11 +418,11 @@
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, get, child, update, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     // ==============================================
-    // KONFIGURASI FIREBASE
+    // KONFIGURASI FIREBASE - DIPERBARUI
     // ==============================================
     const firebaseConfig = {
       apiKey: "AIzaSyAUL2WkPlJLb8wHcSKQ_QA7GSZ5DGw94Ng",
@@ -440,7 +440,12 @@
     const ADMIN_EMAIL = "isbadd84@gmail.com";
 
     let db, auth, user;
-    let storeData = { name: "Itsbad Store", fee: 0, products: [] };
+    let storeData = { 
+      name: "Itsbad Store", 
+      fee: 0, 
+      qris: "",
+      products: [] 
+    };
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     let userProfile = {};
     let tempAdmImg = "";
@@ -458,17 +463,41 @@
     };
 
     // ==============================================
+    // FUNGSI INITIALIZE DENGAN ERROR HANDLING YANG LEBIH BAIK
+    // ==============================================
+    async function initFirebase() {
+      try {
+        console.log("🚀 Initializing Firebase...");
+        
+        // Inisialisasi Firebase App
+        const app = initializeApp(firebaseConfig);
+        console.log("✅ Firebase App initialized");
+        
+        // Inisialisasi Database
+        db = getDatabase(app);
+        console.log("✅ Firebase Database initialized");
+        
+        // Inisialisasi Auth
+        auth = getAuth(app);
+        console.log("✅ Firebase Auth initialized");
+        
+        return true;
+      } catch (error) {
+        console.error("❌ Firebase initialization error:", error);
+        toastr.error("Gagal menghubungkan ke server");
+        return false;
+      }
+    }
+
+    // ==============================================
     // ADMIN LOGIN FUNCTIONS
     // ==============================================
     function openAdminLogin() {
       console.log("Checking admin access...");
-      console.log("User object:", user);
-      console.log("User email:", user?.email);
       
       // Cek apakah user sudah login dengan Google
       if (!user || user === null) {
         toastr.warning('Silakan login dengan Google terlebih dahulu!');
-        // Trigger login Google
         if (typeof loginWithGoogle === 'function') {
           loginWithGoogle();
         } else {
@@ -477,18 +506,15 @@
         return;
       }
       
-      // Cek email admin - dengan case-insensitive
+      // Cek email admin
       const userEmail = user.email ? user.email.toLowerCase() : '';
       const adminEmail = ADMIN_EMAIL.toLowerCase();
-      
-      console.log("Checking email:", userEmail, "vs", adminEmail);
       
       if (userEmail !== adminEmail) {
         toastr.error('Akses Ditolak', 'Hanya admin dengan email isbadd84@gmail.com yang bisa mengakses!');
         return;
       }
       
-      // Jika email admin benar, tampilkan modal login PIN
       document.getElementById('adminLoginModal').classList.remove('hidden');
       document.getElementById('adminPin').focus();
     }
@@ -499,16 +525,13 @@
     }
 
     function checkAdmin() {
-      // Ambil nilai PIN dari input
       const adminPin = document.getElementById('adminPin').value;
       
-      // Cek apakah user sudah login dengan Google
       if (!user || user === null) {
         toastr.error('Akses Ditolak', 'Anda harus login dengan akun Google terlebih dahulu!');
         return false;
       }
       
-      // Verifikasi email admin
       const userEmail = user.email ? user.email.toLowerCase() : '';
       const adminEmail = ADMIN_EMAIL.toLowerCase();
       
@@ -517,7 +540,6 @@
         return false;
       }
       
-      // Cek apakah PIN yang dimasukkan benar
       if (adminPin !== ADMIN_PIN) {
         toastr.error('PIN Salah', 'PIN yang Anda masukkan tidak benar!');
         document.getElementById('adminPin').value = '';
@@ -525,25 +547,15 @@
         return false;
       }
       
-      // Jika semua validasi sukses
-      // 1. Sembunyikan modal login admin
       document.getElementById('adminLoginModal').classList.add('hidden');
-      
-      // 2. Tampilkan dashboard admin
       document.getElementById('adminModal').classList.remove('hidden');
       
-      // 3. Load data toko ke form admin
       document.getElementById('admStoreName').value = storeData.name || "";
       document.getElementById('admFee').value = storeData.fee || 0;
       document.getElementById('admQris').value = storeData.qris || "";
       
-      // 4. Render list produk admin
       renderAdmList();
-      
-      // 5. Tampilkan notifikasi sukses
       toastr.success('Panel Admin berhasil dibuka!');
-      
-      // Reset form PIN
       document.getElementById('adminPin').value = '';
       
       return true;
@@ -554,61 +566,52 @@
     }
 
     // ==============================================
-    // FUNGSI LOGIN USER
+    // FUNGSI LOGIN USER YANG DIPERBAIKI
     // ==============================================
     async function loginWithGoogle() {
       try {
         console.log("Attempting Google login...");
         
         if (!auth) {
-          throw new Error("Firebase auth not initialized");
+          const initialized = await initFirebase();
+          if (!initialized) return;
         }
         
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
         
         console.log("✅ Google login successful:", result.user.email);
-        console.log("User UID:", result.user.uid);
         
         user = result.user;
         isGuestMode = false;
         
-        // Periksa apakah user admin
         const userEmail = user.email ? user.email.toLowerCase() : '';
         const adminEmail = ADMIN_EMAIL.toLowerCase();
         
-        // Tampilkan tombol admin di header jika email sesuai
+        // Tampilkan tombol admin
         const adminHeaderBtn = document.getElementById('adminHeaderBtn');
         const adminNavBtn = document.getElementById('nav-admin');
         
         if (userEmail === adminEmail) {
-          if (adminHeaderBtn) {
-            adminHeaderBtn.classList.remove('hidden');
-          }
-          if (adminNavBtn) {
-            adminNavBtn.classList.remove('hidden');
-          }
-          console.log("✅ Admin user detected, showing admin buttons");
+          if (adminHeaderBtn) adminHeaderBtn.classList.remove('hidden');
+          if (adminNavBtn) adminNavBtn.classList.remove('hidden');
+          console.log("✅ Admin user detected");
         }
         
         toastr.success("Login berhasil!");
         
         // Sembunyikan login modal
-        const loginModal = document.getElementById('loginModal');
-        loginModal.classList.add('hidden');
+        document.getElementById('loginModal').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         
         // Load data setelah login
-        loadProfile(user.uid);
-        initStore();
+        await loadProfile(user.uid);
+        await initStore();
         
-        // Jika URL mengandung ?page=admin, langsung buka admin login
+        // Jika URL mengandung ?page=admin
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('page') === 'admin') {
-          console.log("Opening admin panel from URL parameter...");
-          setTimeout(() => {
-            openAdminLogin();
-          }, 500);
+          setTimeout(() => openAdminLogin(), 500);
         }
         
       } catch (error) {
@@ -632,7 +635,6 @@
       
       isGuestMode = true;
       
-      // Buat user guest
       user = {
         uid: 'guest_' + Date.now(),
         displayName: 'Tamu',
@@ -651,188 +653,401 @@
       
       toastr.success("Masuk sebagai tamu");
       
-      // Sembunyikan login modal
-      const loginModal = document.getElementById('loginModal');
-      loginModal.classList.add('hidden');
-      const appContainer = document.getElementById('app');
-      appContainer.classList.remove('hidden');
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
       
-      // Tampilkan auth alert untuk guest
+      // Tampilkan auth alert
       const authAlert = document.getElementById('authAlert');
-      if (authAlert) {
-        authAlert.classList.remove('hidden');
-      }
+      if (authAlert) authAlert.classList.remove('hidden');
       
       // Update header
-      const headerAvatar = document.getElementById('headerAvatar');
-      const headerGreeting = document.getElementById('headerGreeting');
-      
-      if (headerAvatar) {
-        headerAvatar.src = "https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff";
-      }
-      
-      if (headerGreeting) {
-        headerGreeting.innerText = "Mode Tamu";
-      }
+      document.getElementById('headerAvatar').src = "https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff";
+      document.getElementById('headerGreeting').innerText = "Mode Tamu";
       
       // Init store
       initStore();
     }
 
     function showLoginOptions() {
-      console.log("Showing login options...");
-      
       const loginModal = document.getElementById('loginModal');
       const appContainer = document.getElementById('app');
       
       if (loginModal && appContainer) {
-        // Sembunyikan app
         appContainer.classList.add('hidden');
-        
-        // Tampilkan login modal
         loginModal.classList.remove('hidden');
       }
     }
 
     // ==============================================
-    // FUNGSI QRIS YANG DIPERBAIKI
+    // FUNGSI UTAMA DENGAN ERROR HANDLING YANG LEBIH BAIK
     // ==============================================
-    function handleQrisUpload(input) {
-      const file = input.files[0];
-      if(!file) return;
-      
-      if(!file.type.match('image.*')) {
-        toastr.error("File harus berupa gambar");
-        return;
-      }
-      
-      console.log("Reading QRIS image...");
-      toastr.info("Membaca QRIS...");
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          
+    async function initStore() {
+      try {
+        console.log("📦 Initializing store...");
+        
+        if (!db) {
+          console.log("Database not initialized, trying to init Firebase...");
+          const initialized = await initFirebase();
+          if (!initialized) {
+            throw new Error("Firebase initialization failed");
+          }
+        }
+        
+        // Coba load data dari Firebase
+        const storeRef = ref(db, `stores/${STORE_ID}`);
+        
+        // Gunakan onValue untuk real-time updates dengan error handling
+        onValue(storeRef, (snapshot) => {
           try {
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-            
-            if (code) {
-              console.log("QRIS found:", code.data.substring(0, 100) + "...");
-              document.getElementById('admQris').value = code.data;
-              toastr.success("QRIS berhasil dibaca!");
+            if (snapshot.exists()) {
+              storeData = snapshot.val();
+              console.log("✅ Store data loaded:", storeData);
               
-              // Test QRIS langsung
-              testQrisString(code.data);
+              // Validasi data store
+              if (!storeData.products) storeData.products = [];
+              if (!storeData.fee) storeData.fee = 0;
+              if (!storeData.name) storeData.name = "Itsbad Store";
+              if (!storeData.qris) storeData.qris = "";
+              
+              // Update UI
+              document.getElementById('shopNameDisplay').innerText = storeData.name;
+              renderCategories();
+              renderProducts();
+              updateCartBadge();
+              
             } else {
-              toastr.error("Tidak dapat membaca QRIS. Pastikan gambar jelas dan QRIS terlihat.");
-              console.error("jsQR tidak dapat membaca gambar");
+              console.log("⚠️ Store not found, creating new store...");
+              // Buat store baru jika tidak ada
+              createNewStore();
             }
           } catch (error) {
-            console.error("QRIS decode error:", error);
-            toastr.error("Error membaca QRIS: " + error.message);
+            console.error("Error processing store data:", error);
+            showStoreError();
           }
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function testQrisString(qrisString) {
-      if (!qrisString || qrisString.trim() === '') {
-        toastr.warning("String QRIS kosong");
-        return;
-      }
-      
-      console.log("Testing QRIS string:", qrisString.substring(0, 150));
-      
-      // Cek apakah ini QRIS valid
-      const isQRIS = qrisString.startsWith('000201') || 
-                    qrisString.includes('ID.CO.QRIS.WWW') ||
-                    qrisString.includes('ID.CO.BCA.QRIS');
-      
-      if (!isQRIS) {
-        toastr.warning("Format tidak seperti QRIS standar. Pastikan ini QRIS Indonesia.");
-        console.warn("Bukan format QRIS standar:", qrisString.substring(0, 100));
-      }
-      
-      // Cek apakah QRIS bisa dibuat
-      try {
-        const testContainer = document.createElement('div');
-        new QRCode(testContainer, {
-          text: qrisString,
-          width: 100,
-          height: 100,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
+        }, (error) => {
+          console.error("❌ Error reading store data:", error);
+          
+          // Fallback: Coba load dari cache/local storage
+          const cachedStore = localStorage.getItem('storeCache');
+          if (cachedStore) {
+            try {
+              storeData = JSON.parse(cachedStore);
+              console.log("📂 Using cached store data");
+              
+              document.getElementById('shopNameDisplay').innerText = storeData.name;
+              renderCategories();
+              renderProducts();
+              updateCartBadge();
+              
+              toastr.warning("Menggunakan data cache, koneksi internet terbatas");
+            } catch (cacheError) {
+              showStoreError();
+            }
+          } else {
+            showStoreError();
+          }
         });
         
-        toastr.success("QRIS valid dan bisa digenerate!");
-        return true;
       } catch (error) {
-        console.error("QR generation test error:", error);
-        toastr.error("QRIS tidak valid untuk digenerate");
-        return false;
+        console.error("❌ Store init error:", error);
+        showStoreError();
       }
     }
 
-    function testQris() {
-      const qrisString = document.getElementById('admQris').value.trim();
-      if (!qrisString) {
-        toastr.warning("Masukkan atau upload QRIS terlebih dahulu");
-        return;
-      }
+    function createNewStore() {
+      console.log("Creating new store structure...");
       
-      // Test format QRIS
-      const testResult = testQrisString(qrisString);
-      
-      if (testResult) {
-        // Tampilkan preview QRIS
-        const previewContainer = document.createElement('div');
-        previewContainer.className = 'fixed inset-0 z-[300] bg-black/70 flex items-center justify-center';
-        previewContainer.innerHTML = `
-          <div class="bg-white p-6 rounded-xl max-w-sm w-full mx-4">
-            <h3 class="font-bold mb-4">Preview QRIS</h3>
-            <div id="testQrContainer" class="flex justify-center mb-4"></div>
-            <div class="text-xs text-slate-500 mb-2 break-all max-h-40 overflow-y-auto">
-              ${qrisString.substring(0, 200)}...
-            </div>
-            <button onclick="this.parentElement.parentElement.remove()" class="w-full bg-blue-600 text-white py-2 rounded-lg mt-4">
-              Tutup
-            </button>
-          </div>
-        `;
-        
-        document.body.appendChild(previewContainer);
-        
-        setTimeout(() => {
-          try {
-            const container = document.getElementById('testQrContainer');
-            container.innerHTML = '';
-            new QRCode(container, {
-              text: qrisString,
-              width: 180,
-              height: 180,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H
-            });
-          } catch (error) {
-            console.error("Preview error:", error);
+      const newStoreData = {
+        name: "Itsbad Store",
+        fee: 0,
+        qris: "",
+        products: [
+          {
+            name: "Contoh Produk 1",
+            category: "Digital",
+            price: 10000,
+            stock: 10,
+            desc: "Ini adalah contoh produk pertama",
+            image: "https://placehold.co/400x400/6366f1/ffffff?text=Produk+1"
+          },
+          {
+            name: "Contoh Produk 2",
+            category: "Voucher",
+            price: 50000,
+            stock: 5,
+            desc: "Ini adalah contoh produk kedua",
+            image: "https://placehold.co/400x400/8b5cf6/ffffff?text=Produk+2"
           }
-        }, 100);
+        ]
+      };
+      
+      // Simpan ke localStorage sebagai fallback
+      localStorage.setItem('storeCache', JSON.stringify(newStoreData));
+      storeData = newStoreData;
+      
+      document.getElementById('shopNameDisplay').innerText = storeData.name;
+      renderCategories();
+      renderProducts();
+      updateCartBadge();
+      
+      // Coba simpan ke Firebase jika ada koneksi
+      if (db) {
+        set(ref(db, `stores/${STORE_ID}`), newStoreData)
+          .then(() => console.log("✅ New store created in Firebase"))
+          .catch(err => console.log("⚠️ Could not save to Firebase:", err));
       }
+    }
+
+    function showStoreError() {
+      const productGrid = document.getElementById('productGrid');
+      productGrid.innerHTML = `
+        <div class="col-span-2 text-center py-10">
+            <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                <i class="fas fa-store text-slate-300"></i>
+            </div>
+            <p class="text-sm text-slate-400 font-medium">Toko Sementara</p>
+            <p class="text-xs text-slate-300 mt-1">Silakan tambahkan produk melalui admin</p>
+            <button onclick="openAdminLogin()" class="mt-3 bg-blue-500 text-white px-4 py-2 rounded-lg text-xs">
+                Buka Admin Panel
+            </button>
+        </div>`;
+      
+      // Render kategori kosong
+      renderCategories();
     }
 
     // ==============================================
-    // CHECKOUT & PAYMENT FUNCTIONS - DIPERBAIKI
+    // FUNGSI RENDER PRODUK & KATEGORI
+    // ==============================================
+    function renderCategories() {
+      const cats = ['all'];
+      const datalist = document.getElementById('catList');
+      datalist.innerHTML = "";
+
+      if(storeData.products && storeData.products.length > 0) {
+        storeData.products.forEach(p => {
+          const c = p.category || 'Umum';
+          if(!cats.includes(c)) cats.push(c);
+          
+          if(!Array.from(datalist.options).some(opt => opt.value === c)) {
+            const opt = document.createElement('option');
+            opt.value = c;
+            datalist.appendChild(opt);
+          }
+        });
+      }
+
+      const container = document.getElementById('categoryContainer');
+      container.innerHTML = "";
+
+      cats.forEach(c => {
+        const label = c === 'all' ? 'Semua' : c;
+        const activeClass = c === activeCategory ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600';
+        container.innerHTML += `
+            <button onclick="filterCat('${c}')" 
+                    class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${activeClass} 
+                           hover:bg-slate-800 hover:text-white transition-colors">
+                ${label}
+            </button>`;
+      });
+    }
+
+    function filterCat(c) { 
+      activeCategory = c; 
+      renderCategories(); 
+      renderProducts(); 
+    }
+
+    function filterProducts() { 
+      const q = document.getElementById('searchInput').value.toLowerCase(); 
+      renderProducts(q); 
+    }
+
+    function renderProducts(query = "") {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = "";
+      
+      if (!storeData.products || storeData.products.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-2 text-center py-10">
+                <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fas fa-box-open text-slate-300"></i>
+                </div>
+                <p class="text-sm text-slate-400 font-medium">Belum ada produk</p>
+                <p class="text-xs text-slate-300 mt-1">Admin perlu menambahkan produk</p>
+            </div>`;
+        return;
+      }
+      
+      let filtered = storeData.products;
+      if(activeCategory !== 'all') {
+        filtered = filtered.filter(p => (p.category || 'Umum') === activeCategory);
+      }
+      if(query) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(query));
+      }
+      
+      if(filtered.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-2 text-center py-10">
+                <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fas fa-search text-slate-300"></i>
+                </div>
+                <p class="text-sm text-slate-400 font-medium">Tidak ada produk ditemukan</p>
+                <p class="text-xs text-slate-300 mt-1">Coba kata kunci lain</p>
+            </div>`;
+        return;
+      }
+
+      filtered.forEach((p, index) => {
+        const originalIdx = storeData.products.findIndex(prod => prod === p);
+        const hasStock = parseInt(p.stock) > 0;
+        const img = p.image || `https://placehold.co/200x200/e2e8f0/94a3b8?text=${encodeURIComponent(p.name.charAt(0))}`;
+        
+        grid.innerHTML += `
+            <div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden hover:shadow-md transition-shadow" onclick="openDetail(${originalIdx})">
+                ${!hasStock ? '<div class="absolute inset-0 bg-white/70 z-10 flex items-center justify-center font-bold text-red-500 text-xs backdrop-blur-sm">HABIS</div>' : ''}
+                <div class="aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden">
+                    <img src="${img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="mb-1">
+                    <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">${p.category || 'Umum'}</span>
+                </div>
+                <h3 class="font-bold text-xs text-slate-800 line-clamp-2 leading-tight mb-1 min-h-[2rem]">${p.name}</h3>
+                <div class="mt-auto flex justify-between items-center">
+                    <span class="font-bold text-blue-600 text-xs">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
+                    <button class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] hover:bg-slate-800 transition-colors">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>`;
+      });
+    }
+
+    // ==============================================
+    // FUNGSI CART
+    // ==============================================
+    function addToCart(idx) {
+      const p = storeData.products[idx];
+      if(!p) return;
+      
+      if(parseInt(p.stock) <= 0) {
+        toastr.error("Stok Habis");
+        return;
+      }
+      
+      const exist = cart.find(c => c.idx === idx);
+      if(exist) {
+        exist.qty++;
+      } else {
+        cart.push({ 
+          idx, 
+          name: p.name, 
+          price: parseInt(p.price), 
+          qty: 1 
+        });
+      }
+      
+      saveCart(); 
+      toastr.success("Ditambahkan ke Keranjang");
+      updateCartBadge();
+    }
+
+    function saveCart() { 
+      localStorage.setItem('cart', JSON.stringify(cart)); 
+      updateCartBadge(); 
+    }
+
+    function updateCartBadge() { 
+      const totalQty = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+      const badge = document.getElementById('cartBadge');
+      badge.innerText = totalQty > 99 ? '99+' : totalQty;
+      totalQty > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+    }
+    
+    function openCart() { 
+      switchTab('cart'); 
+      renderCartList(); 
+      document.getElementById('cartModal').classList.remove('hidden');
+    }
+
+    function closeCart() { 
+      document.getElementById('cartModal').classList.add('hidden'); 
+      switchTab('home'); 
+    }
+
+    function renderCartList() {
+      const list = document.getElementById('cartList');
+      const totalDisplay = document.getElementById('cartTotalDisplay');
+      const checkoutBtn = document.getElementById('btnCheckout');
+      
+      list.innerHTML = "";
+      
+      if(cart.length === 0) {
+        list.innerHTML = `
+            <div class="text-center py-10">
+                <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fas fa-shopping-bag text-slate-300"></i>
+                </div>
+                <p class="text-sm text-slate-400 font-medium">Keranjang kosong</p>
+                <p class="text-xs text-slate-300 mt-1">Tambahkan produk terlebih dahulu</p>
+            </div>`;
+        totalDisplay.innerText = "Rp 0";
+        checkoutBtn.disabled = true;
+        return;
+      }
+      
+      let subtotal = 0;
+      
+      cart.forEach((item, index) => {
+        const itemPrice = parseInt(item.price) || 0;
+        const itemQty = parseInt(item.qty) || 1;
+        const itemTotal = itemPrice * itemQty;
+        subtotal += itemTotal;
+        
+        list.innerHTML += `
+            <div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl hover:shadow-sm transition-shadow">
+                <div class="flex-1 min-w-0 mr-3">
+                    <h4 class="font-bold text-xs text-slate-700 truncate">${item.name}</h4>
+                    <p class="text-xs text-blue-600 font-bold mt-1">Rp ${itemPrice.toLocaleString('id-ID')}</p>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1">
+                    <button onclick="modQty(${index}, -1)" 
+                            class="w-5 h-5 rounded flex items-center justify-center font-bold text-slate-600 hover:bg-slate-200 transition-colors">
+                        −
+                    </button>
+                    <span class="text-xs font-bold w-5 text-center">${itemQty}</span>
+                    <button onclick="modQty(${index}, 1)" 
+                            class="w-5 h-5 rounded flex items-center justify-center font-bold text-slate-600 hover:bg-slate-200 transition-colors">
+                        +
+                    </button>
+                </div>
+            </div>`;
+      });
+      
+      const fee = parseInt(storeData.fee) || 0;
+      const total = subtotal + fee;
+      
+      totalDisplay.innerText = "Rp " + total.toLocaleString('id-ID');
+      checkoutBtn.disabled = false;
+    }
+
+    function modQty(index, delta) {
+      if (!cart[index]) return;
+      
+      cart[index].qty += delta;
+      
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+        toastr.info("Produk dihapus dari keranjang");
+      }
+      
+      saveCart();
+      renderCartList();
+    }
+
+    // ==============================================
+    // FUNGSI PAYMENT & QRIS YANG DIPERBAIKI
     // ==============================================
     function initPayment() {
       if(cart.length === 0) {
@@ -871,14 +1086,15 @@
       if(!qrisString || qrisString.trim() === "") {
         qrContainer.innerHTML = `
             <div class="text-center p-4">
-                <div class="w-24 h-24 mx-auto bg-red-100 rounded-lg flex items-center justify-center mb-2">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                <div class="w-24 h-24 mx-auto bg-orange-100 rounded-lg flex items-center justify-center mb-2">
+                    <i class="fas fa-exclamation-triangle text-orange-500 text-2xl"></i>
                 </div>
-                <p class="text-xs text-red-500 font-medium">QRIS belum diatur</p>
-                <p class="text-[10px] text-slate-400 mt-1">Admin perlu upload QRIS terlebih dahulu</p>
+                <p class="text-xs text-orange-500 font-medium">QRIS belum diatur</p>
+                <p class="text-[10px] text-slate-400 mt-1">Hubungi admin untuk QRIS pembayaran</p>
             </div>`;
-        qrStatus.innerHTML = "QRIS belum diatur";
-        qrStatus.className = "text-[10px] text-red-600 bg-red-50 py-1 rounded mt-2";
+        qrStatus.innerHTML = "Hubungi Admin untuk QRIS";
+        qrStatus.className = "text-[10px] text-orange-600 bg-orange-50 py-1 rounded mt-2";
+        toastr.warning("Admin perlu mengatur QRIS terlebih dahulu");
         return;
       }
       
@@ -898,63 +1114,29 @@
           let statusText = "QRIS Siap";
           let statusClass = "text-green-600 bg-green-50";
           
-          console.log("Original QRIS:", qrContent.substring(0, 100) + "...");
-          console.log("Total amount:", total);
-          
-          // **PERBAIKAN UTAMA: Logika update nominal QRIS yang lebih baik**
+          // Coba update nominal jika QRIS dinamis
           if (qrContent.includes("54")) {
             const amountStr = total.toString();
             const amountLength = amountStr.length.toString().padStart(2, '0');
             const amountTag = "54" + amountLength + amountStr;
             
-            console.log("Amount tag to insert:", amountTag);
-            
-            // Mencari tag 54 yang ada
             const regex = /54\d{2}\d+/g;
             const matches = qrContent.match(regex);
             
             if (matches && matches.length > 0) {
-              // Ganti semua kemungkinan tag 54
               matches.forEach(match => {
                 qrContent = qrContent.replace(match, amountTag);
               });
               statusText = "Nominal Otomatis: Rp " + total.toLocaleString('id-ID');
-              console.log("Dynamic QRIS dengan nominal berhasil dibuat");
-            } else {
-              // Jika tidak ada tag 54, coba tambahkan
-              const insertIndex = qrContent.indexOf("5802ID");
-              if (insertIndex > -1) {
-                qrContent = qrContent.substring(0, insertIndex) + amountTag + qrContent.substring(insertIndex);
-                statusText = "Nominal Ditambahkan: Rp " + total.toLocaleString('id-ID');
-                statusClass = "text-blue-600 bg-blue-50";
-                console.log("Tag 54 ditambahkan ke QRIS");
-              } else {
-                statusText = "QRIS Statis - Input Manual: Rp " + total.toLocaleString('id-ID');
-                statusClass = "text-orange-600 bg-orange-50";
-                console.log("QRIS statis, tidak bisa update nominal");
-              }
-            }
-          } else {
-            // Coba tambahkan tag 54 jika tidak ada
-            const insertIndex = qrContent.indexOf("5802ID");
-            if (insertIndex > -1) {
-              const amountStr = total.toString();
-              const amountLength = amountStr.length.toString().padStart(2, '0');
-              const amountTag = "54" + amountLength + amountStr;
-              qrContent = qrContent.substring(0, insertIndex) + amountTag + qrContent.substring(insertIndex);
-              statusText = "Nominal Ditambahkan: Rp " + total.toLocaleString('id-ID');
-              statusClass = "text-blue-600 bg-blue-50";
-              console.log("Tag 54 ditambahkan ke QRIS statis");
             } else {
               statusText = "QRIS Statis - Input Manual: Rp " + total.toLocaleString('id-ID');
               statusClass = "text-orange-600 bg-orange-50";
-              console.log("QRIS statis, tidak bisa update nominal");
             }
+          } else {
+            statusText = "QRIS Statis - Input Manual: Rp " + total.toLocaleString('id-ID');
+            statusClass = "text-orange-600 bg-orange-50";
           }
           
-          console.log("Final QRIS content:", qrContent.substring(0, 150) + "...");
-          
-          // Clear dan buat QR baru
           qrContainer.innerHTML = "";
           new QRCode(qrContainer, {
             text: qrContent,
@@ -976,7 +1158,7 @@
                       <i class="fas fa-times-circle text-red-500 text-2xl"></i>
                   </div>
                   <p class="text-xs text-red-500 font-medium">Gagal membuat QR</p>
-                  <p class="text-[10px] text-slate-400 mt-1">${error.message}</p>
+                  <p class="text-[10px] text-slate-400 mt-1">Format QRIS tidak valid</p>
               </div>`;
           qrStatus.innerHTML = "Silakan hubungi admin untuk QRIS yang valid";
           qrStatus.className = "text-[10px] text-red-600 bg-red-50 py-1 rounded mt-2";
@@ -985,8 +1167,6 @@
       
       document.getElementById('cartModal').classList.add('hidden');
       document.getElementById('paymentModal').classList.remove('hidden');
-      
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function closePayment() {
@@ -994,52 +1174,7 @@
     }
 
     // ==============================================
-    // CORE FUNCTIONS
-    // ==============================================
-    async function initStore() {
-      try {
-        console.log("Initializing store...");
-        const snap = await get(child(ref(db), `stores/${STORE_ID}`));
-        
-        if(snap.exists()) {
-          storeData = snap.val();
-          console.log("Store data loaded:", storeData);
-          
-          if (!storeData.products) storeData.products = [];
-          if (!storeData.fee) storeData.fee = 0;
-          if (!storeData.name) storeData.name = "Itsbad Store";
-          if (!storeData.qris) storeData.qris = "";
-          
-          console.log("QRIS data:", storeData.qris ? "Ada" : "Tidak ada");
-          if (storeData.qris) {
-            console.log("QRIS length:", storeData.qris.length);
-            console.log("QRIS preview:", storeData.qris.substring(0, 100) + "...");
-          }
-        } else {
-          console.log("Creating new store...");
-          await set(ref(db, `stores/${STORE_ID}`), storeData);
-        }
-        
-        document.getElementById('shopNameDisplay').innerText = storeData.name;
-        renderCategories();
-        renderProducts();
-        updateCartBadge();
-        
-      } catch(e) { 
-        console.error("Store init error:", e);
-        document.getElementById('productGrid').innerHTML = `
-            <div class="col-span-2 text-center py-10">
-                <div class="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-3">
-                    <i class="fas fa-exclamation-triangle text-red-500"></i>
-                </div>
-                <p class="text-sm text-red-500 font-medium">Gagal memuat toko</p>
-                <p class="text-xs text-slate-400 mt-1">Periksa koneksi internet</p>
-            </div>`;
-      }
-    }
-
-    // ==============================================
-    // RECEIPT FUNCTIONS
+    // FUNGSI RECEIPT
     // ==============================================
     async function generateReceipt() {
       const note = document.getElementById('orderNote').value.trim();
@@ -1114,11 +1249,13 @@
             customerPhone: userProfile.phone || ""
           };
           
-          await push(ref(db, `orders/${user.uid}`), orderData);
-          toastr.success("Pesanan disimpan");
+          if (db) {
+            await push(ref(db, `orders/${user.uid}`), orderData);
+            toastr.success("Pesanan disimpan");
+          }
         } catch (error) {
           console.error("Gagal menyimpan order:", error);
-          toastr.error("Gagal menyimpan pesanan");
+          toastr.error("Gagal menyimpan pesanan ke server");
         }
       }
       
@@ -1182,10 +1319,12 @@
     }
 
     // ==============================================
-    // PROFILE FUNCTIONS
+    // FUNGSI PROFILE
     // ==============================================
     async function loadProfile(uid) {
       try {
+        if (!db) return;
+        
         const snap = await get(child(ref(db), `users/${uid}`));
         if(snap.exists()) {
           userProfile = snap.val();
@@ -1211,34 +1350,6 @@
         document.getElementById('profPhone').value = userProfile.phone || "";
         document.getElementById('profAddress').value = userProfile.address || "";
         
-        const historySnap = await get(child(ref(db), `orders/${uid}`));
-        const historyList = document.getElementById('historyList');
-        historyList.innerHTML = "";
-        
-        if(historySnap.exists()) {
-          const orders = Object.values(historySnap.val())
-            .sort((a, b) => b.date - a.date)
-            .slice(0, 5);
-          
-          if(orders.length === 0) {
-            historyList.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada riwayat pesanan</p>`;
-          } else {
-            orders.forEach(order => {
-              const safeTotal = parseInt(order.total) || 0;
-              const date = new Date(order.date).toLocaleDateString('id-ID');
-              historyList.innerHTML += `
-                  <div class="text-[10px] bg-slate-50 p-2 rounded flex justify-between items-center hover:bg-slate-100 transition-colors">
-                      <div>
-                          <span class="font-medium">${date}</span>
-                          <span class="text-slate-400 ml-2">${order.items?.length || 0} items</span>
-                      </div>
-                      <span class="font-bold">Rp ${safeTotal.toLocaleString('id-ID')}</span>
-                  </div>`;
-            });
-          }
-        } else {
-          historyList.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada riwayat pesanan</p>`;
-        }
       } catch(e) {
         console.error("Load profile error:", e);
       }
@@ -1305,16 +1416,18 @@
       }
       
       try {
-        await update(ref(db, `users/${user.uid}`), userProfile);
-        
-        if(userProfile.avatar) {
-          document.getElementById('headerAvatar').src = userProfile.avatar;
+        if (db) {
+          await update(ref(db, `users/${user.uid}`), userProfile);
+          
+          if(userProfile.avatar) {
+            document.getElementById('headerAvatar').src = userProfile.avatar;
+          }
+          
+          const greeting = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak";
+          document.getElementById('headerGreeting').innerText = greeting;
+          
+          toastr.success("Profil berhasil disimpan");
         }
-        
-        const greeting = userProfile.name ? "Halo, " + userProfile.name.split(' ')[0] : "Halo, Kakak";
-        document.getElementById('headerGreeting').innerText = greeting;
-        
-        toastr.success("Profil berhasil disimpan");
       } catch (error) {
         console.error("Save profile error:", error);
         toastr.error("Gagal menyimpan profil");
@@ -1322,7 +1435,7 @@
     }
 
     // ==============================================
-    // ADMIN FUNCTIONS
+    // FUNGSI ADMIN
     // ==============================================
     function handleAdmImg(input) {
       const file = input.files[0];
@@ -1357,6 +1470,73 @@
       reader.readAsDataURL(file);
     }
 
+    function handleQrisUpload(input) {
+      const file = input.files[0];
+      if(!file) return;
+      
+      if(!file.type.match('image.*')) {
+        toastr.error("File harus berupa gambar");
+        return;
+      }
+      
+      console.log("Reading QRIS image...");
+      toastr.info("Membaca QRIS...");
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          
+          try {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            
+            if (code) {
+              console.log("QRIS found");
+              document.getElementById('admQris').value = code.data;
+              toastr.success("QRIS berhasil dibaca!");
+            } else {
+              toastr.error("Tidak dapat membaca QRIS. Pastikan gambar jelas.");
+            }
+          } catch (error) {
+            console.error("QRIS decode error:", error);
+            toastr.error("Error membaca QRIS");
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function testQris() {
+      const qrisString = document.getElementById('admQris').value.trim();
+      if (!qrisString) {
+        toastr.warning("Masukkan atau upload QRIS terlebih dahulu");
+        return;
+      }
+      
+      try {
+        const testContainer = document.createElement('div');
+        new QRCode(testContainer, {
+          text: qrisString,
+          width: 100,
+          height: 100,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        toastr.success("QRIS valid dan bisa digenerate!");
+      } catch (error) {
+        toastr.error("QRIS tidak valid untuk digenerate");
+      }
+    }
+
     async function saveAdmProd() {
       const editIdx = parseInt(document.getElementById('admEditIdx').value);
       const product = {
@@ -1389,7 +1569,14 @@
       }
       
       try {
-        await update(ref(db, `stores/${STORE_ID}`), storeData);
+        // Simpan ke cache lokal
+        localStorage.setItem('storeCache', JSON.stringify(storeData));
+        
+        // Simpan ke Firebase jika ada koneksi
+        if (db) {
+          await update(ref(db, `stores/${STORE_ID}`), storeData);
+        }
+        
         resetAdmForm();
         renderAdmList();
         renderCategories();
@@ -1476,7 +1663,14 @@
       storeData.products.splice(index, 1);
       
       try {
-        await update(ref(db, `stores/${STORE_ID}`), storeData);
+        // Simpan ke cache lokal
+        localStorage.setItem('storeCache', JSON.stringify(storeData));
+        
+        // Simpan ke Firebase jika ada koneksi
+        if (db) {
+          await update(ref(db, `stores/${STORE_ID}`), storeData);
+        }
+        
         renderAdmList();
         renderCategories();
         renderProducts();
@@ -1502,7 +1696,14 @@
       storeData.qris = newQris;
       
       try {
-        await update(ref(db, `stores/${STORE_ID}`), storeData);
+        // Simpan ke cache lokal
+        localStorage.setItem('storeCache', JSON.stringify(storeData));
+        
+        // Simpan ke Firebase jika ada koneksi
+        if (db) {
+          await update(ref(db, `stores/${STORE_ID}`), storeData);
+        }
+        
         document.getElementById('shopNameDisplay').innerText = newStoreName;
         toastr.success("Pengaturan disimpan");
         
@@ -1560,22 +1761,14 @@
     }
 
     // ==============================================
-    // INITIALIZE APP
+    // INITIALIZE APP DENGAN ERROR HANDLING YANG LEBIH BAIK
     // ==============================================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       console.log("DOM Content Loaded - Initializing app");
       
       // Setup tombol login
-      const googleBtn = document.getElementById('googleLoginBtn');
-      const guestBtn = document.getElementById('guestLoginBtn');
-      
-      if (googleBtn) {
-        googleBtn.addEventListener('click', loginWithGoogle);
-      }
-      
-      if (guestBtn) {
-        guestBtn.addEventListener('click', continueAsGuest);
-      }
+      document.getElementById('googleLoginBtn').addEventListener('click', loginWithGoogle);
+      document.getElementById('guestLoginBtn').addEventListener('click', continueAsGuest);
       
       // Setup PIN form
       const pinForm = document.getElementById('pinForm');
@@ -1595,7 +1788,6 @@
           const type = pinInput.getAttribute('type') === 'password' ? 'text' : 'password';
           pinInput.setAttribute('type', type);
           
-          // Ganti icon
           const eyeIcon = this.querySelector('svg');
           if (type === 'text') {
             eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
@@ -1610,31 +1802,47 @@
       const isAdminPage = urlParams.get('page') === 'admin';
       
       try {
-        const app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-        auth = getAuth(app);
+        // Inisialisasi Firebase
+        const firebaseInitialized = await initFirebase();
+        
+        if (!firebaseInitialized) {
+          console.log("Firebase initialization failed, running in offline mode");
+          // Mode offline - langsung tampilkan app
+          document.getElementById('loginModal').classList.add('hidden');
+          document.getElementById('app').classList.remove('hidden');
+          
+          // Load cached data jika ada
+          const cachedStore = localStorage.getItem('storeCache');
+          if (cachedStore) {
+            storeData = JSON.parse(cachedStore);
+            document.getElementById('shopNameDisplay').innerText = storeData.name;
+            renderCategories();
+            renderProducts();
+            updateCartBadge();
+          } else {
+            createNewStore();
+          }
+          
+          toastr.warning("Mode offline diaktifkan");
+          return;
+        }
         
         // Setup auth state listener
         onAuthStateChanged(auth, (userData) => {
-          console.log("Auth state changed:", userData);
-          
           if (userData) {
             // User sudah login dari session sebelumnya
             user = userData;
             isGuestMode = false;
             
-            console.log("User email from session:", user.email);
-            
-            // Periksa apakah user admin dan tampilkan tombol
+            // Cek admin
             const userEmail = user.email ? user.email.toLowerCase() : '';
             const adminEmail = ADMIN_EMAIL.toLowerCase();
-            const adminHeaderBtn = document.getElementById('adminHeaderBtn');
-            const adminNavBtn = document.getElementById('nav-admin');
             
             if (userEmail === adminEmail) {
+              const adminHeaderBtn = document.getElementById('adminHeaderBtn');
+              const adminNavBtn = document.getElementById('nav-admin');
               if (adminHeaderBtn) adminHeaderBtn.classList.remove('hidden');
               if (adminNavBtn) adminNavBtn.classList.remove('hidden');
-              console.log("✅ Admin user detected from session");
             }
             
             document.getElementById('loginModal').classList.add('hidden');
@@ -1643,29 +1851,23 @@
             loadProfile(user.uid);
             initStore();
             
-            // Jika URL mengandung ?page=admin, langsung buka admin
+            // Jika URL admin
             if (isAdminPage) {
-              console.log("Opening admin panel from URL parameter...");
-              setTimeout(() => {
-                openAdminLogin();
-              }, 1000);
+              setTimeout(() => openAdminLogin(), 1000);
             }
           } else {
-            // Tidak ada user, tetap di login screen
-            console.log("No user session, showing login screen");
+            // Tidak ada user, tampilkan login screen
             document.getElementById('loginModal').classList.remove('hidden');
-            
-            // Jika URL admin tapi belum login, tetap tampilkan login modal
-            if (isAdminPage) {
-              console.log("Admin page requested but not logged in");
-            }
           }
         });
         
-      } catch (e) {
-        console.error("Firebase init error:", e);
-        document.getElementById('loginModal').classList.remove('hidden');
-        toastr.error("Gagal menginisialisasi aplikasi");
+      } catch (error) {
+        console.error("App initialization error:", error);
+        // Fallback mode
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        createNewStore();
+        toastr.error("Koneksi terbatas, mode offline diaktifkan");
       }
     });
 
@@ -1700,7 +1902,6 @@
     window.handleAdmImg = handleAdmImg;
     window.handleQrisUpload = handleQrisUpload;
     window.testQris = testQris;
-    window.testQrisString = testQrisString;
     window.saveAdmProd = saveAdmProd;
     window.resetAdmForm = resetAdmForm;
     window.editAdm = editAdm;
