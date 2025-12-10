@@ -268,9 +268,15 @@
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Input Produk</h3>
                     <div class="flex gap-2 mb-2">
-                        <div onclick="document.getElementById('admImgInp').click()" class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center cursor-pointer border border-dashed"><img id="admImgPrev" class="w-full h-full object-cover hidden"><i id="admImgIcon" class="fas fa-camera text-slate-400"></i></div>
+                        <div onclick="document.getElementById('admImgInp').click()" class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center cursor-pointer border border-dashed flex-shrink-0"><img id="admImgPrev" class="w-full h-full object-cover hidden"><i id="admImgIcon" class="fas fa-camera text-slate-400"></i></div>
                         <input type="file" id="admImgInp" class="hidden" onchange="handleAdmImg(this)">
-                        <div class="flex-1 space-y-2"><input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk"><input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori"><datalist id="catList"></datalist></div>
+                        
+                        <div class="flex-1 space-y-2">
+                            <input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk">
+                            <input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori">
+                            <datalist id="catList"></datalist>
+                            <input type="text" id="admImgLink" class="w-full border bg-slate-50 p-2 rounded text-xs text-slate-600 font-mono" placeholder="Atau Paste Link Gambar..." onchange="handleAdmImgLink(this)">
+                        </div>
                     </div>
                     <div class="flex gap-2 mb-2">
                         <input id="admPPrice" type="number" class="w-1/3 border p-2 rounded text-xs" placeholder="Harga">
@@ -288,15 +294,17 @@
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
                     <h3 class="text-xs font-bold text-blue-500 mb-2 uppercase"><i class="fas fa-rocket mr-1"></i> Input Aplikasi</h3>
                     <div class="flex gap-2 mb-2">
-                        <div onclick="document.getElementById('admAppImgInp').click()" class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center cursor-pointer border border-dashed"><img id="admAppImgPrev" class="w-full h-full object-cover rounded-xl hidden"><i id="admAppImgIcon" class="fas fa-cube text-slate-400"></i></div>
+                        <div onclick="document.getElementById('admAppImgInp').click()" class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center cursor-pointer border border-dashed flex-shrink-0"><img id="admAppImgPrev" class="w-full h-full object-cover rounded-xl hidden"><i id="admAppImgIcon" class="fas fa-cube text-slate-400"></i></div>
                         <input type="file" id="admAppImgInp" class="hidden" onchange="handleAdmAppImg(this)">
                         
                         <div class="flex-1 space-y-2">
                             <input id="admAppName" class="w-full border p-2 rounded text-xs" placeholder="Nama Aplikasi">
                             <input id="admAppCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori App (Misal: Game, Tools)">
-                            <input id="admAppLink" class="w-full border bg-green-50 p-2 rounded text-xs font-mono text-green-700" placeholder="Link Download (GDrive/Mediafire)">
+                            <input type="text" id="admAppImgLink" class="w-full border bg-slate-50 p-2 rounded text-xs text-slate-600 font-mono" placeholder="Atau Paste Link Icon..." onchange="handleAdmAppImgLink(this)">
                         </div>
                     </div>
+                    <input id="admAppLink" class="w-full border bg-green-50 p-2 rounded text-xs font-mono text-green-700 mb-2" placeholder="Link Download (GDrive/Mediafire)">
+                    
                     <textarea id="admAppDesc" class="w-full border p-2 rounded text-xs mb-2" placeholder="Deskripsi Singkat Aplikasi"></textarea>
                     <input type="hidden" id="admAppEditIdx" value="-1">
                     <div class="flex gap-2">
@@ -669,6 +677,25 @@
 
     window.handleQrisUpload=(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;c.getContext('2d').drawImage(i,0,0);try{const code=jsQR(c.getContext('2d').getImageData(0,0,c.width,c.height).data,c.width,c.height);if(code)document.getElementById('admQris').value=code.data;}catch(e){}};i.src=e.target.result;};r.readAsDataURL(f);}};
     
+    // --- NEW: HANDLE IMAGE LINK INPUTS (BOTH PRODUCT & APP) ---
+    window.handleAdmImgLink = (input) => {
+        const url = input.value;
+        if(url) {
+            tempAdmImg = url;
+            document.getElementById('admImgPrev').src = url;
+            document.getElementById('admImgPrev').classList.remove('hidden');
+        }
+    }
+
+    window.handleAdmAppImgLink = (input) => {
+        const url = input.value;
+        if(url) {
+            tempAdmAppImg = url;
+            document.getElementById('admAppImgPrev').src = url;
+            document.getElementById('admAppImgPrev').classList.remove('hidden');
+        }
+    }
+
     Object.assign(window,{
         openDetail:(i)=>{
             currentDetailIdx=i;const p=storeData.products[i];
@@ -786,10 +813,17 @@
             document.getElementById('admPDesc').value=p.desc;
             document.getElementById('admPCat').value=p.category;
             document.getElementById('admEditIdx').value=i;
+            document.getElementById('admImgLink').value = ""; // Reset link input visually
+            
+            // Check if image is URL or Base64 (simple check)
             if(p.image){
                 tempAdmImg=p.image;
                 document.getElementById('admImgPrev').src=p.image;
                 document.getElementById('admImgPrev').classList.remove('hidden');
+                
+                if(p.image.startsWith('http')) {
+                    document.getElementById('admImgLink').value = p.image;
+                }
             }
         },
         delAdm:async(i)=>{if(confirm('Hapus Produk?')){storeData.products.splice(i,1);await update(ref(db,`stores/${STORE_ID}`),storeData);renderAdmList();renderProducts();}},
@@ -803,6 +837,7 @@
                 stock:document.getElementById('admPStock').value,
                 sold:document.getElementById('admPSold').value || 0,
                 desc:document.getElementById('admPDesc').value,
+                // Use tempAdmImg which is set by either File or Link
                 image:tempAdmImg||(i>-1?storeData.products[i].image:"")
             };
             if(i>-1)storeData.products[i]=p;else storeData.products.push(p);
@@ -813,6 +848,7 @@
             document.getElementById('admPName').value="";
             document.getElementById('admEditIdx').value="-1";
             document.getElementById('admPSold').value="";
+            document.getElementById('admImgLink').value="";
             tempAdmImg="";
             document.getElementById('admImgPrev').classList.add('hidden');
         },
@@ -829,6 +865,7 @@
                 link:document.getElementById('admAppLink').value,
                 category:document.getElementById('admAppCat').value, // Save Kategori
                 desc:document.getElementById('admAppDesc').value,
+                // Use tempAdmAppImg which is set by either File or Link
                 icon:tempAdmAppImg||(i>-1?storeData.downloads[i].icon:"")
             };
             if(i>-1) storeData.downloads[i]=a; else storeData.downloads.push(a);
@@ -844,10 +881,16 @@
             document.getElementById('admAppCat').value = a.category || ""; // Edit Kategori
             document.getElementById('admAppDesc').value = a.desc;
             document.getElementById('admAppEditIdx').value = i;
+            document.getElementById('admAppImgLink').value = ""; // Reset link input visually
+
             if(a.icon){
                 tempAdmAppImg = a.icon;
                 document.getElementById('admAppImgPrev').src = a.icon;
                 document.getElementById('admAppImgPrev').classList.remove('hidden');
+
+                if(a.icon.startsWith('http')) {
+                    document.getElementById('admAppImgLink').value = a.icon;
+                }
             }
         },
 
@@ -865,6 +908,7 @@
             document.getElementById('admAppCat').value = "";
             document.getElementById('admAppDesc').value = "";
             document.getElementById('admAppEditIdx').value = "-1";
+            document.getElementById('admAppImgLink').value = "";
             tempAdmAppImg = "";
             document.getElementById('admAppImgPrev').classList.add('hidden');
         },
