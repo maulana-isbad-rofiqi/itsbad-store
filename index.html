@@ -35,12 +35,10 @@
     .login-option { transition: all 0.2s ease; border: 1px solid #e2e8f0; }
     .login-option:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     .guest-warning { animation: pulse 2s infinite; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; }
-    
-    /* Style untuk Aplikasi */
-    .app-item { transition: all 0.2s; }
-    .app-item:active { transform: scale(0.98); background-color: #f1f5f9; }
-    
     @keyframes pulse { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
+    .download-card { transition: all 0.2s ease; }
+    .download-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .download-category-btn.active { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -87,11 +85,8 @@
              <div><h1 class="text-sm font-bold text-slate-800 leading-none" id="shopNameDisplay">Itsbad Store</h1><p class="text-[10px] text-slate-400 mt-1" id="headerGreeting">Loading...</p></div>
         </div>
         <div class="flex items-center gap-2">
+            <button onclick="openDownloadCenter()" class="w-9 h-9 rounded-full bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-100 transition-colors"><i class="fas fa-download text-sm"></i></button>
             <button onclick="toggleSearch()" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fas fa-search"></i></button>
-            
-            <button onclick="openDownloadPage()" class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors">
-                <i class="fas fa-cloud-download-alt"></i>
-            </button>
         </div>
     </div>
 
@@ -99,7 +94,7 @@
         <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Cari layanan..." class="w-full bg-slate-100 px-4 py-2 rounded-xl text-sm focus:outline-none">
     </div>
 
-    <div id="homePage" class="p-5 min-h-[80vh]">
+    <div class="p-5 min-h-[80vh]">
         <div class="w-full h-36 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 flex flex-col justify-center shadow-lg shadow-blue-200 mb-6 relative overflow-hidden">
              <div class="absolute -right-5 -top-5 w-24 h-24 bg-white/20 rounded-full blur-xl"></div>
              <h2 class="text-xl font-bold relative z-10">Premium Digital</h2>
@@ -116,16 +111,6 @@
         <div id="productGrid" class="grid grid-cols-2 gap-3 pb-20"><div class="col-span-2 text-center py-10 text-slate-400 text-xs">Memuat Produk...</div></div>
     </div>
 
-    <div id="downloadPage" class="hidden p-5 min-h-[80vh] pb-24">
-        <div class="mb-5">
-            <h2 class="text-xl font-bold text-slate-800">Aplikasi Gratis</h2>
-            <p class="text-xs text-slate-500">Download aplikasi pilihan kami.</p>
-        </div>
-        <div id="appList" class="space-y-3">
-            <div class="text-center py-10 text-slate-400 text-xs">Belum ada aplikasi</div>
-        </div>
-    </div>
-
     <div class="bottom-nav">
         <button onclick="switchTab('home')" class="nav-item active" id="nav-home"><i class="fas fa-home"></i> Beranda</button>
         <button onclick="openCart()" class="nav-item relative" id="nav-cart"><i class="fas fa-shopping-bag"></i><span id="cartBadge" class="absolute top-0 right-6 w-4 h-4 bg-red-500 text-white text-[9px] flex items-center justify-center rounded-full border-2 border-white hidden">0</span> Keranjang</button>
@@ -133,6 +118,7 @@
         <button id="nav-admin" onclick="openAdminLogin()" class="nav-item hidden"><i class="fas fa-cog"></i> Admin</button>
     </div>
 
+    <!-- Detail Modal -->
     <div id="detailModal" class="fixed inset-0 z-[70] hidden">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDetail()"></div>
         <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-0 slide-up max-w-[480px] mx-auto h-[85vh] flex flex-col overflow-hidden">
@@ -155,6 +141,7 @@
         </div>
     </div>
 
+    <!-- Cart Modal -->
     <div id="cartModal" class="fixed inset-0 z-[60] hidden">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeCart()"></div>
         <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-5 slide-up max-w-[480px] mx-auto h-[85vh] flex flex-col">
@@ -175,6 +162,7 @@
         </div>
     </div>
 
+    <!-- Payment Modal -->
     <div id="paymentModal" class="fixed inset-0 z-[80] hidden bg-white flex flex-col">
         <div class="p-4 border-b flex items-center gap-3">
              <button onclick="closePayment()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center hover:bg-slate-100 transition-colors"><i class="fas fa-arrow-left"></i></button>
@@ -194,6 +182,7 @@
         </div>
     </div>
 
+    <!-- Receipt Modal -->
     <div id="receiptModal" class="fixed inset-0 z-[90] hidden bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="w-full max-w-xs">
             <div id="receiptCard" class="receipt-paper p-6 rounded-t-lg">
@@ -219,6 +208,7 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
     <div id="profileModal" class="fixed inset-0 z-[60] hidden bg-white flex flex-col">
         <div class="p-4 border-b flex items-center justify-between"><h2 class="font-bold text-lg">Profil Saya</h2><button onclick="closeProfile()" class="w-8 h-8 bg-slate-50 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors"><i class="fas fa-times"></i></button></div>
         <div class="flex-1 overflow-y-auto p-5">
@@ -237,33 +227,101 @@
         </div>
     </div>
 
-    <div id="adminModal" class="fixed inset-0 z-[90] hidden bg-slate-100 overflow-y-auto">
-        <div class="sticky top-0 bg-white p-4 shadow-sm flex justify-between items-center z-50">
-            <h2 class="font-bold">Admin Panel</h2>
-            <div class="flex gap-2">
-                <button onclick="switchAdminTab('products')" id="tabAdmProd" class="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg transition">Produk</button>
-                <button onclick="switchAdminTab('apps')" id="tabAdmApp" class="px-3 py-1 bg-slate-200 text-slate-600 text-xs rounded-lg transition">Aplikasi</button>
-                <button onclick="closeAdminPanel()" class="text-red-500 text-xs font-bold hover:text-red-600 ml-2">Tutup</button>
-            </div>
+    <!-- Download Center Modal -->
+    <div id="downloadModal" class="fixed inset-0 z-[90] hidden bg-slate-100 overflow-y-auto">
+        <div class="sticky top-0 bg-white p-4 shadow-sm flex justify-between items-center">
+            <h2 class="font-bold">Download Center</h2>
+            <button onclick="closeDownloadCenter()" class="text-red-500 text-xs font-bold hover:text-red-600">Tutup</button>
         </div>
-
-        <div class="p-5" id="adminContent">
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-6">
-                 <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Pengaturan Toko</h3>
-                 <input id="admStoreName" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Nama Toko">
-                 <input id="admFee" type="number" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Fee Admin">
-                 <div class="bg-blue-50 border border-blue-100 p-2 rounded mb-2"><p class="text-[10px] font-bold text-blue-600 mb-1">Upload QRIS</p><input type="file" id="qrisFileInp" class="w-full text-xs" onchange="handleQrisUpload(this)"></div>
-                 <input id="admQris" class="w-full border p-2 rounded mb-2 text-xs bg-slate-50" placeholder="String QRIS" readonly>
-                 <button onclick="saveAdmSettings()" class="w-full bg-blue-600 text-white py-2 rounded text-xs font-bold">Simpan Config</button>
+        <div class="p-5">
+            <div class="mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                        <i class="fas fa-download text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">Aplikasi & Tools</h3>
+                        <p class="text-xs text-slate-500">Download aplikasi premium</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Controls (hidden by default) -->
+            <div id="downloadAdminPanel" class="hidden bg-white p-4 rounded-xl shadow-sm mb-6">
+                <h3 class="text-xs font-bold text-slate-400 mb-3 uppercase">Tambah Aplikasi Baru</h3>
+                <div class="space-y-3">
+                    <input type="text" id="dlAppName" class="w-full border p-2 rounded text-xs" placeholder="Nama Aplikasi">
+                    <div class="flex gap-2">
+                        <input type="text" id="dlAppVersion" class="w-1/3 border p-2 rounded text-xs" placeholder="Versi">
+                        <input type="text" id="dlAppSize" class="w-1/3 border p-2 rounded text-xs" placeholder="Ukuran (MB)">
+                        <input type="text" id="dlAppCategory" class="w-1/3 border p-2 rounded text-xs" placeholder="Kategori">
+                    </div>
+                    <textarea id="dlAppDesc" class="w-full border p-2 rounded text-xs" placeholder="Deskripsi" rows="2"></textarea>
+                    <input type="url" id="dlAppLink" class="w-full border p-2 rounded text-xs" placeholder="Link Download (Google Drive/Direct)">
+                    
+                    <div class="flex items-center gap-2">
+                        <div onclick="document.getElementById('dlAppImage').click()" class="w-20 h-20 bg-slate-100 border border-dashed rounded-lg flex items-center justify-center cursor-pointer overflow-hidden">
+                            <img id="dlAppImgPreview" class="w-full h-full object-cover hidden">
+                            <i id="dlAppImgIcon" class="fas fa-camera text-slate-400"></i>
+                        </div>
+                        <input type="file" id="dlAppImage" class="hidden" onchange="handleDownloadImage(this)" accept="image/*">
+                        <div class="flex-1 text-xs text-slate-500">
+                            Upload gambar aplikasi (opsional). Ukuran disarankan 1:1.
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" id="dlEditIdx" value="-1">
+                    <div class="flex gap-2">
+                        <button onclick="saveDownloadApp()" class="flex-1 bg-green-500 text-white py-2 rounded text-xs font-bold">Simpan Aplikasi</button>
+                        <button onclick="resetDownloadForm()" class="bg-slate-200 px-3 rounded text-xs">Batal</button>
+                        <button id="dlAdminToggleBtn" onclick="toggleDownloadAdmin()" class="bg-blue-500 text-white px-3 rounded text-xs">Mode Admin</button>
+                    </div>
+                </div>
             </div>
 
-            <div id="adminPanelProducts" class="space-y-6">
+            <!-- Category Filter -->
+            <div id="downloadCategoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2"></div>
+            
+            <!-- Download Items List -->
+            <div id="downloadList" class="grid grid-cols-1 gap-3"></div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="fixed inset-0 z-[90] hidden bg-slate-100 overflow-y-auto">
+        <div class="sticky top-0 bg-white p-4 shadow-sm flex justify-between items-center">
+            <h2 class="font-bold">Admin Panel</h2>
+            <button onclick="closeAdminPanel()" class="text-red-500 text-xs font-bold hover:text-red-600">Tutup</button>
+        </div>
+        <div class="p-5" id="adminContent">
+            <div id="adminDash" class="space-y-6">
+                <!-- Store Settings -->
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                     <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Pengaturan Toko</h3>
+                     <input id="admStoreName" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Nama Toko">
+                     <input id="admFee" type="number" class="w-full border p-2 rounded mb-2 text-xs" placeholder="Fee Admin">
+                     <div class="bg-blue-50 border border-blue-100 p-2 rounded mb-2">
+                         <p class="text-[10px] font-bold text-blue-600 mb-1">Upload QRIS</p>
+                         <input type="file" id="qrisFileInp" class="w-full text-xs" onchange="handleQrisUpload(this)">
+                     </div>
+                     <input id="admQris" class="w-full border p-2 rounded mb-2 text-xs bg-slate-50" placeholder="String QRIS" readonly>
+                     <button onclick="saveAdmSettings()" class="w-full bg-blue-600 text-white py-2 rounded text-xs font-bold">Simpan Config</button>
+                </div>
+                
+                <!-- Product Input -->
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Input Produk</h3>
                     <div class="flex gap-2 mb-2">
-                        <div onclick="document.getElementById('admImgInp').click()" class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center cursor-pointer border border-dashed"><img id="admImgPrev" class="w-full h-full object-cover hidden"><i id="admImgIcon" class="fas fa-camera text-slate-400"></i></div>
+                        <div onclick="document.getElementById('admImgInp').click()" class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center cursor-pointer border border-dashed">
+                            <img id="admImgPrev" class="w-full h-full object-cover hidden">
+                            <i id="admImgIcon" class="fas fa-camera text-slate-400"></i>
+                        </div>
                         <input type="file" id="admImgInp" class="hidden" onchange="handleAdmImg(this)">
-                        <div class="flex-1 space-y-2"><input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk"><input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori"><datalist id="catList"></datalist></div>
+                        <div class="flex-1 space-y-2">
+                            <input id="admPName" class="w-full border p-2 rounded text-xs" placeholder="Nama Produk">
+                            <input list="catList" id="admPCat" class="w-full border bg-yellow-50 p-2 rounded text-xs font-bold" placeholder="Kategori">
+                            <datalist id="catList"></datalist>
+                        </div>
                     </div>
                     <div class="flex gap-2 mb-2">
                         <input id="admPPrice" type="number" class="w-1/3 border p-2 rounded text-xs" placeholder="Harga">
@@ -272,33 +330,25 @@
                     </div>
                     <textarea id="admPDesc" class="w-full border p-2 rounded text-xs mb-2" placeholder="Deskripsi"></textarea>
                     <input type="hidden" id="admEditIdx" value="-1">
-                    <div class="flex gap-2"><button onclick="saveAdmProd()" class="flex-1 bg-green-500 text-white py-2 rounded text-xs font-bold">Simpan Produk</button><button onclick="resetAdmForm()" class="bg-slate-200 px-3 rounded text-xs">Batal</button></div>
+                    <div class="flex gap-2">
+                        <button onclick="saveAdmProd()" class="flex-1 bg-green-500 text-white py-2 rounded text-xs font-bold">Simpan</button>
+                        <button onclick="resetAdmForm()" class="bg-slate-200 px-3 rounded text-xs">Batal</button>
+                    </div>
                 </div>
+                
+                <!-- Download Apps Management -->
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                    <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Kelola Aplikasi Download</h3>
+                    <p class="text-xs text-slate-500 mb-3">Kelola aplikasi yang tersedia di Download Center</p>
+                    <button onclick="openDownloadAdmin()" class="w-full bg-purple-500 text-white py-2 rounded text-xs font-bold mb-3">
+                        <i class="fas fa-external-link-alt mr-1"></i> Buka Download Manager
+                    </button>
+                    <div id="adminDownloadList" class="space-y-2 mt-3"></div>
+                </div>
+                
+                <!-- Products List -->
                 <div id="admList" class="space-y-2"></div>
             </div>
-
-            <div id="adminPanelApps" class="space-y-6 hidden">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
-                    <h3 class="text-xs font-bold text-blue-500 mb-2 uppercase"><i class="fas fa-rocket mr-1"></i> Input Aplikasi</h3>
-                    <div class="flex gap-2 mb-2">
-                        <div onclick="document.getElementById('admAppImgInp').click()" class="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center cursor-pointer border border-dashed"><img id="admAppImgPrev" class="w-full h-full object-cover rounded-xl hidden"><i id="admAppImgIcon" class="fas fa-cube text-slate-400"></i></div>
-                        <input type="file" id="admAppImgInp" class="hidden" onchange="handleAdmAppImg(this)">
-                        
-                        <div class="flex-1 space-y-2">
-                            <input id="admAppName" class="w-full border p-2 rounded text-xs" placeholder="Nama Aplikasi">
-                            <input id="admAppLink" class="w-full border bg-green-50 p-2 rounded text-xs font-mono text-green-700" placeholder="Link Download (GDrive/Mediafire)">
-                        </div>
-                    </div>
-                    <textarea id="admAppDesc" class="w-full border p-2 rounded text-xs mb-2" placeholder="Deskripsi Singkat Aplikasi"></textarea>
-                    <input type="hidden" id="admAppEditIdx" value="-1">
-                    <div class="flex gap-2">
-                        <button onclick="saveAdmApp()" class="flex-1 bg-blue-600 text-white py-2 rounded text-xs font-bold">Simpan Aplikasi</button>
-                        <button onclick="resetAdmAppForm()" class="bg-slate-200 px-3 rounded text-xs">Batal</button>
-                    </div>
-                </div>
-                <div id="admAppList" class="space-y-2"></div>
-            </div>
-
         </div>
     </div>
 
@@ -323,7 +373,9 @@
       appId: "1:1052259146588:web:a3f4e9c31982cbfa2dff99"
     };
     const STORE_ID="itsbad-store", OWNER_WA="6285236363128", ADMIN_PIN="110603", ADMIN_EMAIL="isbadd84@gmail.com";
-    let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[],downloads:[]}, cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, tempAdmImg="", tempAdmAppImg="", currentDetailIdx=-1, activeCategory='all', isGuestMode=false;
+    let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[],downloads:[]}, cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, tempAdmImg="", currentDetailIdx=-1, activeCategory='all', isGuestMode=false;
+    let tempDownloadImg = "";
+    let activeDownloadCategory = 'all';
     toastr.options={"positionClass":"toast-top-center","timeOut":"2000","showMethod":"slideDown","hideMethod":"slideUp","closeButton":false,"progressBar":true};
 
     // --- QRIS UTILITY ---
@@ -386,49 +438,104 @@
 
     // --- MAIN ---
     window.loginWithGoogle = async () => {
-        try { if(!auth)throw 0; const r=await signInWithPopup(auth,new GoogleAuthProvider()); user=r.user; isGuestMode=false; 
-        if(user.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase()){/*document.getElementById('adminHeaderBtn').classList.remove('hidden');*/ document.getElementById('nav-admin').classList.remove('hidden');}
-        toastr.success("Login Sukses"); document.getElementById('loginModal').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); loadProfile(user.uid); initStore(); 
-        if(new URLSearchParams(window.location.search).get('page')==='admin') setTimeout(openAdminLogin,500); } catch(e){toastr.error("Gagal Login");}
+        try { 
+            if(!auth) throw 0; 
+            const r = await signInWithPopup(auth, new GoogleAuthProvider()); 
+            user = r.user; 
+            isGuestMode = false; 
+            if(user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                document.getElementById('adminHeaderBtn').classList.remove('hidden');
+                document.getElementById('nav-admin').classList.remove('hidden');
+            }
+            toastr.success("Login Sukses"); 
+            document.getElementById('loginModal').classList.add('hidden'); 
+            document.getElementById('app').classList.remove('hidden'); 
+            loadProfile(user.uid); 
+            initStore(); 
+            if(new URLSearchParams(window.location.search).get('page') === 'admin') setTimeout(openAdminLogin, 500); 
+        } catch(e) {
+            toastr.error("Gagal Login");
+        }
     };
-    window.continueAsGuest = () => { isGuestMode=true; user={uid:'guest_'+Date.now()}; userProfile={name:'Tamu'}; toastr.success("Mode Tamu"); document.getElementById('loginModal').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); document.getElementById('headerGreeting').innerText="Mode Tamu"; initStore(); };
+    
+    window.continueAsGuest = () => { 
+        isGuestMode = true; 
+        user = {uid: 'guest_' + Date.now()}; 
+        userProfile = {name: 'Tamu'}; 
+        toastr.success("Mode Tamu"); 
+        document.getElementById('loginModal').classList.add('hidden'); 
+        document.getElementById('app').classList.remove('hidden'); 
+        document.getElementById('headerGreeting').innerText = "Mode Tamu"; 
+        initStore(); 
+    };
+    
     window.initStore = async () => {
         try { 
-            const s=await get(child(ref(db),`stores/${STORE_ID}`)); 
-            if(s.exists()){ 
-                storeData=s.val(); 
-                if(!storeData.products) storeData.products=[]; 
-                if(!storeData.downloads) storeData.downloads=[]; // Init Downloads Array
+            const s = await get(child(ref(db), `stores/${STORE_ID}`)); 
+            if(s.exists()) { 
+                storeData = s.val(); 
+                if(!storeData.products) storeData.products = []; 
+                if(!storeData.downloads) storeData.downloads = []; 
             } else {
-                await set(ref(db,`stores/${STORE_ID}`),storeData);
+                await set(ref(db, `stores/${STORE_ID}`), storeData);
             }
-            document.getElementById('shopNameDisplay').innerText=storeData.name; 
+            document.getElementById('shopNameDisplay').innerText = storeData.name; 
             renderCategories(); 
             renderProducts(); 
-            renderDownloadPage(); // Render Apps
             updateCartBadge(); 
-        } catch(e){}
+        } catch(e) {
+            console.error("Error loading store:", e);
+        }
     };
-    window.renderCategories = () => {
-        const cats=['all']; const dl=document.getElementById('catList'); dl.innerHTML="";
-        storeData.products.forEach(p=>{const c=p.category||'Umum'; if(!cats.includes(c))cats.push(c); if(!Array.from(dl.options).some(o=>o.value===c)){const o=document.createElement('option');o.value=c;dl.appendChild(o);}});
-        const c=document.getElementById('categoryContainer'); c.innerHTML="";
-        cats.forEach(k=>{ c.innerHTML+=`<button onclick="filterCat('${k}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${k===activeCategory?'bg-slate-900 text-white':'bg-white border border-slate-200 text-slate-600'} hover:bg-slate-800 hover:text-white transition-colors">${k==='all'?'Semua':k}</button>`; });
-    };
-    window.filterCat=(c)=>{activeCategory=c;renderCategories();renderProducts();};
-    window.filterProducts=()=>{renderProducts(document.getElementById('searchInput').value.toLowerCase());};
     
-    // --- RENDER PRODUCTS ---
-    window.renderProducts=(q="")=>{
-        const g=document.getElementById('productGrid'); g.innerHTML="";
-        let f=storeData.products; if(activeCategory!=='all')f=f.filter(p=>(p.category||'Umum')===activeCategory); if(q)f=f.filter(p=>p.name.toLowerCase().includes(q));
-        if(!f.length){g.innerHTML='<div class="col-span-2 text-center py-10 text-slate-400 text-xs">Kosong</div>';return;}
-        f.forEach(p=>{
-            const idx=storeData.products.indexOf(p); const img=p.image||`https://placehold.co/200x200/e2e8f0/94a3b8?text=${p.name[0]}`;
+    window.renderCategories = () => {
+        const cats = ['all']; 
+        const dl = document.getElementById('catList'); 
+        dl.innerHTML = "";
+        storeData.products.forEach(p => {
+            const c = p.category || 'Umum'; 
+            if(!cats.includes(c)) cats.push(c); 
+            if(!Array.from(dl.options).some(o => o.value === c)) {
+                const o = document.createElement('option');
+                o.value = c;
+                dl.appendChild(o);
+            }
+        });
+        const c = document.getElementById('categoryContainer'); 
+        c.innerHTML = "";
+        cats.forEach(k => { 
+            c.innerHTML += `<button onclick="filterCat('${k}')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${k===activeCategory?'bg-slate-900 text-white':'bg-white border border-slate-200 text-slate-600'} hover:bg-slate-800 hover:text-white transition-colors">${k==='all'?'Semua':k}</button>`; 
+        });
+    };
+    
+    window.filterCat = (c) => {
+        activeCategory = c;
+        renderCategories();
+        renderProducts();
+    };
+    
+    window.filterProducts = () => {
+        renderProducts(document.getElementById('searchInput').value.toLowerCase());
+    };
+    
+    // --- RENDER PRODUCTS UPDATED (Stok Luar & Bintang 5) ---
+    window.renderProducts = (q = "") => {
+        const g = document.getElementById('productGrid'); 
+        g.innerHTML = "";
+        let f = storeData.products; 
+        if(activeCategory !== 'all') f = f.filter(p => (p.category || 'Umum') === activeCategory); 
+        if(q) f = f.filter(p => p.name.toLowerCase().includes(q));
+        if(!f.length) {
+            g.innerHTML = '<div class="col-span-2 text-center py-10 text-slate-400 text-xs">Kosong</div>';
+            return;
+        }
+        f.forEach(p => {
+            const idx = storeData.products.indexOf(p); 
+            const img = p.image || `https://placehold.co/200x200/e2e8f0/94a3b8?text=${p.name[0]}`;
             const isHabis = parseInt(p.stock) <= 0;
             const soldCount = p.sold || 0;
 
-            g.innerHTML+=`
+            g.innerHTML += `
             <div class="card-product bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden" onclick="openDetail(${idx})">
                 ${isHabis ? '<div class="absolute top-2 right-2 bg-red-500 text-white text-[9px] px-2 py-1 rounded-full font-bold z-10 shadow-sm">HABIS</div>' : ''}
                 
@@ -462,119 +569,463 @@
             </div>`;
         });
     };
-
-    // --- RENDER DOWNLOAD PAGE ---
-    window.renderDownloadPage = () => {
-        const list = document.getElementById('appList');
-        list.innerHTML = "";
-        
-        if (!storeData.downloads || storeData.downloads.length === 0) {
-            list.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs">Belum ada aplikasi</div>';
+    
+    // CART & PAYMENT
+    window.addToCart = (i) => {
+        const p = storeData.products[i]; 
+        if(!p || parseInt(p.stock) <= 0) return toastr.error("Stok Habis"); 
+        const x = cart.find(c => c.idx === i); 
+        if(x) x.qty++; 
+        else cart.push({idx:i, name:p.name, price:parseInt(p.price), qty:1}); 
+        saveCart(); 
+        toastr.success("Masuk Keranjang");
+    };
+    
+    window.saveCart = () => {
+        localStorage.setItem('cart', JSON.stringify(cart)); 
+        updateCartBadge();
+    };
+    
+    window.updateCartBadge = () => {
+        const t = cart.reduce((a,b) => a + (b.qty || 0), 0); 
+        const b = document.getElementById('cartBadge'); 
+        b.innerText = t > 99 ? '99+' : t; 
+        t > 0 ? b.classList.remove('hidden') : b.classList.add('hidden');
+    };
+    
+    window.renderCartList = () => {
+        const l = document.getElementById('cartList'); 
+        l.innerHTML = ""; 
+        if(!cart.length) {
+            l.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs">Kosong</div>'; 
+            document.getElementById('cartTotalDisplay').innerText = "Rp 0"; 
+            document.getElementById('btnCheckout').disabled = true; 
             return;
         }
+        let sub = 0; 
+        cart.forEach((i, x) => {
+            sub += i.price * i.qty; 
+            l.innerHTML += `
+            <div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl">
+                <div class="flex-1 mr-3">
+                    <h4 class="font-bold text-xs text-slate-700 truncate">${i.name}</h4>
+                    <p class="text-xs text-blue-600 font-bold">Rp ${i.price.toLocaleString()}</p>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1">
+                    <button onclick="modQty(${x}, -1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">−</button>
+                    <span class="text-xs font-bold w-5 text-center">${i.qty}</span>
+                    <button onclick="modQty(${x}, 1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">+</button>
+                </div>
+            </div>`;
+        });
+        document.getElementById('cartTotalDisplay').innerText = "Rp " + (sub + (parseInt(storeData.fee) || 0)).toLocaleString('id-ID'); 
+        document.getElementById('btnCheckout').disabled = false;
+    };
+    
+    window.modQty = (x, d) => {
+        if(!cart[x]) return; 
+        cart[x].qty += d; 
+        if(cart[x].qty <= 0) cart.splice(x, 1); 
+        saveCart(); 
+        renderCartList();
+    };
 
-        storeData.downloads.forEach(app => {
-            const img = app.icon || `https://placehold.co/100x100/e2e8f0/94a3b8?text=${app.name[0]}`;
-            list.innerHTML += `
-            <div class="app-item flex items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <div class="w-14 h-14 rounded-xl bg-slate-50 mr-4 overflow-hidden border border-slate-100 flex-shrink-0">
-                    <img src="${img}" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1 mr-2 overflow-hidden">
-                    <h3 class="font-bold text-sm text-slate-800 truncate">${app.name}</h3>
-                    <p class="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">${app.desc || "Tidak ada deskripsi"}</p>
-                </div>
-                <a href="${app.link}" target="_blank" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors flex flex-col items-center">
-                    <i class="fas fa-cloud-download-alt text-sm mb-0.5"></i>
-                    <span>GET</span>
-                </a>
-            </div>
+    window.initPayment = () => {
+        if(!cart.length) return; 
+        let note = document.getElementById('orderNote').value.trim(); 
+        if(!note) note = "-";
+        const sub = cart.reduce((a,b) => a + (b.price * b.qty), 0); 
+        const tot = sub + (parseInt(storeData.fee) || 0);
+        document.getElementById('payAmountDisplay').innerText = "Rp " + tot.toLocaleString('id-ID');
+        const qc = document.getElementById('qrContainer'); 
+        const qs = document.getElementById('qrStatus'); 
+        const raw = storeData.qris || "";
+        
+        if(!raw) {
+            qc.innerHTML = '<p class="text-xs text-red-500">QRIS belum diatur</p>';
+            qs.classList.add('hidden');
+        } else {
+            qc.innerHTML = '<div class="text-center py-8"><p class="text-xs text-slate-400">Loading QR...</p></div>'; 
+            qs.classList.remove('hidden');
+            setTimeout(() => {
+                try {
+                    let final = raw; 
+                    let txt = "Scan Manual"; 
+                    let cls = "text-orange-600 bg-orange-50";
+                    if(raw.length > 20) { 
+                        final = formatQrisAmount(raw, tot); 
+                        txt = "Nominal Otomatis"; 
+                        cls = "text-green-600 bg-green-50"; 
+                    }
+                    qc.innerHTML = ""; 
+                    new QRCode(qc, {text: final, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M});
+                    qs.innerHTML = txt; 
+                    qs.className = `text-[10px] ${cls} py-1 rounded mt-2`;
+                } catch(e) {
+                    qc.innerHTML = '<p class="text-xs text-red-500">Error QR</p>';
+                }
+            }, 300);
+        }
+        document.getElementById('cartModal').classList.add('hidden'); 
+        document.getElementById('paymentModal').classList.remove('hidden');
+    };
+
+    window.generateReceipt = async() => {
+        let note = document.getElementById('orderNote').value.trim(); 
+        if(!note) note = "-";
+        const sub = cart.reduce((a,b) => a + (b.price * b.qty), 0); 
+        const fee = parseInt(storeData.fee) || 0; 
+        const tot = sub + fee;
+        document.getElementById('recStoreName').innerText = storeData.name; 
+        document.getElementById('receiptDate').innerText = new Date().toLocaleDateString('id-ID'); 
+        document.getElementById('receiptName').innerText = userProfile.name || "Tamu"; 
+        document.getElementById('receiptTotal').innerText = "Rp " + tot.toLocaleString('id-ID');
+        const ri = document.getElementById('receiptItems'); 
+        ri.innerHTML = "";
+        cart.forEach(i => ri.innerHTML += `<div class="flex justify-between text-xs"><span class="truncate max-w-[60%]">${i.name} ×${i.qty}</span><span class="font-medium">Rp ${(i.price*i.qty).toLocaleString()}</span></div>`);
+        if(fee > 0) ri.innerHTML += `<div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed"><span>Biaya Admin</span><span>Rp ${fee.toLocaleString()}</span></div>`;
+        document.getElementById('receiptNoteBox').innerText = "📝 " + note;
+        
+        const btnWa = document.getElementById('btnSendWa'); 
+        const btnText = document.getElementById('btnWaText'); 
+        const loadIcon = document.getElementById('loadingIcon');
+        btnWa.disabled = true; 
+        btnWa.classList.remove('bg-green-500', 'hover:bg-green-600', 'active:scale-95'); 
+        btnWa.classList.add('bg-slate-300', 'cursor-not-allowed'); 
+        btnText.innerText = "MENYIMPAN LOG..."; 
+        loadIcon.classList.remove('hidden');
+        document.getElementById('paymentModal').classList.add('hidden'); 
+        document.getElementById('receiptModal').classList.remove('hidden');
+
+        if(user && !isGuestMode) {
+            try {
+                await push(ref(db, `orders/${user.uid}`), {
+                    items: [...cart], 
+                    subtotal: sub, 
+                    fee, 
+                    total: tot, 
+                    note, 
+                    date: Date.now(), 
+                    status: "pending", 
+                    customerName: userProfile.name, 
+                    customerPhone: userProfile.phone
+                });
+                toastr.success("Log Tersimpan"); 
+                btnWa.disabled = false; 
+                btnWa.classList.remove('bg-slate-300', 'cursor-not-allowed'); 
+                btnWa.classList.add('bg-green-500', 'hover:bg-green-600', 'active:scale-95'); 
+                btnText.innerText = "KIRIM ADMIN"; 
+                loadIcon.classList.add('hidden');
+            } catch(e) {
+                console.error(e);
+                toastr.error("Gagal Log DB");
+                btnText.innerText = "GAGAL LOG";
+                loadIcon.classList.add('hidden');
+            }
+        } else {
+            await new Promise(r => setTimeout(r, 1000)); 
+            btnWa.disabled = false; 
+            btnWa.classList.remove('bg-slate-300', 'cursor-not-allowed'); 
+            btnWa.classList.add('bg-green-500', 'hover:bg-green-600', 'active:scale-95'); 
+            btnText.innerText = "KIRIM (TAMU)"; 
+            loadIcon.classList.add('hidden'); 
+            toastr.info("Mode Tamu: No Log");
+        }
+    };
+    
+    // --- DOWNLOAD CENTER FUNCTIONS ---
+    window.openDownloadCenter = () => {
+        document.getElementById('downloadModal').classList.remove('hidden');
+        renderDownloadCategories();
+        renderDownloadApps();
+    };
+    
+    window.closeDownloadCenter = () => {
+        document.getElementById('downloadModal').classList.add('hidden');
+        resetDownloadForm();
+    };
+    
+    window.renderDownloadCategories = () => {
+        const cats = ['all'];
+        if (storeData.downloads && storeData.downloads.length > 0) {
+            storeData.downloads.forEach(d => {
+                const cat = d.category || 'Umum';
+                if (!cats.includes(cat)) cats.push(cat);
+            });
+        }
+        
+        const container = document.getElementById('downloadCategoryContainer');
+        container.innerHTML = '';
+        cats.forEach(cat => {
+            container.innerHTML += `
+                <button onclick="filterDownloadCategory('${cat}')" 
+                        class="download-category-btn px-4 py-1.5 rounded-full text-xs font-medium shadow-sm ${cat === activeDownloadCategory ? 'active bg-gradient-to-r from-blue-500 to-purple-500 text-white' : 'bg-white border border-slate-200 text-slate-600'} transition-colors">
+                    ${cat === 'all' ? 'Semua' : cat}
+                </button>
             `;
         });
     };
     
-    // CART & PAYMENT
-    window.addToCart=(i)=>{const p=storeData.products[i]; if(!p||parseInt(p.stock)<=0)return toastr.error("Stok Habis"); const x=cart.find(c=>c.idx===i); if(x)x.qty++; else cart.push({idx:i,name:p.name,price:parseInt(p.price),qty:1}); saveCart(); toastr.success("Masuk Keranjang");};
-    window.saveCart=()=>{localStorage.setItem('cart',JSON.stringify(cart)); updateCartBadge();};
-    window.updateCartBadge=()=>{const t=cart.reduce((a,b)=>a+(b.qty||0),0); const b=document.getElementById('cartBadge'); b.innerText=t>99?'99+':t; t>0?b.classList.remove('hidden'):b.classList.add('hidden');};
-    window.renderCartList=()=>{
-        const l=document.getElementById('cartList'); l.innerHTML=""; if(!cart.length){l.innerHTML='<div class="text-center py-10 text-slate-400 text-xs">Kosong</div>'; document.getElementById('cartTotalDisplay').innerText="Rp 0"; document.getElementById('btnCheckout').disabled=true; return;}
-        let sub=0; cart.forEach((i,x)=>{sub+=i.price*i.qty; l.innerHTML+=`<div class="flex justify-between items-center bg-white border border-slate-100 p-3 rounded-xl"><div class="flex-1 mr-3"><h4 class="font-bold text-xs text-slate-700 truncate">${i.name}</h4><p class="text-xs text-blue-600 font-bold">Rp ${i.price.toLocaleString()}</p></div><div class="flex items-center gap-2 bg-slate-50 rounded-lg px-2 py-1"><button onclick="modQty(${x},-1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">−</button><span class="text-xs font-bold w-5 text-center">${i.qty}</span><button onclick="modQty(${x},1)" class="w-5 h-5 font-bold text-slate-600 hover:bg-slate-200">+</button></div></div>`;});
-        document.getElementById('cartTotalDisplay').innerText="Rp "+(sub+(parseInt(storeData.fee)||0)).toLocaleString('id-ID'); document.getElementById('btnCheckout').disabled=false;
+    window.filterDownloadCategory = (cat) => {
+        activeDownloadCategory = cat;
+        renderDownloadCategories();
+        renderDownloadApps();
     };
-    window.modQty=(x,d)=>{if(!cart[x])return; cart[x].qty+=d; if(cart[x].qty<=0)cart.splice(x,1); saveCart(); renderCartList();};
-
-    window.initPayment=()=>{
-        if(!cart.length)return; 
-        let note = document.getElementById('orderNote').value.trim(); if(!note) note = "-";
-        const sub=cart.reduce((a,b)=>a+(b.price*b.qty),0); const tot=sub+(parseInt(storeData.fee)||0);
-        document.getElementById('payAmountDisplay').innerText="Rp "+tot.toLocaleString('id-ID');
-        const qc=document.getElementById('qrContainer'); const qs=document.getElementById('qrStatus'); const raw=storeData.qris||"";
-        
-        if(!raw){qc.innerHTML='<p class="text-xs text-red-500">QRIS belum diatur</p>';qs.classList.add('hidden');}
-        else {
-            qc.innerHTML='<div class="text-center py-8"><p class="text-xs text-slate-400">Loading QR...</p></div>'; qs.classList.remove('hidden');
-            setTimeout(()=>{
-                try {
-                    let final=raw; let txt="Scan Manual"; let cls="text-orange-600 bg-orange-50";
-                    if(raw.length>20){ final=formatQrisAmount(raw, tot); txt="Nominal Otomatis"; cls="text-green-600 bg-green-50"; }
-                    qc.innerHTML=""; new QRCode(qc,{text:final,width:180,height:180,correctLevel:QRCode.CorrectLevel.M});
-                    qs.innerHTML=txt; qs.className=`text-[10px] ${cls} py-1 rounded mt-2`;
-                } catch(e){qc.innerHTML='<p class="text-xs text-red-500">Error QR</p>';}
-            },300);
+    
+    window.renderDownloadApps = () => {
+        const container = document.getElementById('downloadList');
+        if (!storeData.downloads || storeData.downloads.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-10">
+                    <i class="fas fa-download text-slate-300 text-3xl mb-3"></i>
+                    <p class="text-xs text-slate-400">Belum ada aplikasi tersedia</p>
+                </div>
+            `;
+            return;
         }
-        document.getElementById('cartModal').classList.add('hidden'); document.getElementById('paymentModal').classList.remove('hidden');
-    };
-
-    window.generateReceipt=async()=>{
-        let note=document.getElementById('orderNote').value.trim(); if(!note) note = "-";
-        const sub=cart.reduce((a,b)=>a+(b.price*b.qty),0); const fee=parseInt(storeData.fee)||0; const tot=sub+fee;
-        document.getElementById('recStoreName').innerText=storeData.name; document.getElementById('receiptDate').innerText=new Date().toLocaleDateString('id-ID'); document.getElementById('receiptName').innerText=userProfile.name||"Tamu"; document.getElementById('receiptTotal').innerText="Rp "+tot.toLocaleString('id-ID');
-        const ri=document.getElementById('receiptItems'); ri.innerHTML="";
-        cart.forEach(i=>ri.innerHTML+=`<div class="flex justify-between text-xs"><span class="truncate max-w-[60%]">${i.name} ×${i.qty}</span><span class="font-medium">Rp ${(i.price*i.qty).toLocaleString()}</span></div>`);
-        if(fee>0)ri.innerHTML+=`<div class="flex justify-between text-xs text-slate-500 mt-2 pt-2 border-t border-dashed"><span>Biaya Admin</span><span>Rp ${fee.toLocaleString()}</span></div>`;
-        document.getElementById('receiptNoteBox').innerText="📝 "+note;
         
-        const btnWa=document.getElementById('btnSendWa'); const btnText=document.getElementById('btnWaText'); const loadIcon=document.getElementById('loadingIcon');
-        btnWa.disabled=true; btnWa.classList.remove('bg-green-500','hover:bg-green-600','active:scale-95'); btnWa.classList.add('bg-slate-300','cursor-not-allowed'); btnText.innerText="MENYIMPAN LOG..."; loadIcon.classList.remove('hidden');
-        document.getElementById('paymentModal').classList.add('hidden'); document.getElementById('receiptModal').classList.remove('hidden');
-
-        if(user&&!isGuestMode){
-            try{
-                await push(ref(db,`orders/${user.uid}`),{items:[...cart],subtotal:sub,fee,total:tot,note,date:Date.now(),status:"pending",customerName:userProfile.name,customerPhone:userProfile.phone});
-                toastr.success("Log Tersimpan"); btnWa.disabled=false; btnWa.classList.remove('bg-slate-300','cursor-not-allowed'); btnWa.classList.add('bg-green-500','hover:bg-green-600','active:scale-95'); btnText.innerText="KIRIM ADMIN"; loadIcon.classList.add('hidden');
-            }catch(e){console.error(e);toastr.error("Gagal Log DB");btnText.innerText="GAGAL LOG";loadIcon.classList.add('hidden');}
+        let filteredApps = storeData.downloads;
+        if (activeDownloadCategory !== 'all') {
+            filteredApps = filteredApps.filter(app => (app.category || 'Umum') === activeDownloadCategory);
+        }
+        
+        container.innerHTML = '';
+        filteredApps.forEach((app, index) => {
+            const image = app.image || `https://placehold.co/300x300/e2e8f0/94a3b8?text=${app.name[0]}`;
+            container.innerHTML += `
+                <div class="download-card bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="flex p-4">
+                        <div class="w-16 h-16 bg-slate-50 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                            <img src="${image}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="font-bold text-sm text-slate-800">${app.name}</h3>
+                                <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">${app.category || 'Aplikasi'}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] text-slate-500 mb-2">
+                                <span><i class="fas fa-tag mr-1"></i>v${app.version || '1.0'}</span>
+                                <span><i class="fas fa-weight-hanging mr-1"></i>${app.size || '0'} MB</span>
+                            </div>
+                            <p class="text-xs text-slate-600 line-clamp-2 mb-3">${app.description || 'Tidak ada deskripsi'}</p>
+                            <button onclick="downloadApp('${app.link}')" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                                <i class="fas fa-download"></i> DOWNLOAD
+                            </button>
+                            ${user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? `
+                            <div class="flex justify-end gap-1 mt-2">
+                                <button onclick="editDownloadApp(${index})" class="text-blue-500 text-xs px-2 py-1 hover:bg-blue-50 rounded"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteDownloadApp(${index})" class="text-red-500 text-xs px-2 py-1 hover:bg-red-50 rounded"><i class="fas fa-trash"></i></button>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    };
+    
+    window.renderAdminDownloadList = () => {
+        const container = document.getElementById('adminDownloadList');
+        if (!storeData.downloads || storeData.downloads.length === 0) {
+            container.innerHTML = '<p class="text-xs text-slate-500 text-center">Belum ada aplikasi</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        storeData.downloads.forEach((app, index) => {
+            container.innerHTML += `
+                <div class="flex justify-between items-center bg-slate-50 p-2 rounded text-xs">
+                    <div class="flex-1">
+                        <b>${app.name}</b> (${app.category || 'Umum'})
+                        <p class="text-slate-500 text-[10px]">${app.link.substring(0, 50)}...</p>
+                    </div>
+                    <div class="flex gap-1">
+                        <button onclick="editDownloadApp(${index})" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteDownloadApp(${index})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+        });
+    };
+    
+    window.toggleDownloadAdmin = () => {
+        const panel = document.getElementById('downloadAdminPanel');
+        const btn = document.getElementById('dlAdminToggleBtn');
+        if (panel.classList.contains('hidden')) {
+            panel.classList.remove('hidden');
+            btn.innerHTML = 'Mode User';
+            btn.classList.remove('bg-blue-500');
+            btn.classList.add('bg-gray-500');
         } else {
-            await new Promise(r=>setTimeout(r,1000)); btnWa.disabled=false; btnWa.classList.remove('bg-slate-300','cursor-not-allowed'); btnWa.classList.add('bg-green-500','hover:bg-green-600','active:scale-95'); btnText.innerText="KIRIM (TAMU)"; loadIcon.classList.add('hidden'); toastr.info("Mode Tamu: No Log");
+            panel.classList.add('hidden');
+            btn.innerHTML = 'Mode Admin';
+            btn.classList.remove('bg-gray-500');
+            btn.classList.add('bg-blue-500');
         }
+    };
+    
+    window.openDownloadAdmin = () => {
+        closeAdminPanel();
+        openDownloadCenter();
+        setTimeout(() => {
+            document.getElementById('downloadAdminPanel').classList.remove('hidden');
+            document.getElementById('dlAdminToggleBtn').innerHTML = 'Mode User';
+            document.getElementById('dlAdminToggleBtn').classList.remove('bg-blue-500');
+            document.getElementById('dlAdminToggleBtn').classList.add('bg-gray-500');
+        }, 300);
+    };
+    
+    window.handleDownloadImage = (input) => {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                if (width > 300) {
+                    height = (height * 300) / width;
+                    width = 300;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                tempDownloadImg = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById('dlAppImgPreview').src = tempDownloadImg;
+                document.getElementById('dlAppImgPreview').classList.remove('hidden');
+                document.getElementById('dlAppImgIcon').classList.add('hidden');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+    
+    window.saveDownloadApp = async () => {
+        const name = document.getElementById('dlAppName').value.trim();
+        const version = document.getElementById('dlAppVersion').value.trim() || '1.0';
+        const size = document.getElementById('dlAppSize').value.trim() || '0';
+        const category = document.getElementById('dlAppCategory').value.trim() || 'Umum';
+        const description = document.getElementById('dlAppDesc').value.trim();
+        const link = document.getElementById('dlAppLink').value.trim();
+        const editIdx = parseInt(document.getElementById('dlEditIdx').value);
+        
+        if (!name || !link) {
+            toastr.error("Nama dan Link wajib diisi");
+            return;
+        }
+        
+        const app = {
+            name,
+            version,
+            size,
+            category,
+            description,
+            link,
+            image: tempDownloadImg || (editIdx > -1 ? storeData.downloads[editIdx].image : ''),
+            dateAdded: Date.now()
+        };
+        
+        if (editIdx > -1) {
+            storeData.downloads[editIdx] = app;
+        } else {
+            storeData.downloads.push(app);
+        }
+        
+        try {
+            await update(ref(db, `stores/${STORE_ID}`), storeData);
+            toastr.success("Aplikasi tersimpan");
+            resetDownloadForm();
+            renderDownloadApps();
+            renderAdminDownloadList();
+            renderDownloadCategories();
+        } catch (error) {
+            toastr.error("Gagal menyimpan");
+            console.error(error);
+        }
+    };
+    
+    window.editDownloadApp = (index) => {
+        const app = storeData.downloads[index];
+        document.getElementById('dlAppName').value = app.name;
+        document.getElementById('dlAppVersion').value = app.version || '';
+        document.getElementById('dlAppSize').value = app.size || '';
+        document.getElementById('dlAppCategory').value = app.category || '';
+        document.getElementById('dlAppDesc').value = app.description || '';
+        document.getElementById('dlAppLink').value = app.link;
+        document.getElementById('dlEditIdx').value = index;
+        
+        if (app.image) {
+            tempDownloadImg = app.image;
+            document.getElementById('dlAppImgPreview').src = app.image;
+            document.getElementById('dlAppImgPreview').classList.remove('hidden');
+            document.getElementById('dlAppImgIcon').classList.add('hidden');
+        }
+        
+        document.getElementById('downloadAdminPanel').classList.remove('hidden');
+        document.getElementById('dlAdminToggleBtn').innerHTML = 'Mode User';
+        document.getElementById('dlAdminToggleBtn').classList.remove('bg-blue-500');
+        document.getElementById('dlAdminToggleBtn').classList.add('bg-gray-500');
+    };
+    
+    window.deleteDownloadApp = async (index) => {
+        if (!confirm('Hapus aplikasi ini?')) return;
+        
+        storeData.downloads.splice(index, 1);
+        try {
+            await update(ref(db, `stores/${STORE_ID}`), storeData);
+            toastr.success("Aplikasi dihapus");
+            renderDownloadApps();
+            renderAdminDownloadList();
+            renderDownloadCategories();
+        } catch (error) {
+            toastr.error("Gagal menghapus");
+            console.error(error);
+        }
+    };
+    
+    window.resetDownloadForm = () => {
+        document.getElementById('dlAppName').value = '';
+        document.getElementById('dlAppVersion').value = '';
+        document.getElementById('dlAppSize').value = '';
+        document.getElementById('dlAppCategory').value = '';
+        document.getElementById('dlAppDesc').value = '';
+        document.getElementById('dlAppLink').value = '';
+        document.getElementById('dlEditIdx').value = '-1';
+        document.getElementById('dlAppImgPreview').src = '';
+        document.getElementById('dlAppImgPreview').classList.add('hidden');
+        document.getElementById('dlAppImgIcon').classList.remove('hidden');
+        tempDownloadImg = '';
+    };
+    
+    window.downloadApp = (url) => {
+        if (!url) {
+            toastr.error("Link download tidak tersedia");
+            return;
+        }
+        
+        // Open in new tab
+        window.open(url, '_blank');
+        toastr.success("Membuka link download...");
     };
     
     // UTILS
-    window.checkAdmin=()=>{if(document.getElementById('adminPin').value===ADMIN_PIN){document.getElementById('adminLoginModal').classList.add('hidden');document.getElementById('adminModal').classList.remove('hidden');document.getElementById('admStoreName').value=storeData.name;document.getElementById('admFee').value=storeData.fee;document.getElementById('admQris').value=storeData.qris;renderAdmList(); renderAdmAppList();}else toastr.error("PIN Salah");};
-    
-    // --- ADMIN TABS CONTROL ---
-    window.switchAdminTab = (tab) => {
-        const prodPanel = document.getElementById('adminPanelProducts');
-        const appPanel = document.getElementById('adminPanelApps');
-        const tabProd = document.getElementById('tabAdmProd');
-        const tabApp = document.getElementById('tabAdmApp');
-
-        if (tab === 'products') {
-            prodPanel.classList.remove('hidden');
-            appPanel.classList.add('hidden');
-            tabProd.className = "px-3 py-1 bg-blue-600 text-white text-xs rounded-lg transition";
-            tabApp.className = "px-3 py-1 bg-slate-200 text-slate-600 text-xs rounded-lg transition";
+    window.checkAdmin = () => {
+        if(document.getElementById('adminPin').value === ADMIN_PIN) {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('admStoreName').value = storeData.name;
+            document.getElementById('admFee').value = storeData.fee;
+            document.getElementById('admQris').value = storeData.qris;
             renderAdmList();
+            renderAdminDownloadList();
         } else {
-            prodPanel.classList.add('hidden');
-            appPanel.classList.remove('hidden');
-            tabProd.className = "px-3 py-1 bg-slate-200 text-slate-600 text-xs rounded-lg transition";
-            tabApp.className = "px-3 py-1 bg-blue-600 text-white text-xs rounded-lg transition";
-            renderAdmAppList();
+            toastr.error("PIN Salah");
         }
-    }
-
-    // --- ADMIN PRODUCT LIST ---
+    };
+    
     window.renderAdmList = () => {
         const l = document.getElementById('admList');
         l.innerHTML = "";
@@ -599,74 +1050,86 @@
         });
     };
 
-    // --- ADMIN APP LIST (NEW) ---
-    window.renderAdmAppList = () => {
-        const l = document.getElementById('admAppList');
-        l.innerHTML = "";
-        if(!storeData.downloads) storeData.downloads = [];
-        
-        storeData.downloads.forEach((app, i) => {
-             l.innerHTML += `
-            <div class="flex justify-between items-center bg-white p-3 text-xs border border-blue-100 rounded-lg mb-2">
-                <div class="flex items-center gap-2 flex-1 overflow-hidden">
-                    <img src="${app.icon || 'https://placehold.co/50'}" class="w-8 h-8 rounded bg-slate-100 object-cover">
-                    <div class="truncate">
-                        <b class="text-slate-800">${app.name}</b><br>
-                        <span class="text-slate-400 text-[10px] truncate block">${app.link}</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1">
-                    <button onclick="editAdmApp(${i})" class="text-blue-500 w-6 h-6 hover:bg-blue-50 rounded flex items-center justify-center"><i class="fas fa-edit"></i></button>
-                    <button onclick="delAdmApp(${i})" class="text-red-500 w-6 h-6 hover:bg-red-50 rounded flex items-center justify-center"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-        });
-    }
-
-    window.handleQrisUpload=(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;c.getContext('2d').drawImage(i,0,0);try{const code=jsQR(c.getContext('2d').getImageData(0,0,c.width,c.height).data,c.width,c.height);if(code)document.getElementById('admQris').value=code.data;}catch(e){}};i.src=e.target.result;};r.readAsDataURL(f);}};
+    window.handleQrisUpload = (input) => {
+        const f = input.files[0];
+        if(f) {
+            const r = new FileReader();
+            r.onload = (e) => {
+                const i = new Image();
+                i.onload = () => {
+                    const c = document.createElement('canvas');
+                    c.width = i.width;
+                    c.height = i.height;
+                    c.getContext('2d').drawImage(i, 0, 0);
+                    try {
+                        const code = jsQR(c.getContext('2d').getImageData(0, 0, c.width, c.height).data, c.width, c.height);
+                        if(code) document.getElementById('admQris').value = code.data;
+                    } catch(e) {
+                        console.error("Error reading QR:", e);
+                    }
+                };
+                i.src = e.target.result;
+            };
+            r.readAsDataURL(f);
+        }
+    };
     
-    Object.assign(window,{
-        openDetail:(i)=>{
-            currentDetailIdx=i;const p=storeData.products[i];
-            document.getElementById('detailImg').src=p.image;
-            document.getElementById('detailName').innerText=p.name;
-            document.getElementById('detailPrice').innerText="Rp "+parseInt(p.price).toLocaleString();
-            document.getElementById('detailStock').innerText="Stok: "+p.stock;
-            document.getElementById('detailDesc').innerText=p.desc;
-            document.getElementById('detailCat').innerText=p.category;
+    Object.assign(window, {
+        openDetail: (i) => {
+            currentDetailIdx = i;
+            const p = storeData.products[i];
+            document.getElementById('detailImg').src = p.image;
+            document.getElementById('detailName').innerText = p.name;
+            document.getElementById('detailPrice').innerText = "Rp " + parseInt(p.price).toLocaleString();
+            document.getElementById('detailStock').innerText = "Stok: " + p.stock;
+            document.getElementById('detailDesc').innerText = p.desc;
+            document.getElementById('detailCat').innerText = p.category;
             
-            const b=document.getElementById('btnAddToCart');
+            const b = document.getElementById('btnAddToCart');
             const isHabis = parseInt(p.stock) <= 0;
 
-            if(!isHabis){
-                b.disabled=false;
-                b.innerHTML="TAMBAH KE KERANJANG";
+            if(!isHabis) {
+                b.disabled = false;
+                b.innerHTML = "TAMBAH KE KERANJANG";
                 b.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
                 b.classList.add('bg-slate-900', 'text-white');
-            }else{
-                b.disabled=true;
-                b.innerHTML="STOK HABIS";
+            } else {
+                b.disabled = true;
+                b.innerHTML = "STOK HABIS";
                 b.classList.remove('bg-slate-900', 'text-white');
                 b.classList.add('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
             }
             document.getElementById('detailModal').classList.remove('hidden');
         },
-        closeDetail:()=>{document.getElementById('detailModal').classList.add('hidden');},
-        addToCartFromDetail:()=>{if(currentDetailIdx>-1){addToCart(currentDetailIdx);closeDetail();}},
-        toggleSearch:()=>{document.getElementById('searchBar').classList.toggle('hidden');},
-        openCart:()=>{switchTab('cart');renderCartList();document.getElementById('cartModal').classList.remove('hidden');},
-        closeCart:()=>{document.getElementById('cartModal').classList.add('hidden');switchTab('home');},
-        closePayment:()=>{document.getElementById('paymentModal').classList.add('hidden');},
-
-        // --- NAVIGATION DOWNLOAD PAGE ---
-        openDownloadPage: () => {
-            // Hide Home & Others
-            document.getElementById('homePage').classList.add('hidden');
-            document.getElementById('searchBar').classList.add('hidden');
-            document.getElementById('downloadPage').classList.remove('hidden');
-            // Reset Tabs
-            document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
-            renderDownloadPage();
+        
+        closeDetail: () => {
+            document.getElementById('detailModal').classList.add('hidden');
+        },
+        
+        addToCartFromDetail: () => {
+            if(currentDetailIdx > -1) {
+                addToCart(currentDetailIdx);
+                closeDetail();
+            }
+        },
+        
+        toggleSearch: () => {
+            document.getElementById('searchBar').classList.toggle('hidden');
+        },
+        
+        openCart: () => {
+            switchTab('cart');
+            renderCartList();
+            document.getElementById('cartModal').classList.remove('hidden');
+        },
+        
+        closeCart: () => {
+            document.getElementById('cartModal').classList.add('hidden');
+            switchTab('home');
+        },
+        
+        closePayment: () => {
+            document.getElementById('paymentModal').classList.add('hidden');
         },
 
         moveProd: async (i, dir) => {
@@ -680,178 +1143,292 @@
             toastr.success("Urutan disimpan");
         },
 
-        shareProduct:(i)=>{
-            const p=storeData.products[i];
-            const url=window.location.href;
-            const text=`*${p.name}*\nHarga: Rp ${parseInt(p.price).toLocaleString('id-ID')}\nStok: ${p.stock}\n${p.desc?p.desc.substring(0,50)+'...':''}\n\nLink: ${url}`;
-            if(navigator.share){
-                navigator.share({title:p.name,text:text,url:url}).catch(console.error);
-            }else{
+        shareProduct: (i) => {
+            const p = storeData.products[i];
+            const url = window.location.href;
+            const text = `*${p.name}*\nHarga: Rp ${parseInt(p.price).toLocaleString('id-ID')}\nStok: ${p.stock}\n${p.desc ? p.desc.substring(0,50) + '...' : ''}\n\nLink: ${url}`;
+            if(navigator.share) {
+                navigator.share({title: p.name, text: text, url: url}).catch(console.error);
+            } else {
                 navigator.clipboard.writeText(text);
                 toastr.success("Info produk disalin!");
             }
         },
 
-        sendToWhatsapp:()=>{
-            const n=document.getElementById('orderNote').value.trim()||"-";
-            const sub=cart.reduce((a,b)=>a+(b.price*b.qty),0);
-            const fee=parseInt(storeData.fee)||0;
-            const t=sub+fee;
+        sendToWhatsapp: () => {
+            const n = document.getElementById('orderNote').value.trim() || "-";
+            const sub = cart.reduce((a,b) => a + (b.price * b.qty), 0);
+            const fee = parseInt(storeData.fee) || 0;
+            const t = sub + fee;
             
             const now = new Date();
             const dateStr = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
             const timeStr = `${String(now.getHours()).padStart(2,'0')}.${String(now.getMinutes()).padStart(2,'0')} WIB`;
 
-            let m=`*𝙎𝙏𝙍𝙐𝙆 𝙋𝙀𝙈𝙀𝙎𝘼𝙉𝘼𝙉 - ${storeData.name}*\n`;
-            m+=`============================\n`;
-            m+=`👤 𝐏𝐞𝐦𝐛𝐞𝐥𝐢 : ${userProfile.name||'Tamu'}\n`;
-            m+=`📅 𝐓𝐚𝐧𝐠𝐠𝐚𝐥 : ${dateStr}\n`;
-            m+=`⏰ 𝐖𝐚𝐤𝐭𝐮 : ${timeStr}\n`;
-            m+=`============================\n`;
-            cart.forEach(i=>m+=`🛒 ${i.name} (x${i.qty}) : Rp. ${(i.price*i.qty).toLocaleString('id-ID')}\n`);
-            m+=`============================\n`;
-            m+=`💼 𝐁𝐢𝐚𝐲𝐚 𝐀𝐝𝐦𝐢𝐧 : Rp ${fee.toLocaleString('id-ID')}\n`;
-            m+=`💰 𝐒𝐮𝐛𝐭𝐨𝐭𝐚𝐥 : Rp ${sub.toLocaleString('id-ID')}\n`;
-            m+=`💵 𝐓𝐎𝐓𝐀𝐋 : Rp ${t.toLocaleString('id-ID')}\n`;
-            m+=`============================\n`;
-            m+=`📝 𝐂𝐚𝐭𝐚𝐭𝐚𝐧 : ${n}\n`;
-            m+=`💳 𝐌𝐞𝐭𝐨𝐝𝐞 : 𝐐𝐑𝐈𝐒\n`;
-            m+=`♾️ 𝐒𝐭𝐚𝐭𝐮𝐬 : 𝐏𝐞𝐧𝐝𝐢𝐧𝐠\n`;
-            m+=`============================\n`;
-            m+=`🙏: ᴛᴇʀɪᴍᴀ ᴋᴀꜱɪʜ ᴛᴇʟᴀʜ ʙᴇʀʙᴇʟᴀɴᴊᴀ!\n`;
-            m+=`⏳ : ᴛᴜɴɢɢᴜ ᴀᴅᴍɪɴ ꜱᴇɢᴇʀᴀ ᴍᴇᴍᴘʀᴏꜱᴇꜱ!\n\n`;
-            m+=`⚠️_𝙺𝚒𝚛𝚒𝚖 𝙱𝚞𝚔𝚝𝚒 𝙿𝚎𝚖𝚋𝚊𝚢𝚊𝚛𝚊𝚗_⚠️`;
+            let m = `*𝙎𝙏𝙍𝙐𝙆 𝙋𝙀𝙈𝙀𝙎𝘼𝙉𝘼𝙉 - ${storeData.name}*\n`;
+            m += `============================\n`;
+            m += `👤 𝐏𝐞𝐦𝐛𝐞𝐥𝐢 : ${userProfile.name||'Tamu'}\n`;
+            m += `📅 𝐓𝐚𝐧𝐠𝐠𝐚𝐥 : ${dateStr}\n`;
+            m += `⏰ 𝐖𝐚𝐤𝐭𝐮 : ${timeStr}\n`;
+            m += `============================\n`;
+            cart.forEach(i => m += `🛒 ${i.name} (x${i.qty}) : Rp. ${(i.price*i.qty).toLocaleString('id-ID')}\n`);
+            m += `============================\n`;
+            m += `💼 𝐁𝐢𝐚𝐲𝐚 𝐀𝐝𝐦𝐢𝐧 : Rp ${fee.toLocaleString('id-ID')}\n`;
+            m += `💰 𝐒𝐮𝐛𝐭𝐨𝐭𝐚𝐥 : Rp ${sub.toLocaleString('id-ID')}\n`;
+            m += `💵 𝐓𝐎𝐓𝐀𝐋 : Rp ${t.toLocaleString('id-ID')}\n`;
+            m += `============================\n`;
+            m += `📝 𝐂𝐚𝐭𝐚𝐭𝐚𝐧 : ${n}\n`;
+            m += `💳 𝐌𝐞𝐭𝐨𝐝𝐞 : 𝐐𝐑𝐈𝐒\n`;
+            m += `♾️ 𝐒𝐭𝐚𝐭𝐮𝐬 : 𝐏𝐞𝐧𝐝𝐢𝐧𝐠\n`;
+            m += `============================\n`;
+            m += `🙏: ᴛᴇʀɪᴍᴀ ᴋᴀꜱɪʜ ᴛᴇʟᴀʜ ʙᴇʀʙᴇʟᴀɴᴊᴀ!\n`;
+            m += `⏳ : ᴛᴜɴɢɢᴜ ᴀᴅᴍɪɴ ꜱᴇɢᴇʀᴀ ᴍᴇᴍᴘʀᴏꜱᴇꜱ!\n\n`;
+            m += `⚠️_𝙺𝚒𝚛𝚒𝚖 𝙱𝚞𝚔𝚝𝚒 𝙿𝚎𝚖𝚋𝚊𝚢𝚊𝚛𝚊𝚗_⚠️`;
 
-            window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(m)}`,'_blank');
-            setTimeout(()=>{cart=[];saveCart();location.reload();},1500);
+            window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(m)}`, '_blank');
+            setTimeout(() => {
+                cart = [];
+                saveCart();
+                location.reload();
+            }, 1500);
         },
         
-        closeReceipt:()=>{cart=[];saveCart();location.reload();},
-        openAdminLogin:()=>{if(!user||user.email?.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){toastr.error("Akses Ditolak");return;}document.getElementById('adminLoginModal').classList.remove('hidden');},
-        closeAdminLogin:()=>{document.getElementById('adminLoginModal').classList.add('hidden');},
-        closeAdminPanel:()=>{document.getElementById('adminModal').classList.add('hidden');},
+        closeReceipt: () => {
+            cart = [];
+            saveCart();
+            location.reload();
+        },
         
-        // --- ADMIN PRODUK CRUD ---
-        editAdm:(i)=>{
-            const p=storeData.products[i];
-            document.getElementById('admPName').value=p.name;
-            document.getElementById('admPPrice').value=p.price;
-            document.getElementById('admPStock').value=p.stock;
-            document.getElementById('admPSold').value=p.sold || 0;
-            document.getElementById('admPDesc').value=p.desc;
-            document.getElementById('admPCat').value=p.category;
-            document.getElementById('admEditIdx').value=i;
-            if(p.image){
-                tempAdmImg=p.image;
-                document.getElementById('admImgPrev').src=p.image;
+        openAdminLogin: () => {
+            if(!user || user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                toastr.error("Akses Ditolak");
+                return;
+            }
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+        },
+        
+        closeAdminLogin: () => {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        },
+        
+        closeAdminPanel: () => {
+            document.getElementById('adminModal').classList.add('hidden');
+        },
+        
+        editAdm: (i) => {
+            const p = storeData.products[i];
+            document.getElementById('admPName').value = p.name;
+            document.getElementById('admPPrice').value = p.price;
+            document.getElementById('admPStock').value = p.stock;
+            document.getElementById('admPSold').value = p.sold || 0;
+            document.getElementById('admPDesc').value = p.desc;
+            document.getElementById('admPCat').value = p.category;
+            document.getElementById('admEditIdx').value = i;
+            if(p.image) {
+                tempAdmImg = p.image;
+                document.getElementById('admImgPrev').src = p.image;
                 document.getElementById('admImgPrev').classList.remove('hidden');
             }
         },
-        delAdm:async(i)=>{if(confirm('Hapus Produk?')){storeData.products.splice(i,1);await update(ref(db,`stores/${STORE_ID}`),storeData);renderAdmList();renderProducts();}},
         
-        saveAdmProd:async()=>{
-            const i=parseInt(document.getElementById('admEditIdx').value);
-            const p={
-                name:document.getElementById('admPName').value,
-                category:document.getElementById('admPCat').value,
-                price:document.getElementById('admPPrice').value,
-                stock:document.getElementById('admPStock').value,
-                sold:document.getElementById('admPSold').value || 0,
-                desc:document.getElementById('admPDesc').value,
-                image:tempAdmImg||(i>-1?storeData.products[i].image:"")
-            };
-            if(i>-1)storeData.products[i]=p;else storeData.products.push(p);
-            await update(ref(db,`stores/${STORE_ID}`),storeData);
-            resetAdmForm();renderAdmList();renderProducts();
+        delAdm: async(i) => {
+            if(confirm('Hapus?')) {
+                storeData.products.splice(i, 1);
+                await update(ref(db, `stores/${STORE_ID}`), storeData);
+                renderAdmList();
+                renderProducts();
+            }
         },
-        resetAdmForm:()=>{
-            document.getElementById('admPName').value="";
-            document.getElementById('admEditIdx').value="-1";
-            document.getElementById('admPSold').value="";
-            tempAdmImg="";
+        
+        saveAdmProd: async() => {
+            const i = parseInt(document.getElementById('admEditIdx').value);
+            const p = {
+                name: document.getElementById('admPName').value,
+                category: document.getElementById('admPCat').value,
+                price: document.getElementById('admPPrice').value,
+                stock: document.getElementById('admPStock').value,
+                sold: document.getElementById('admPSold').value || 0,
+                desc: document.getElementById('admPDesc').value,
+                image: tempAdmImg || (i > -1 ? storeData.products[i].image : "")
+            };
+            if(i > -1) storeData.products[i] = p;
+            else storeData.products.push(p);
+            
+            await update(ref(db, `stores/${STORE_ID}`), storeData);
+            resetAdmForm();
+            renderAdmList();
+            renderProducts();
+        },
+        
+        resetAdmForm: () => {
+            document.getElementById('admPName').value = "";
+            document.getElementById('admEditIdx').value = "-1";
+            document.getElementById('admPSold').value = "";
+            tempAdmImg = "";
             document.getElementById('admImgPrev').classList.add('hidden');
         },
-        handleAdmImg:(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');let w=i.width,h=i.height;if(w>300){h=(h*300)/w;w=300;}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);tempAdmImg=c.toDataURL('image/jpeg',0.7);document.getElementById('admImgPrev').src=tempAdmImg;document.getElementById('admImgPrev').classList.remove('hidden');};i.src=e.target.result;};r.readAsDataURL(f);}},
-
-        // --- ADMIN APLIKASI (DOWNLOAD) CRUD ---
-        handleAdmAppImg:(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');let w=i.width,h=i.height;if(w>150){h=(h*150)/w;w=150;}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);tempAdmAppImg=c.toDataURL('image/png',0.7);document.getElementById('admAppImgPrev').src=tempAdmAppImg;document.getElementById('admAppImgPrev').classList.remove('hidden');};i.src=e.target.result;};r.readAsDataURL(f);}},
         
-        saveAdmApp:async()=>{
-            if(!storeData.downloads) storeData.downloads = [];
-            const i=parseInt(document.getElementById('admAppEditIdx').value);
-            const a={
-                name:document.getElementById('admAppName').value,
-                link:document.getElementById('admAppLink').value,
-                desc:document.getElementById('admAppDesc').value,
-                icon:tempAdmAppImg||(i>-1?storeData.downloads[i].icon:"")
-            };
-            if(i>-1) storeData.downloads[i]=a; else storeData.downloads.push(a);
-            await update(ref(db,`stores/${STORE_ID}`),storeData);
-            resetAdmAppForm(); renderAdmAppList(); renderDownloadPage();
-            toastr.success("Aplikasi Disimpan");
-        },
-
-        editAdmApp:(i)=>{
-            const a = storeData.downloads[i];
-            document.getElementById('admAppName').value = a.name;
-            document.getElementById('admAppLink').value = a.link;
-            document.getElementById('admAppDesc').value = a.desc;
-            document.getElementById('admAppEditIdx').value = i;
-            if(a.icon){
-                tempAdmAppImg = a.icon;
-                document.getElementById('admAppImgPrev').src = a.icon;
-                document.getElementById('admAppImgPrev').classList.remove('hidden');
+        handleAdmImg: (input) => {
+            const f = input.files[0];
+            if(f) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const i = new Image();
+                    i.onload = () => {
+                        const c = document.createElement('canvas');
+                        let w = i.width, h = i.height;
+                        if(w > 300) {
+                            h = (h * 300) / w;
+                            w = 300;
+                        }
+                        c.width = w;
+                        c.height = h;
+                        c.getContext('2d').drawImage(i, 0, 0, w, h);
+                        tempAdmImg = c.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('admImgPrev').src = tempAdmImg;
+                        document.getElementById('admImgPrev').classList.remove('hidden');
+                    };
+                    i.src = e.target.result;
+                };
+                r.readAsDataURL(f);
             }
         },
-
-        delAdmApp:async(i)=>{
-            if(confirm('Hapus Aplikasi ini?')){
-                storeData.downloads.splice(i,1);
-                await update(ref(db,`stores/${STORE_ID}`),storeData);
-                renderAdmAppList(); renderDownloadPage();
-            }
-        },
-
-        resetAdmAppForm:()=>{
-            document.getElementById('admAppName').value = "";
-            document.getElementById('admAppLink').value = "";
-            document.getElementById('admAppDesc').value = "";
-            document.getElementById('admAppEditIdx').value = "-1";
-            tempAdmAppImg = "";
-            document.getElementById('admAppImgPrev').classList.add('hidden');
-        },
-
-        saveAdmSettings:async()=>{storeData.name=document.getElementById('admStoreName').value;storeData.fee=document.getElementById('admFee').value;storeData.qris=document.getElementById('admQris').value;await update(ref(db,`stores/${STORE_ID}`),storeData);toastr.success("Saved");},
         
-        switchTab:(t)=>{
-            document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+        saveAdmSettings: async() => {
+            storeData.name = document.getElementById('admStoreName').value;
+            storeData.fee = document.getElementById('admFee').value;
+            storeData.qris = document.getElementById('admQris').value;
+            await update(ref(db, `stores/${STORE_ID}`), storeData);
+            toastr.success("Pengaturan toko tersimpan");
+        },
+        
+        switchTab: (t) => {
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
             document.getElementById(`nav-${t}`).classList.add('active');
-            
-            // Logic Halaman
-            const home = document.getElementById('homePage');
-            const down = document.getElementById('downloadPage');
-            const search = document.getElementById('searchBar');
-
-            if(t === 'home'){
-                home.classList.remove('hidden');
-                down.classList.add('hidden');
-                // search bar logic handled by button
-            } else {
-                // Profile/Cart handled by modal, so background stays home
-                home.classList.remove('hidden');
-                down.classList.add('hidden');
+        },
+        
+        openProfile: () => {
+            if(!user || isGuestMode) window.showLoginOptions();
+            else {
+                switchTab('profile');
+                document.getElementById('profileModal').classList.remove('hidden');
             }
         },
-        openProfile:()=>{if(!user||isGuestMode)window.showLoginOptions();else{switchTab('profile');document.getElementById('profileModal').classList.remove('hidden');}},
-        closeProfile:()=>{document.getElementById('profileModal').classList.add('hidden');switchTab('home');},
-        showLoginOptions:()=>{document.getElementById('app').classList.add('hidden');document.getElementById('loginModal').classList.remove('hidden');},
-        doLogout:()=>{if(confirm("Logout?"))signOut(auth).then(()=>location.reload());},
-        handleAvatarUpload:(input)=>{const f=input.files[0];if(f){const r=new FileReader();r.onload=(e)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');let w=i.width,h=i.height;if(w>300){h=(h*300)/w;w=300;}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);const d=c.toDataURL('image/jpeg',0.7);document.getElementById('profileAvatarEdit').src=d;userProfile.tempAvatar=d;};i.src=e.target.result;};r.readAsDataURL(f);}},
-        saveProfileData:async()=>{userProfile.name=document.getElementById('profName').value;userProfile.phone=document.getElementById('profPhone').value;userProfile.address=document.getElementById('profAddress').value;if(userProfile.tempAvatar){userProfile.avatar=userProfile.tempAvatar;delete userProfile.tempAvatar;}await update(ref(db,`users/${user.uid}`),userProfile);toastr.success("Profil Saved");},
-        loadProfile:async(uid)=>{const s=await get(child(ref(db),`users/${uid}`));if(s.exists())userProfile=s.val();else userProfile={name:user.displayName,email:user.email};document.getElementById('headerGreeting').innerText=userProfile.name;if(userProfile.avatar){document.getElementById('headerAvatar').src=userProfile.avatar;document.getElementById('profileAvatarEdit').src=userProfile.avatar;}document.getElementById('profName').value=userProfile.name||"";document.getElementById('profPhone').value=userProfile.phone||"";document.getElementById('profAddress').value=userProfile.address||"";const h=await get(child(ref(db),`orders/${uid}`));const hl=document.getElementById('historyList');hl.innerHTML="";if(h.exists())Object.values(h.val()).forEach(o=>hl.innerHTML+=`<div class="p-2 border-b text-xs">${new Date(o.date).toLocaleDateString()} - Rp ${parseInt(o.total).toLocaleString()}</div>`);}
+        
+        closeProfile: () => {
+            document.getElementById('profileModal').classList.add('hidden');
+            switchTab('home');
+        },
+        
+        showLoginOptions: () => {
+            document.getElementById('app').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('hidden');
+        },
+        
+        doLogout: () => {
+            if(confirm("Logout?")) signOut(auth).then(() => location.reload());
+        },
+        
+        handleAvatarUpload: (input) => {
+            const f = input.files[0];
+            if(f) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const i = new Image();
+                    i.onload = () => {
+                        const c = document.createElement('canvas');
+                        let w = i.width, h = i.height;
+                        if(w > 300) {
+                            h = (h * 300) / w;
+                            w = 300;
+                        }
+                        c.width = w;
+                        c.height = h;
+                        c.getContext('2d').drawImage(i, 0, 0, w, h);
+                        const d = c.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('profileAvatarEdit').src = d;
+                        userProfile.tempAvatar = d;
+                    };
+                    i.src = e.target.result;
+                };
+                r.readAsDataURL(f);
+            }
+        },
+        
+        saveProfileData: async() => {
+            userProfile.name = document.getElementById('profName').value;
+            userProfile.phone = document.getElementById('profPhone').value;
+            userProfile.address = document.getElementById('profAddress').value;
+            if(userProfile.tempAvatar) {
+                userProfile.avatar = userProfile.tempAvatar;
+                delete userProfile.tempAvatar;
+            }
+            await update(ref(db, `users/${user.uid}`), userProfile);
+            toastr.success("Profil tersimpan");
+        },
+        
+        loadProfile: async(uid) => {
+            const s = await get(child(ref(db), `users/${uid}`));
+            if(s.exists()) userProfile = s.val();
+            else userProfile = {name: user.displayName, email: user.email};
+            
+            document.getElementById('headerGreeting').innerText = userProfile.name;
+            if(userProfile.avatar) {
+                document.getElementById('headerAvatar').src = userProfile.avatar;
+                document.getElementById('profileAvatarEdit').src = userProfile.avatar;
+            }
+            document.getElementById('profName').value = userProfile.name || "";
+            document.getElementById('profPhone').value = userProfile.phone || "";
+            document.getElementById('profAddress').value = userProfile.address || "";
+            
+            const h = await get(child(ref(db), `orders/${uid}`));
+            const hl = document.getElementById('historyList');
+            hl.innerHTML = "";
+            if(h.exists()) {
+                Object.values(h.val()).forEach(o => {
+                    hl.innerHTML += `<div class="p-2 border-b text-xs">${new Date(o.date).toLocaleDateString()} - Rp ${parseInt(o.total).toLocaleString()}</div>`;
+                });
+            }
+        }
     });
 
-    try{const app=initializeApp(firebaseConfig);db=getDatabase(app);auth=getAuth(app);document.getElementById('pinForm').addEventListener('submit',(e)=>{e.preventDefault();window.checkAdmin();});document.getElementById('togglePin').addEventListener('click',()=>{const i=document.getElementById('adminPin');i.type=i.type==='password'?'text':'password';});onAuthStateChanged(auth,(u)=>{if(u){user=u;isGuestMode=false;if(u.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase()){/*document.getElementById('adminHeaderBtn').classList.remove('hidden');*/ document.getElementById('nav-admin').classList.remove('hidden');}document.getElementById('loginModal').classList.add('hidden');document.getElementById('app').classList.remove('hidden');loadProfile(u.uid);initStore();if(new URLSearchParams(window.location.search).get('page')==='admin')setTimeout(openAdminLogin,500);}else{document.getElementById('loginModal').classList.remove('hidden');}});}catch(e){toastr.error("Init Error");}
+    // Initialize Firebase
+    try {
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        auth = getAuth(app);
+        
+        document.getElementById('pinForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            window.checkAdmin();
+        });
+        
+        document.getElementById('togglePin').addEventListener('click', () => {
+            const i = document.getElementById('adminPin');
+            i.type = i.type === 'password' ? 'text' : 'password';
+        });
+        
+        onAuthStateChanged(auth, (u) => {
+            if(u) {
+                user = u;
+                isGuestMode = false;
+                if(u.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    document.getElementById('adminHeaderBtn').classList.remove('hidden');
+                    document.getElementById('nav-admin').classList.remove('hidden');
+                }
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                loadProfile(u.uid);
+                initStore();
+                if(new URLSearchParams(window.location.search).get('page') === 'admin') setTimeout(openAdminLogin, 500);
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+        });
+    } catch(e) {
+        toastr.error("Init Error");
+        console.error("Firebase initialization error:", e);
+    }
   </script>
 </body>
 </html>
