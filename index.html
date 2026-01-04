@@ -1434,7 +1434,284 @@
         toggleCouponValueType();
     };
     
-    // --- OTHER FUNCTIONS (remain largely the same) ---
+    // --- PRODUCT CRUD FUNCTIONS ---
+    window.handleAdmImg = (input) => {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let w = img.width;
+                let h = img.height;
+                if (w > 300) {
+                    h = (h * 300) / w;
+                    w = 300;
+                }
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                tempAdmImg = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById('admImgPrev').src = tempAdmImg;
+                document.getElementById('admImgPrev').classList.remove('hidden');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+    
+    window.handleAdmImgLink = (input) => {
+        const url = input.value;
+        if (url) {
+            tempAdmImg = url;
+            document.getElementById('admImgPrev').src = url;
+            document.getElementById('admImgPrev').classList.remove('hidden');
+        }
+    };
+    
+    window.editAdm = (i) => {
+        const p = storeData.products[i];
+        document.getElementById('admPName').value = p.name;
+        document.getElementById('admPPrice').value = p.price;
+        document.getElementById('admPStock').value = p.stock;
+        document.getElementById('admPSold').value = p.sold || 0;
+        document.getElementById('admPDesc').value = p.desc;
+        document.getElementById('admPCat').value = p.category;
+        document.getElementById('admEditIdx').value = i;
+        document.getElementById('admImgLink').value = "";
+        
+        if (p.image) {
+            tempAdmImg = p.image;
+            document.getElementById('admImgPrev').src = p.image;
+            document.getElementById('admImgPrev').classList.remove('hidden');
+            
+            if (p.image.startsWith('http')) {
+                document.getElementById('admImgLink').value = p.image;
+            }
+        }
+    };
+    
+    window.delAdm = async (i) => {
+        if (confirm('Hapus Produk?')) {
+            storeData.products.splice(i, 1);
+            await update(ref(db, `stores/${STORE_ID}`), storeData);
+            renderAdmList();
+            renderProducts();
+            toastr.success("Produk dihapus");
+        }
+    };
+    
+    window.saveAdmProd = async () => {
+        const i = parseInt(document.getElementById('admEditIdx').value);
+        const p = {
+            name: document.getElementById('admPName').value,
+            category: document.getElementById('admPCat').value,
+            price: document.getElementById('admPPrice').value,
+            stock: document.getElementById('admPStock').value,
+            sold: document.getElementById('admPSold').value || 0,
+            desc: document.getElementById('admPDesc').value,
+            image: tempAdmImg || (i > -1 ? storeData.products[i].image : "")
+        };
+        
+        if (i > -1) {
+            storeData.products[i] = p;
+        } else {
+            storeData.products.push(p);
+        }
+        
+        await update(ref(db, `stores/${STORE_ID}`), storeData);
+        resetAdmForm();
+        renderAdmList();
+        renderProducts();
+        renderCategories();
+        toastr.success("Produk disimpan");
+    };
+    
+    window.resetAdmForm = () => {
+        document.getElementById('admPName').value = "";
+        document.getElementById('admPPrice').value = "";
+        document.getElementById('admPStock').value = "";
+        document.getElementById('admPSold').value = "";
+        document.getElementById('admPDesc').value = "";
+        document.getElementById('admPCat').value = "";
+        document.getElementById('admImgLink').value = "";
+        document.getElementById('admEditIdx').value = "-1";
+        tempAdmImg = "";
+        document.getElementById('admImgPrev').classList.add('hidden');
+    };
+    
+    window.renderAdmList = () => {
+        const l = document.getElementById('admList');
+        l.innerHTML = "";
+        
+        storeData.products.forEach((p, i) => {
+            const isFirst = i === 0;
+            const isLast = i === storeData.products.length - 1;
+            
+            l.innerHTML += `
+            <div class="flex justify-between items-center bg-white p-3 text-xs border rounded-lg mb-2">
+                <div class="flex-1">
+                    <b>${p.name}</b><br>
+                    <span class="text-slate-500">Stok: ${p.stock} | Terjual: ${p.sold || 0}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button onclick="moveProd(${i}, -1)" class="w-6 h-6 bg-slate-100 rounded text-slate-600 hover:bg-slate-200 flex items-center justify-center ${isFirst ? 'opacity-30 pointer-events-none' : ''}"><i class="fas fa-arrow-up text-[10px]"></i></button>
+                    <button onclick="moveProd(${i}, 1)" class="w-6 h-6 bg-slate-100 rounded text-slate-600 hover:bg-slate-200 flex items-center justify-center ${isLast ? 'opacity-30 pointer-events-none' : ''}"><i class="fas fa-arrow-down text-[10px]"></i></button>
+                    <div class="w-px h-4 bg-slate-200 mx-1"></div>
+                    <button onclick="editAdm(${i})" class="text-blue-500 w-6 h-6 hover:bg-blue-50 rounded flex items-center justify-center"><i class="fas fa-edit"></i></button>
+                    <button onclick="delAdm(${i})" class="text-red-500 w-6 h-6 hover:bg-red-50 rounded flex items-center justify-center"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+    };
+    
+    window.moveProd = async (i, dir) => {
+        const arr = storeData.products;
+        const target = i + dir;
+        if (target < 0 || target >= arr.length) return;
+        [arr[i], arr[target]] = [arr[target], arr[i]];
+        renderAdmList();
+        renderProducts();
+        await update(ref(db, `stores/${STORE_ID}`), storeData);
+        toastr.success("Urutan disimpan");
+    };
+    
+    // --- APP CRUD FUNCTIONS ---
+    window.handleAdmAppImg = (input) => {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let w = img.width;
+                let h = img.height;
+                if (w > 150) {
+                    h = (h * 150) / w;
+                    w = 150;
+                }
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                tempAdmAppImg = canvas.toDataURL('image/png', 0.7);
+                document.getElementById('admAppImgPrev').src = tempAdmAppImg;
+                document.getElementById('admAppImgPrev').classList.remove('hidden');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+    
+    window.handleAdmAppImgLink = (input) => {
+        const url = input.value;
+        if (url) {
+            tempAdmAppImg = url;
+            document.getElementById('admAppImgPrev').src = url;
+            document.getElementById('admAppImgPrev').classList.remove('hidden');
+        }
+    };
+    
+    window.saveAdmApp = async () => {
+        if (!storeData.downloads) storeData.downloads = [];
+        const i = parseInt(document.getElementById('admAppEditIdx').value);
+        const a = {
+            name: document.getElementById('admAppName').value,
+            link: document.getElementById('admAppLink').value,
+            category: document.getElementById('admAppCat').value,
+            desc: document.getElementById('admAppDesc').value,
+            icon: tempAdmAppImg || (i > -1 ? storeData.downloads[i].icon : "")
+        };
+        
+        if (i > -1) {
+            storeData.downloads[i] = a;
+        } else {
+            storeData.downloads.push(a);
+        }
+        
+        await update(ref(db, `stores/${STORE_ID}`), storeData);
+        resetAdmAppForm();
+        renderAdmAppList();
+        renderDownloadPage();
+        renderAppCategories();
+        toastr.success("Aplikasi Disimpan");
+    };
+    
+    window.editAdmApp = (i) => {
+        const a = storeData.downloads[i];
+        document.getElementById('admAppName').value = a.name;
+        document.getElementById('admAppLink').value = a.link;
+        document.getElementById('admAppCat').value = a.category || "";
+        document.getElementById('admAppDesc').value = a.desc;
+        document.getElementById('admAppEditIdx').value = i;
+        document.getElementById('admAppImgLink').value = "";
+        
+        if (a.icon) {
+            tempAdmAppImg = a.icon;
+            document.getElementById('admAppImgPrev').src = a.icon;
+            document.getElementById('admAppImgPrev').classList.remove('hidden');
+            
+            if (a.icon.startsWith('http')) {
+                document.getElementById('admAppImgLink').value = a.icon;
+            }
+        }
+    };
+    
+    window.delAdmApp = async (i) => {
+        if (confirm('Hapus Aplikasi ini?')) {
+            storeData.downloads.splice(i, 1);
+            await update(ref(db, `stores/${STORE_ID}`), storeData);
+            renderAdmAppList();
+            renderDownloadPage();
+            renderAppCategories();
+            toastr.success("Aplikasi dihapus");
+        }
+    };
+    
+    window.resetAdmAppForm = () => {
+        document.getElementById('admAppName').value = "";
+        document.getElementById('admAppLink').value = "";
+        document.getElementById('admAppCat').value = "";
+        document.getElementById('admAppDesc').value = "";
+        document.getElementById('admAppEditIdx').value = "-1";
+        document.getElementById('admAppImgLink').value = "";
+        tempAdmAppImg = "";
+        document.getElementById('admAppImgPrev').classList.add('hidden');
+    };
+    
+    window.renderAdmAppList = () => {
+        const l = document.getElementById('admAppList');
+        l.innerHTML = "";
+        
+        if (!storeData.downloads || storeData.downloads.length === 0) {
+            l.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">Belum ada aplikasi</p>';
+            return;
+        }
+        
+        storeData.downloads.forEach((app, i) => {
+            l.innerHTML += `
+            <div class="flex justify-between items-center bg-white p-3 text-xs border border-blue-100 rounded-lg mb-2">
+                <div class="flex items-center gap-2 flex-1 overflow-hidden">
+                    <img src="${app.icon || 'https://placehold.co/50'}" class="w-8 h-8 rounded bg-slate-100 object-cover">
+                    <div class="truncate">
+                        <b class="text-slate-800">${app.name}</b>
+                        <span class="text-xs text-blue-500 ml-1">(${app.category || 'Umum'})</span>
+                        <br>
+                        <span class="text-slate-400 text-[10px] truncate block">${app.link}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button onclick="editAdmApp(${i})" class="text-blue-500 w-6 h-6 hover:bg-blue-50 rounded flex items-center justify-center"><i class="fas fa-edit"></i></button>
+                    <button onclick="delAdmApp(${i})" class="text-red-500 w-6 h-6 hover:bg-red-50 rounded flex items-center justify-center"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+    };
+    
+    // --- OTHER FUNCTIONS ---
     window.addToCart = (i) => {
         const p = storeData.products[i];
         if (!p || parseInt(p.stock) <= 0) {
@@ -1693,7 +1970,83 @@
             }
         },
         
-        // Keep existing product and app management functions
+        handleAvatarUpload: (input) => {
+            const f = input.files[0];
+            if (f) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const i = new Image();
+                    i.onload = () => {
+                        const c = document.createElement('canvas');
+                        let w = i.width, h = i.height;
+                        if (w > 300) {
+                            h = (h * 300) / w;
+                            w = 300;
+                        }
+                        c.width = w;
+                        c.height = h;
+                        c.getContext('2d').drawImage(i, 0, 0, w, h);
+                        const d = c.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('profileAvatarEdit').src = d;
+                        userProfile.tempAvatar = d;
+                    };
+                    i.src = e.target.result;
+                };
+                r.readAsDataURL(f);
+            }
+        },
+        
+        saveProfileData: async () => {
+            userProfile.name = document.getElementById('profName').value;
+            userProfile.phone = document.getElementById('profPhone').value;
+            userProfile.address = document.getElementById('profAddress').value;
+            if (userProfile.tempAvatar) {
+                userProfile.avatar = userProfile.tempAvatar;
+                delete userProfile.tempAvatar;
+            }
+            await update(ref(db, `users/${user.uid}`), userProfile);
+            toastr.success("Profil Saved");
+            document.getElementById('headerGreeting').innerText = userProfile.name;
+            if (userProfile.avatar) {
+                document.getElementById('headerAvatar').src = userProfile.avatar;
+            }
+        },
+        
+        loadProfile: async (uid) => {
+            try {
+                const s = await get(child(ref(db), `users/${uid}`));
+                if (s.exists()) {
+                    userProfile = s.val();
+                } else {
+                    userProfile = {
+                        name: user.displayName,
+                        email: user.email
+                    };
+                }
+                
+                document.getElementById('headerGreeting').innerText = userProfile.name;
+                if (userProfile.avatar) {
+                    document.getElementById('headerAvatar').src = userProfile.avatar;
+                    document.getElementById('profileAvatarEdit').src = userProfile.avatar;
+                }
+                
+                document.getElementById('profName').value = userProfile.name || "";
+                document.getElementById('profPhone').value = userProfile.phone || "";
+                document.getElementById('profAddress').value = userProfile.address || "";
+                
+                const h = await get(child(ref(db), `orders/${uid}`));
+                const hl = document.getElementById('historyList');
+                hl.innerHTML = "";
+                if (h.exists()) {
+                    Object.values(h.val()).forEach(o => {
+                        hl.innerHTML += `<div class="p-2 border-b text-xs">${new Date(o.date).toLocaleDateString()} - Rp ${parseInt(o.total).toLocaleString()}</div>`;
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        
         renderAppCategories: () => {
             const cats = ['all'];
             if (storeData.downloads) {
