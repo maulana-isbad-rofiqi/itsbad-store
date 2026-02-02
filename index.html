@@ -121,11 +121,11 @@
     </div>
     
     <div class="w-full max-w-xs space-y-4">
-      <button onclick="window.loginWithGoogle()" class="w-full bg-white border border-slate-100 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all">
+      <button onclick="loginWithGoogle()" class="w-full bg-white border border-slate-100 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-5">
         <span class="text-slate-700">Masuk dengan Google</span>
       </button>
-      <button onclick="window.continueAsGuest()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
+      <button onclick="continueAsGuest()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
         Mulai sebagai Tamu
       </button>
     </div>
@@ -369,8 +369,16 @@
     };
     const STORE_ID="itsbad-store", OWNER_WA="6285236363128", ADMIN_PIN="110603", ADMIN_EMAIL="isbadd84@gmail.com";
     
-    let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[],downloads:[]}, cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, isGuestMode=false, activeCategory='all';
-
+    // Variabel global
+    let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[],downloads:[]}, 
+        cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, isGuestMode=false, activeCategory='all';
+    
+    // Deklarasi fungsi global di window object
+    window.cart = cart;
+    window.storeData = storeData;
+    window.userProfile = userProfile;
+    window.isGuestMode = isGuestMode;
+    
     // --- QRIS GEN ---
     function generateCRC16(data) {
         let crc = 0xFFFF;
@@ -395,7 +403,7 @@
         }
         return items;
     }
-    function buildTLV(items) { return items.map(item => item.id + item.val.length.toString().padStart(2, '0') + item.val).join(''); }
+    function buildTLV(items) { return items.map(item => item.id + item.val.length.toString().padStart(2,'0') + item.val).join(''); }
     function formatQrisAmount(qrisRaw, amount) {
         if(!qrisRaw) return "";
         let tlv = parseTLV(qrisRaw.trim()).filter(x => x.id !== '63');
@@ -428,32 +436,265 @@
         setTimeout(() => $("#live-notif").html(""), 5500);
     }
 
-    // --- MAIN APP ---
-    window.loginWithGoogle = async () => {
-        try { const r=await signInWithPopup(auth,new GoogleAuthProvider()); user=r.user; isGuestMode=false; initStore(); } catch(e){ toastr.error("Login Gagal"); }
+    // --- UI FUNCTIONS ---
+    window.toggleSearch = () => $("#searchBar").slideToggle();
+    window.filterCat = (c) => { activeCategory = c; renderCategories(); renderProducts(); };
+    window.filterProducts = () => renderProducts($("#searchInput").val());
+    window.switchTab = (t) => {
+        $(".nav-item").removeClass('active'); $(`#nav-${t}`).addClass('active');
+        if(t === 'home') { $("#homePage").show(); $("#downloadPage").hide(); }
+        else if(t === 'apps') { $("#homePage").hide(); $("#downloadPage").show(); renderApps(); }
     };
-    window.continueAsGuest = () => { isGuestMode=true; user={uid:'guest_'+Date.now()}; userProfile={name:'Tamu'}; initStore(); };
+    
+    window.openDetail = (i) => {
+        const p = storeData.products[i]; window.currentDetailIdx = i;
+        $("#detailImg").attr('src', p.image || 'https://placehold.co/400'); 
+        $("#detailName").text(p.name);
+        $("#detailPrice").text("Rp " + (parseInt(p.price)||0).toLocaleString('id-ID'));
+        $("#detailDesc").text(p.desc || "-");
+        $("#detailStock").text(p.stock || 0);
+        $("#detailCat").text((p.category || "Umum").toUpperCase());
+        $("#detailModal").removeClass('hidden'); 
+        setTimeout(() => $("#detailContent").removeClass('modal-hidden'), 10);
+    };
+    
+    window.closeDetail = () => { 
+        $("#detailContent").addClass('modal-hidden'); 
+        setTimeout(() => $("#detailModal").addClass('hidden'), 400); 
+    };
+    
+    window.addToCartFromDetail = () => {
+        const i = window.currentDetailIdx; 
+        const p = storeData.products[i];
+        if(parseInt(p.stock) <= 0) return toastr.error("Stok kosong");
+        const ex = cart.find(c => c.idx === i); 
+        if(ex) ex.qty++; 
+        else cart.push({idx: i, name: p.name, price: parseInt(p.price), qty: 1});
+        localStorage.setItem('cart', JSON.stringify(cart)); 
+        updateCartBadge(); 
+        toastr.success("Berhasil ditambahkan ke keranjang!"); 
+        closeDetail();
+    };
+    
+    window.updateCartBadge = () => { 
+        const t = cart.reduce((a, b) => a + b.qty, 0); 
+        if(t > 0) $("#cartBadge").text(t).removeClass('hidden'); 
+        else $("#cartBadge").addClass('hidden'); 
+    };
+
+    window.openCart = () => { 
+        renderCartList(); 
+        $("#cartModal").removeClass('hidden'); 
+    };
+    
+    window.closeCart = () => $("#cartModal").addClass('hidden');
+    
+    window.renderCartList = () => {
+        if(cart.length === 0) {
+            $("#cartList").html('<div class="py-20 text-center text-slate-300">Keranjang kosong</div>');
+            $("#cartTotalDisplay").text("Rp 0"); 
+            $("#btnCheckout").addClass('btn-disabled'); 
+            return;
+        }
+        $("#btnCheckout").removeClass('btn-disabled');
+        let total = 0;
+        $("#cartList").html(cart.map((item, i) => {
+            total += (item.price * item.qty);
+            return `<div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                <div class="flex-1 overflow-hidden">
+                    <h4 class="text-xs font-bold text-slate-800 truncate">${item.name}</h4>
+                    <p class="text-[10px] text-indigo-600 font-bold mt-1">Rp ${item.price.toLocaleString('id-ID')}</p>
+                </div>
+                <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-2xl shadow-sm">
+                    <button onclick="changeQty(${i}, -1)"><i class="fas fa-minus text-[10px]"></i></button>
+                    <span class="text-xs font-bold">${item.qty}</span>
+                    <button onclick="changeQty(${i}, 1)"><i class="fas fa-plus text-[10px]"></i></button>
+                </div>
+            </div>`;
+        }).join(''));
+        
+        const fee = parseInt(storeData.fee) || 0;
+        $("#cartTotalDisplay").text("Rp " + (total + fee).toLocaleString('id-ID'));
+    };
+    
+    window.changeQty = (i, d) => { 
+        cart[i].qty += d; 
+        if(cart[i].qty <= 0) cart.splice(i, 1); 
+        localStorage.setItem('cart', JSON.stringify(cart)); 
+        updateCartBadge(); 
+        renderCartList(); 
+    };
+
+    // --- CHECKOUT FIXED ---
+    window.initPayment = () => {
+        if(cart.length === 0) return toastr.error("Keranjang kosong!");
+        
+        const note = $("#orderNote").val().trim() || "-";
+        const sub = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+        const fee = parseInt(storeData.fee) || 0;
+        const total = sub + fee;
+        
+        $("#payAmountDisplay").text("Rp " + total.toLocaleString('id-ID'));
+        $("#qrContainer").empty();
+        
+        if(storeData.qris) {
+            try {
+                const qrisFinal = formatQrisAmount(storeData.qris, total);
+                new QRCode(document.getElementById("qrContainer"), { 
+                    text: qrisFinal, 
+                    width: 220, 
+                    height: 220 
+                });
+                $("#cartModal").addClass('hidden'); 
+                $("#paymentModal").removeClass('hidden');
+            } catch(error) {
+                console.error("QRIS Error:", error);
+                toastr.error("Gagal membuat QRIS. Cek format QRIS admin.");
+            }
+        } else {
+            toastr.error("QRIS Admin belum diatur!");
+        }
+    };
+
+    window.closePayment = () => $("#paymentModal").addClass('hidden');
+
+    window.generateReceipt = async () => {
+        const sub = cart.reduce((a,b)=>a+(b.price*b.qty),0); 
+        const fee = parseInt(storeData.fee)||0; 
+        const total = sub+fee;
+        const now = new Date();
+        
+        $("#receiptDate").text(now.toLocaleString('id-ID'));
+        $("#receiptTotal").text("Rp " + total.toLocaleString('id-ID'));
+        $("#receiptItems").html(cart.map(i => 
+            `<div class="flex justify-between text-xs font-bold">
+                <span>${i.name} x${i.qty}</span>
+                <span>Rp ${(i.price*i.qty).toLocaleString()}</span>
+            </div>`
+        ).join(''));
+        
+        $("#receiptNoteBox").text("📝 " + ($("#orderNote").val() || "-"));
+        
+        if(user && !isGuestMode) {
+            try {
+                await push(ref(db, `orders/${user.uid}`), { 
+                    items: [...cart], 
+                    subtotal: sub, 
+                    fee, 
+                    total, 
+                    note: $("#orderNote").val()||"-", 
+                    date: Date.now(), 
+                    status: "pending" 
+                });
+            } catch(e) {
+                console.error("Save order error:", e);
+            }
+        }
+        
+        $("#paymentModal").addClass('hidden'); 
+        $("#receiptModal").removeClass('hidden');
+    };
+
+    window.sendToWhatsapp = () => {
+        const note = $("#orderNote").val() || "-";
+        const total = $("#receiptTotal").text();
+        let m = `*INVOICE ITSBAD STORE*\n-----------------\n👤: ${userProfile.name||'Tamu'}\n📅: ${$("#receiptDate").text()}\n-----------------\n`;
+        cart.forEach(i => m += `• ${i.name} (x${i.qty}) - Rp ${(i.price*i.qty).toLocaleString()}\n`);
+        m += `-----------------\n*TOTAL: ${total}*\nCatatan: ${note}\n-----------------\n_Kirim bukti bayar segera._`;
+        window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(m)}`, '_blank');
+        setTimeout(() => { 
+            cart=[]; 
+            localStorage.setItem('cart','[]'); 
+            updateCartBadge();
+            $("#receiptModal").addClass('hidden');
+            location.reload(); 
+        }, 1500);
+    };
+
+    // --- APPS PAGE ---
+    function renderApps() {
+        if(!storeData.downloads || storeData.downloads.length === 0) { 
+            $("#appList").html('<div class="py-20 text-center text-slate-300">Belum ada aplikasi</div>'); 
+            return; 
+        }
+        $("#appList").html(storeData.downloads.map(a => `
+            <div class="flex items-center gap-4 bg-white p-4 rounded-[1.8rem] border border-slate-50 shadow-sm">
+                <img src="${a.icon || 'https://placehold.co/100'}" class="w-14 h-14 rounded-2xl object-cover border border-slate-100">
+                <div class="flex-1 overflow-hidden">
+                    <h3 class="font-extrabold text-sm text-slate-800 truncate">${a.name}</h3>
+                    <p class="text-[10px] text-slate-400 line-clamp-1">${a.category || 'App'}</p>
+                </div>
+                <a href="${a.link}" target="_blank" class="w-10 h-10 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-download text-xs"></i>
+                </a>
+            </div>
+        `).join(''));
+    }
+
+    // --- MAIN APP FUNCTIONS ---
+    window.loginWithGoogle = async () => {
+        try { 
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider); 
+            user = result.user; 
+            isGuestMode = false; 
+            initStore(); 
+        } catch(e) { 
+            console.error("Login error:", e);
+            toastr.error("Login Gagal"); 
+        }
+    };
+    
+    window.continueAsGuest = () => { 
+        isGuestMode = true; 
+        user = { uid: 'guest_' + Date.now(), displayName: 'Tamu' }; 
+        userProfile = { name: 'Tamu' }; 
+        initStore(); 
+    };
 
     window.initStore = async () => {
-        const s = await get(child(ref(db), `stores/${STORE_ID}`));
-        if(s.exists()) storeData = s.val();
-        if(!storeData.products) storeData.products=[];
-        if(!storeData.downloads) storeData.downloads=[];
+        try {
+            const snapshot = await get(child(ref(db), `stores/${STORE_ID}`));
+            if(snapshot.exists()) {
+                storeData = snapshot.val();
+            }
+            if(!storeData.products) storeData.products = [];
+            if(!storeData.downloads) storeData.downloads = [];
 
-        $("#loginModal").addClass('hidden');
-        $("#app").removeClass('hidden');
-        if(user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) $("#nav-admin-btn").removeClass('hidden');
-        
-        renderCategories();
-        renderProducts();
-        updateCartBadge();
-        if(user && !isGuestMode) loadProfile(user.uid);
-        setInterval(showLiveNotif, 12000); showLiveNotif();
+            $("#loginModal").addClass('hidden');
+            $("#app").removeClass('hidden');
+            
+            if(user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                $("#nav-admin-btn").removeClass('hidden');
+            }
+            
+            renderCategories();
+            renderProducts();
+            updateCartBadge();
+            
+            if(user && !isGuestMode) {
+                await loadProfile(user.uid);
+            } else {
+                $("#headerGreeting").text(userProfile.name || 'Tamu');
+            }
+            
+            // Setup live notifications
+            setInterval(showLiveNotif, 12000); 
+            showLiveNotif();
+            
+            toastr.success("Selamat datang di Itsbad Store!");
+        } catch(error) {
+            console.error("Init store error:", error);
+            toastr.error("Gagal memuat toko");
+        }
     };
 
     window.renderCategories = () => {
-        const cats=['all'];
-        storeData.products.forEach(p => { if(p.category && !cats.includes(p.category)) cats.push(p.category); });
+        const cats = ['all'];
+        storeData.products.forEach(p => { 
+            if(p.category && !cats.includes(p.category)) cats.push(p.category); 
+        });
+        
         $("#categoryContainer").html(cats.map(k => `
             <button onclick="filterCat('${k}')" class="shrink-0 px-6 py-3 rounded-2xl text-[11px] font-extrabold transition-all ${activeCategory===k ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100' : 'bg-white text-slate-400 border border-slate-100'}">
                 ${k === 'all' ? 'SEMUA' : k.toUpperCase()}
@@ -461,14 +702,24 @@
         `).join(''));
     };
 
-    window.renderProducts = (q = "") => {
-        let f = storeData.products || [];
-        if(activeCategory !== 'all') f = f.filter(p => p.category === activeCategory);
-        if(q) f = f.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
+    window.renderProducts = (searchQuery = "") => {
+        let filtered = storeData.products || [];
+        if(activeCategory !== 'all') {
+            filtered = filtered.filter(p => p.category === activeCategory);
+        }
+        if(searchQuery) {
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+        }
         
-        if(f.length === 0) { $("#productGrid").html('<div class="col-span-2 py-20 text-center text-slate-300">Kosong</div>'); return; }
+        if(filtered.length === 0) { 
+            $("#productGrid").html('<div class="col-span-2 py-20 text-center text-slate-300">Produk tidak ditemukan</div>'); 
+            return; 
+        }
 
-        $("#productGrid").html(f.map((p, i) => {
+        $("#productGrid").html(filtered.map((p, i) => {
             const realIdx = storeData.products.indexOf(p);
             const isHabis = parseInt(p.stock) <= 0;
             return `
@@ -483,136 +734,45 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-[900] text-slate-900">Rp ${(parseInt(p.price)||0).toLocaleString('id-ID')}</span>
-                    <div class="w-8 h-8 rounded-xl ${isHabis?'bg-slate-200 text-slate-400':'bg-slate-900 text-white shadow-lg'} flex items-center justify-center text-[10px]"><i class="fas fa-plus"></i></div>
+                    <div class="w-8 h-8 rounded-xl ${isHabis?'bg-slate-200 text-slate-400':'bg-slate-900 text-white shadow-lg'} flex items-center justify-center text-[10px]">
+                        <i class="fas fa-plus"></i>
+                    </div>
                 </div>
             </div>`;
         }).join(''));
-    };
-
-    // --- UI ACTION ---
-    window.toggleSearch = () => $("#searchBar").slideToggle();
-    window.filterCat = (c) => { activeCategory = c; renderCategories(); renderProducts(); };
-    window.filterProducts = () => renderProducts($("#searchInput").val());
-    window.switchTab = (t) => {
-        $(".nav-item").removeClass('active'); $(`#nav-${t}`).addClass('active');
-        if(t === 'home') { $("#homePage").show(); $("#downloadPage").hide(); }
-        else if(t === 'apps') { $("#homePage").hide(); $("#downloadPage").show(); renderApps(); }
-    };
-    function renderApps() {
-        if(!storeData.downloads || storeData.downloads.length === 0) { $("#appList").html('<div class="py-20 text-center text-slate-300">Belum ada aplikasi</div>'); return; }
-        $("#appList").html(storeData.downloads.map(a => `
-            <div class="flex items-center gap-4 bg-white p-4 rounded-[1.8rem] border border-slate-50 shadow-sm">
-                <img src="${a.icon || 'https://placehold.co/100'}" class="w-14 h-14 rounded-2xl object-cover border border-slate-100">
-                <div class="flex-1 overflow-hidden">
-                    <h3 class="font-extrabold text-sm text-slate-800 truncate">${a.name}</h3>
-                    <p class="text-[10px] text-slate-400 line-clamp-1">${a.category || 'App'}</p>
-                </div>
-                <a href="${a.link}" target="_blank" class="w-10 h-10 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-download text-xs"></i></a>
-            </div>
-        `).join(''));
-    }
-
-    window.openDetail = (i) => {
-        const p = storeData.products[i]; window.currentDetailIdx = i;
-        $("#detailImg").attr('src', p.image); $("#detailName").text(p.name);
-        $("#detailPrice").text("Rp " + (parseInt(p.price)||0).toLocaleString('id-ID'));
-        $("#detailDesc").text(p.desc || "-");
-        $("#detailStock").text(p.stock);
-        $("#detailCat").text((p.category || "Umum").toUpperCase());
-        $("#detailModal").removeClass('hidden'); setTimeout(() => $("#detailContent").removeClass('modal-hidden'), 10);
-    };
-    window.closeDetail = () => { $("#detailContent").addClass('modal-hidden'); setTimeout(() => $("#detailModal").addClass('hidden'), 400); };
-    
-    window.addToCartFromDetail = () => {
-        const i = window.currentDetailIdx; const p = storeData.products[i];
-        if(parseInt(p.stock) <= 0) return toastr.error("Stok kosong");
-        const ex = cart.find(c => c.idx === i); if(ex) ex.qty++; else cart.push({idx: i, name: p.name, price: parseInt(p.price), qty: 1});
-        localStorage.setItem('cart', JSON.stringify(cart)); updateCartBadge(); toastr.success("Berhasil!"); closeDetail();
-    };
-    window.updateCartBadge = () => { 
-        const t = cart.reduce((a, b) => a + b.qty, 0); 
-        if(t > 0) $("#cartBadge").text(t).removeClass('hidden'); else $("#cartBadge").addClass('hidden'); 
-    };
-
-    window.openCart = () => { renderCartList(); $("#cartModal").removeClass('hidden'); };
-    window.closeCart = () => $("#cartModal").addClass('hidden');
-    window.renderCartList = () => {
-        if(cart.length === 0) {
-            $("#cartList").html('<div class="py-20 text-center text-slate-300">Kosong</div>');
-            $("#cartTotalDisplay").text("Rp 0"); $("#btnCheckout").addClass('btn-disabled'); return;
-        }
-        $("#btnCheckout").removeClass('btn-disabled');
-        let total = 0;
-        $("#cartList").html(cart.map((item, i) => {
-            total += (item.price * item.qty);
-            return `<div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
-                <div class="flex-1 overflow-hidden"><h4 class="text-xs font-bold text-slate-800 truncate">${item.name}</h4><p class="text-[10px] text-indigo-600 font-bold mt-1">Rp ${item.price.toLocaleString('id-ID')}</p></div>
-                <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-2xl shadow-sm"><button onclick="changeQty(${i}, -1)"><i class="fas fa-minus text-[10px]"></i></button><span class="text-xs font-bold">${item.qty}</span><button onclick="changeQty(${i}, 1)"><i class="fas fa-plus text-[10px]"></i></button></div>
-            </div>`;
-        }).join(''));
-        $("#cartTotalDisplay").text("Rp " + (total + (parseInt(storeData.fee)||0)).toLocaleString('id-ID'));
-    };
-    window.changeQty = (i, d) => { cart[i].qty += d; if(cart[i].qty <= 0) cart.splice(i, 1); localStorage.setItem('cart', JSON.stringify(cart)); updateCartBadge(); renderCartList(); };
-
-    // --- CHECKOUT FIXED ---
-    window.initPayment = () => {
-        if(cart.length === 0) return;
-        const note = $("#orderNote").val().trim() || "-";
-        const sub = cart.reduce((a, b) => a + (b.price * b.qty), 0);
-        const fee = parseInt(storeData.fee) || 0;
-        const total = sub + fee;
-        
-        $("#payAmountDisplay").text("Rp " + total.toLocaleString('id-ID'));
-        $("#qrContainer").empty();
-        
-        if(storeData.qris) {
-            const qrisFinal = formatQrisAmount(storeData.qris, total);
-            new QRCode(document.getElementById("qrContainer"), { text: qrisFinal, width: 220, height: 220 });
-            $("#cartModal").addClass('hidden'); $("#paymentModal").removeClass('hidden');
-        } else {
-            toastr.error("QRIS Admin belum diatur!");
-        }
-    };
-
-    window.closePayment = () => $("#paymentModal").addClass('hidden');
-
-    window.generateReceipt = async () => {
-        const sub = cart.reduce((a,b)=>a+(b.price*b.qty),0); const fee = parseInt(storeData.fee)||0; const total = sub+fee;
-        const now = new Date();
-        $("#receiptDate").text(now.toLocaleString('id-ID'));
-        $("#receiptTotal").text("Rp " + total.toLocaleString('id-ID'));
-        $("#receiptItems").html(cart.map(i => `<div class="flex justify-between text-xs font-bold"><span>${i.name} x${i.qty}</span><span>Rp ${(i.price*i.qty).toLocaleString()}</span></div>`).join(''));
-        $("#receiptNoteBox").text("📝 " + ($("#orderNote").val() || "-"));
-        
-        if(user && !isGuestMode) {
-            await push(ref(db, `orders/${user.uid}`), { items: [...cart], subtotal: sub, fee, total, note: $("#orderNote").val()||"-", date: Date.now(), status: "pending" });
-        }
-        $("#paymentModal").addClass('hidden'); $("#receiptModal").removeClass('hidden');
-    };
-
-    window.sendToWhatsapp = () => {
-        const note = $("#orderNote").val() || "-";
-        const total = $("#receiptTotal").text();
-        let m = `*INVOICE ITSBAD STORE*\n-----------------\n👤: ${userProfile.name||'Tamu'}\n📅: ${$("#receiptDate").text()}\n-----------------\n`;
-        cart.forEach(i => m += `• ${i.name} (x${i.qty})\n`);
-        m += `-----------------\n*TOTAL: ${total}*\nCatatan: ${note}\n-----------------\n_Kirim bukti bayar segera._`;
-        window.open(`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(m)}`, '_blank');
-        setTimeout(() => { cart=[]; localStorage.setItem('cart','[]'); location.reload(); }, 1500);
     };
 
     // --- ADMIN PANEL ---
     window.openAdminLogin = () => $("#adminLoginModal").removeClass('hidden');
     window.closeAdminLogin = () => $("#adminLoginModal").addClass('hidden');
-    $("#pinForm").submit((e) => {
-        e.preventDefault(); if($("#adminPin").val() === ADMIN_PIN) { $("#adminLoginModal").addClass('hidden'); $("#adminModal").removeClass('hidden'); switchAdminTab('products'); } else toastr.error("PIN Salah");
+    
+    $("#pinForm").on('submit', (e) => {
+        e.preventDefault(); 
+        if($("#adminPin").val() === ADMIN_PIN) { 
+            $("#adminLoginModal").addClass('hidden'); 
+            $("#adminModal").removeClass('hidden'); 
+            switchAdminTab('products'); 
+        } else {
+            toastr.error("PIN Salah");
+        }
     });
+    
     window.closeAdminPanel = () => $("#adminModal").addClass('hidden');
 
     window.switchAdminTab = (tab) => {
         $("#tabAdmProd, #tabAdmApp, #tabAdmSet").removeClass('bg-indigo-600 text-white shadow-lg').addClass('text-slate-400');
-        if(tab==='products') { $("#tabAdmProd").addClass('bg-indigo-600 text-white shadow-lg'); renderAdminProducts(); }
-        else if(tab==='apps') { $("#tabAdmApp").addClass('bg-indigo-600 text-white shadow-lg'); renderAdminApps(); }
-        else { $("#tabAdmSet").addClass('bg-indigo-600 text-white shadow-lg'); renderAdminSettings(); }
+        if(tab==='products') { 
+            $("#tabAdmProd").addClass('bg-indigo-600 text-white shadow-lg'); 
+            renderAdminProducts(); 
+        }
+        else if(tab==='apps') { 
+            $("#tabAdmApp").addClass('bg-indigo-600 text-white shadow-lg'); 
+            renderAdminApps(); 
+        }
+        else { 
+            $("#tabAdmSet").addClass('bg-indigo-600 text-white shadow-lg'); 
+            renderAdminSettings(); 
+        }
     };
 
     // URUTAN GESER PRODUK
@@ -621,15 +781,19 @@
         const target = i + dir;
         if (target < 0 || target >= arr.length) return;
         [arr[i], arr[target]] = [arr[target], arr[i]];
-        renderAdminProducts(); renderProducts();
+        renderAdminProducts(); 
+        renderProducts();
         await update(ref(db, `stores/${STORE_ID}`), storeData);
         toastr.success("Urutan Diperbarui");
     };
 
     function renderAdminProducts() {
-        let h = `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-6 space-y-4">
+        let html = `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-6 space-y-4">
             <h4 class="text-xs font-bold uppercase text-slate-400">Tambah Produk</h4>
-            <div onclick="document.getElementById('admImgInp').click()" class="w-full h-32 bg-slate-50 border-2 border-dashed rounded-2xl flex items-center justify-center text-slate-300 relative overflow-hidden"><img id="admImgPrev" class="w-full h-full object-cover hidden"><i id="admImgIcon" class="fas fa-camera text-2xl"></i></div>
+            <div onclick="document.getElementById('admImgInp').click()" class="w-full h-32 bg-slate-50 border-2 border-dashed rounded-2xl flex items-center justify-center text-slate-300 relative overflow-hidden">
+                <img id="admImgPrev" class="w-full h-full object-cover hidden">
+                <i id="admImgIcon" class="fas fa-camera text-2xl"></i>
+            </div>
             <input type="file" id="admImgInp" class="hidden" onchange="handleAdmImg(this)">
             <input id="admPName" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Nama Produk">
             <input id="admPPrice" type="number" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Harga">
@@ -638,9 +802,16 @@
             <textarea id="admPDesc" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none h-20" placeholder="Deskripsi"></textarea>
             <button onclick="saveAdmProd()" class="w-full premium-gradient text-white py-4 rounded-2xl font-bold">SIMPAN PRODUK</button>
         </div><div class="space-y-3">`;
+        
         storeData.products.forEach((p, i) => {
-            h += `<div class="bg-white p-4 rounded-3xl border border-slate-100 flex justify-between items-center">
-                <div class="flex items-center gap-3"><img src="${p.image||'https://placehold.co/50'}" class="w-10 h-10 rounded-xl object-cover"><div><p class="text-xs font-bold">${p.name}</p><p class="text-[9px] text-slate-400">Rp ${parseInt(p.price).toLocaleString()}</p></div></div>
+            html += `<div class="bg-white p-4 rounded-3xl border border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img src="${p.image||'https://placehold.co/50'}" class="w-10 h-10 rounded-xl object-cover">
+                    <div>
+                        <p class="text-xs font-bold">${p.name}</p>
+                        <p class="text-[9px] text-slate-400">Rp ${parseInt(p.price).toLocaleString()}</p>
+                    </div>
+                </div>
                 <div class="flex gap-1">
                     <button onclick="moveProd(${i}, -1)" class="w-7 h-7 bg-slate-50 rounded-lg text-slate-400"><i class="fas fa-chevron-up"></i></button>
                     <button onclick="moveProd(${i}, 1)" class="w-7 h-7 bg-slate-50 rounded-lg text-slate-400"><i class="fas fa-chevron-down"></i></button>
@@ -648,45 +819,100 @@
                 </div>
             </div>`;
         });
-        h += `</div>`; $("#adminBody").html(h);
+        html += `</div>`; 
+        $("#adminBody").html(html);
     }
 
     window.saveAdmProd = async () => {
-        const p = { name: $("#admPName").val(), category: $("#admPCat").val(), price: $("#admPPrice").val(), stock: $("#admPStock").val(), desc: $("#admPDesc").val(), image: window.tempAdmImg || "" };
-        if(!p.name || !p.price) return toastr.error("Lengkapi data!");
+        const p = { 
+            name: $("#admPName").val(), 
+            category: $("#admPCat").val(), 
+            price: $("#admPPrice").val(), 
+            stock: $("#admPStock").val(), 
+            desc: $("#admPDesc").val(), 
+            image: window.tempAdmImg || "" 
+        };
+        if(!p.name || !p.price) return toastr.error("Nama dan harga harus diisi!");
         storeData.products.push(p);
-        await update(ref(db, `stores/${STORE_ID}`), storeData); toastr.success("Disimpan!"); renderAdminProducts(); renderProducts(); window.tempAdmImg = "";
+        await update(ref(db, `stores/${STORE_ID}`), storeData); 
+        toastr.success("Produk disimpan!"); 
+        renderAdminProducts(); 
+        renderProducts(); 
+        window.tempAdmImg = "";
+        
+        // Reset form
+        $("#admPName, #admPCat, #admPPrice, #admPStock, #admPDesc").val("");
+        $("#admImgPrev").addClass('hidden'); 
+        $("#admImgIcon").show();
     };
-    window.delAdmProd = async (i) => { if(confirm("Hapus?")) { storeData.products.splice(i, 1); await update(ref(db, `stores/${STORE_ID}`), storeData); renderAdminProducts(); renderProducts(); } };
+    
+    window.delAdmProd = async (i) => { 
+        if(confirm("Hapus produk ini?")) { 
+            storeData.products.splice(i, 1); 
+            await update(ref(db, `stores/${STORE_ID}`), storeData); 
+            renderAdminProducts(); 
+            renderProducts(); 
+            toastr.success("Produk dihapus!");
+        } 
+    };
+    
     window.handleAdmImg = (input) => {
-        const f = input.files[0]; if(f) {
-            const r = new FileReader(); r.onload = (e) => {
-                const img = new Image(); img.onload = () => {
-                    const c = document.createElement('canvas'); let w=img.width, h=img.height; if(w>400){h=(h*400)/w;w=400;}
-                    c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
-                    window.tempAdmImg = c.toDataURL('image/jpeg', 0.8); $("#admImgPrev").attr('src', window.tempAdmImg).removeClass('hidden'); $("#admImgIcon").hide();
-                }; img.src = e.target.result;
-            }; r.readAsDataURL(f);
+        const f = input.files[0]; 
+        if(f) {
+            const r = new FileReader(); 
+            r.onload = (e) => {
+                const img = new Image(); 
+                img.onload = () => {
+                    const c = document.createElement('canvas'); 
+                    let w=img.width, h=img.height; 
+                    if(w>400){h=(h*400)/w;w=400;}
+                    c.width=w; c.height=h; 
+                    c.getContext('2d').drawImage(img,0,0,w,h);
+                    window.tempAdmImg = c.toDataURL('image/jpeg', 0.8); 
+                    $("#admImgPrev").attr('src', window.tempAdmImg).removeClass('hidden'); 
+                    $("#admImgIcon").hide();
+                }; 
+                img.src = e.target.result;
+            }; 
+            r.readAsDataURL(f);
         }
     };
+    
     window.renderAdminApps = () => {
-        let h = `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-6 space-y-4">
+        let html = `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-6 space-y-4">
             <h4 class="text-xs font-bold uppercase text-slate-400">Tambah App Gratis</h4>
             <input id="admAppName" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Nama App">
             <input id="admAppCat" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Kategori">
             <input id="admAppLink" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Link Download">
             <button onclick="saveAdmApp()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold">SIMPAN APP</button>
         </div><div class="space-y-3">`;
+        
         (storeData.downloads||[]).forEach((a, i) => {
-            h += `<div class="bg-white p-4 rounded-3xl flex justify-between items-center"><p class="text-xs font-bold">${a.name}</p><button onclick="delAdmApp(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></div>`;
+            html += `<div class="bg-white p-4 rounded-3xl flex justify-between items-center">
+                <p class="text-xs font-bold">${a.name}</p>
+                <button onclick="delAdmApp(${i})" class="text-red-500"><i class="fas fa-trash"></i></button>
+            </div>`;
         });
-        $("#adminBody").html(h + '</div>');
+        $("#adminBody").html(html + '</div>');
     };
+    
     window.saveAdmApp = async () => {
-        const a = { name: $("#admAppName").val(), category: $("#admAppCat").val(), link: $("#admAppLink").val() };
-        if(!storeData.downloads) storeData.downloads = []; storeData.downloads.push(a);
-        await update(ref(db, `stores/${STORE_ID}`), storeData); renderAdminApps();
+        const a = { 
+            name: $("#admAppName").val(), 
+            category: $("#admAppCat").val(), 
+            link: $("#admAppLink").val() 
+        };
+        if(!a.name || !a.link) return toastr.error("Nama dan link harus diisi!");
+        if(!storeData.downloads) storeData.downloads = []; 
+        storeData.downloads.push(a);
+        await update(ref(db, `stores/${STORE_ID}`), storeData); 
+        renderAdminApps();
+        toastr.success("App disimpan!");
+        
+        // Reset form
+        $("#admAppName, #admAppCat, #admAppLink").val("");
     };
+    
     window.renderAdminSettings = () => {
         $("#adminBody").html(`<div class="bg-white p-6 rounded-[2rem] shadow-sm space-y-6">
             <h4 class="text-xs font-bold uppercase text-slate-400">Config</h4>
@@ -697,33 +923,84 @@
             <button onclick="saveAdmSettings()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold">SIMPAN</button>
         </div>`);
     };
+    
     window.saveAdmSettings = async () => {
-        storeData.name = $("#admStoreName").val(); storeData.fee = $("#admFee").val(); storeData.qris = $("#admQris").val();
-        await update(ref(db, `stores/${STORE_ID}`), storeData); toastr.success("Saved!");
+        storeData.name = $("#admStoreName").val(); 
+        storeData.fee = $("#admFee").val(); 
+        storeData.qris = $("#admQris").val();
+        await update(ref(db, `stores/${STORE_ID}`), storeData); 
+        toastr.success("Pengaturan disimpan!");
     };
 
     // --- PROFILE ---
     window.openProfile = () => $("#profileModal").removeClass('hidden');
     window.closeProfile = () => $("#profileModal").addClass('hidden');
-    window.doLogout = () => signOut(auth).then(()=>location.reload());
-    window.loadProfile = async (uid) => {
-        const s = await get(child(ref(db), `users/${uid}`));
-        if(s.exists()) userProfile = s.val(); else userProfile = { name: user.displayName };
-        $("#headerGreeting").text(userProfile.name); $("#profName").val(userProfile.name); $("#profPhone").val(userProfile.phone);
-        if(userProfile.avatar) { $("#headerAvatar, #profileAvatarEdit").attr('src', userProfile.avatar); }
+    window.doLogout = () => {
+        signOut(auth).then(() => {
+            location.reload();
+        }).catch(e => {
+            console.error("Logout error:", e);
+            location.reload();
+        });
     };
+    
+    window.loadProfile = async (uid) => {
+        try {
+            const snapshot = await get(child(ref(db), `users/${uid}`));
+            if(snapshot.exists()) {
+                userProfile = snapshot.val();
+            } else {
+                userProfile = { name: user.displayName || 'Pengguna' };
+            }
+            $("#headerGreeting").text(userProfile.name); 
+            $("#profName").val(userProfile.name); 
+            $("#profPhone").val(userProfile.phone || '');
+            if(userProfile.avatar) { 
+                $("#headerAvatar, #profileAvatarEdit").attr('src', userProfile.avatar); 
+            }
+        } catch(error) {
+            console.error("Load profile error:", error);
+        }
+    };
+    
     window.saveProfileData = async () => {
-        userProfile.name = $("#profName").val(); userProfile.phone = $("#profPhone").val();
-        await update(ref(db, `users/${user.uid}`), userProfile); toastr.success("Saved!");
+        userProfile.name = $("#profName").val(); 
+        userProfile.phone = $("#profPhone").val();
+        try {
+            await update(ref(db, `users/${user.uid}`), userProfile); 
+            $("#headerGreeting").text(userProfile.name);
+            toastr.success("Profil disimpan!");
+        } catch(error) {
+            console.error("Save profile error:", error);
+            toastr.error("Gagal menyimpan profil");
+        }
     };
 
-    // --- INIT ---
+    // --- INITIALIZATION ---
     const app = initializeApp(firebaseConfig);
     db = getDatabase(app);
     auth = getAuth(app);
-    onAuthStateChanged(auth, (u) => { if(u) { user=u; initStore(); } else { $("#loginModal").removeClass('hidden'); } });
+    
+    // Set up auth state listener
+    onAuthStateChanged(auth, (currentUser) => { 
+        if(currentUser) { 
+            user = currentUser; 
+            initStore(); 
+        } else {
+            // Show login modal if not logged in
+            $("#loginModal").removeClass('hidden');
+        }
+    });
+
+    // Initialize the app when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check if user is already logged in
+        if(auth.currentUser) {
+            user = auth.currentUser;
+            initStore();
+        }
+    });
 
   </script>
 </body>
 </html>
-
