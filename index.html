@@ -128,6 +128,12 @@
       <button onclick="continueAsGuest()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
         Mulai sebagai Tamu
       </button>
+      <div class="guest-warning p-3 mt-4 rounded-xl bg-amber-50 border border-amber-100">
+        <div class="flex items-start gap-2">
+          <i class="fas fa-exclamation-circle text-amber-500 mt-0.5"></i>
+          <div class="text-left"><h4 class="font-bold text-xs text-amber-700">Mode Tamu</h4><p class="text-[10px] text-amber-600">Riwayat pesanan tidak akan tersimpan.</p></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -146,6 +152,7 @@
         </div>
         <div class="flex gap-2">
             <button onclick="toggleSearch()" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500"><i class="fas fa-search"></i></button>
+            <a href="https://cek-nomer-xl.vercel.app/" target="_blank" class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fas fa-sim-card"></i></a>
             <button onclick="openAdminLogin()" id="nav-admin-btn" class="hidden w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-cog"></i></button>
         </div>
     </header>
@@ -159,6 +166,15 @@
 
     <!-- Main Content -->
     <main id="homePage" class="p-6">
+        <div id="authAlert" class="hidden bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6 flex items-center gap-3">
+            <i class="fas fa-exclamation-circle text-amber-500 text-lg"></i>
+            <div class="flex-1">
+                <h3 class="font-bold text-sm text-amber-700">Mode Tamu</h3>
+                <p class="text-xs text-amber-600">Login untuk akses fitur penuh dan riwayat pesanan.</p>
+            </div>
+            <button onclick="showLoginOptions()" class="bg-white text-amber-600 px-3 py-1.5 rounded-xl text-xs font-bold border border-amber-100">Login</button>
+        </div>
+
         <div class="relative w-full h-48 rounded-[2.5rem] premium-gradient p-8 flex flex-col justify-center shadow-2xl shadow-indigo-100 mb-8 overflow-hidden group">
              <div class="absolute -right-5 -top-5 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
              <div class="relative z-10">
@@ -166,7 +182,6 @@
                 <h2 class="text-2xl font-extrabold text-white mt-4 leading-tight">Layanan Digital <br>Terbaik & Terpercaya</h2>
                 <div class="flex items-center gap-2 mt-5">
                     <button onclick="switchTab('apps')" class="bg-white text-indigo-600 px-5 py-2 rounded-xl text-[10px] font-bold shadow-lg">Lihat App Gratis</button>
-                    <a href="https://cek-nomer-xl.vercel.app/" target="_blank" class="w-9 h-9 bg-white/10 text-white rounded-xl flex items-center justify-center border border-white/20"><i class="fas fa-sim-card"></i></a>
                 </div>
              </div>
         </div>
@@ -186,6 +201,12 @@
             <h2 class="text-2xl font-extrabold text-slate-900">App Store</h2>
             <p class="text-sm text-slate-400 mt-1">Download tool & aplikasi pilihan kami.</p>
         </div>
+        
+        <div class="mb-6">
+            <h3 class="font-extrabold text-slate-900 tracking-tight mb-4">Kategori App</h3>
+            <div id="appCategoryContainer" class="flex gap-3 overflow-x-auto no-scrollbar pb-2"></div>
+        </div>
+        
         <div id="appList" class="space-y-4 pb-20"></div>
     </main>
 
@@ -225,7 +246,7 @@
                 <p id="detailDesc" class="text-sm text-slate-500 leading-relaxed whitespace-pre-wrap"></p>
             </div>
             <div class="p-6 bg-white border-t">
-                <button onclick="addToCartFromDetail()" class="w-full premium-gradient text-white py-5 rounded-2xl font-extrabold shadow-xl">TAMBAH KE KERANJANG</button>
+                <button onclick="addToCartFromDetail()" id="btnAddToCart" class="w-full premium-gradient text-white py-5 rounded-2xl font-extrabold shadow-xl">TAMBAH KE KERANJANG</button>
             </div>
         </div>
     </div>
@@ -262,7 +283,7 @@
             <h3 id="payAmountDisplay" class="text-4xl font-[900] text-slate-900 mb-10">Rp 0</h3>
             <div class="bg-white p-6 rounded-[2.5rem] shadow-2xl border border-slate-100">
                 <div id="qrContainer" class="p-2 bg-white rounded-xl min-h-[220px] flex items-center justify-center"></div>
-                <div class="text-center mt-4 bg-green-500 text-white py-1.5 rounded-full text-[10px] font-bold">NOMINAL OTOMATIS</div>
+                <div id="qrStatus" class="text-center mt-4 bg-green-500 text-white py-1.5 rounded-full text-[10px] font-bold">NOMINAL OTOMATIS</div>
             </div>
             <p class="text-[11px] text-slate-400 text-center mt-12 px-6">Scan QRIS di atas menggunakan aplikasi pembayaran favorit Anda dan selesaikan transaksi.</p>
         </div>
@@ -286,8 +307,8 @@
                 <div id="receiptNoteBox" class="mt-4 p-3 bg-slate-50 rounded-xl text-[10px] text-slate-500 italic"></div>
             </div>
             <div class="mt-4 flex gap-3">
-                <button onclick="location.reload()" class="flex-1 bg-white/10 text-white py-4 rounded-2xl font-bold border border-white/20">Tutup</button>
-                <button onclick="sendToWhatsapp()" class="flex-[2] bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg">HUBUNGI ADMIN</button>
+                <button onclick="closeReceipt()" class="flex-1 bg-white/10 text-white py-4 rounded-2xl font-bold border border-white/20">Tutup</button>
+                <button onclick="sendToWhatsapp()" id="btnSendWa" class="flex-[2] bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg">HUBUNGI ADMIN</button>
             </div>
         </div>
     </div>
@@ -308,6 +329,7 @@
             <div class="space-y-4">
                 <input type="text" id="profName" class="w-full bg-slate-50 border-none px-5 py-4 rounded-2xl text-sm font-bold" placeholder="Nama Lengkap">
                 <input type="tel" id="profPhone" class="w-full bg-slate-50 border-none px-5 py-4 rounded-2xl text-sm font-bold" placeholder="No. WhatsApp">
+                <textarea id="profAddress" class="w-full bg-slate-50 border-none px-5 py-4 rounded-2xl text-sm font-bold" placeholder="Alamat"></textarea>
             </div>
             <button onclick="saveProfileData()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-xl">SIMPAN PROFIL</button>
             <button onclick="doLogout()" class="w-full text-red-500 bg-red-50 py-5 rounded-2xl font-bold mt-2">KELUAR</button>
@@ -371,15 +393,10 @@
     
     // Variabel global
     let db, auth, user, storeData={name:"Itsbad Store",fee:0,products:[],downloads:[]}, 
-        cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, isGuestMode=false, activeCategory='all';
+        cart=JSON.parse(localStorage.getItem('cart'))||[], userProfile={}, isGuestMode=false, 
+        activeCategory='all', activeAppCategory='all', tempAdmImg="", tempAdmAppImg="";
     
-    // Deklarasi fungsi global di window object
-    window.cart = cart;
-    window.storeData = storeData;
-    window.userProfile = userProfile;
-    window.isGuestMode = isGuestMode;
-    
-    // --- QRIS GEN ---
+    // --- QRIS UTILITY ---
     function generateCRC16(data) {
         let crc = 0xFFFF;
         for (let i = 0; i < data.length; i++) {
@@ -441,19 +458,46 @@
     window.filterCat = (c) => { activeCategory = c; renderCategories(); renderProducts(); };
     window.filterProducts = () => renderProducts($("#searchInput").val());
     window.switchTab = (t) => {
-        $(".nav-item").removeClass('active'); $(`#nav-${t}`).addClass('active');
-        if(t === 'home') { $("#homePage").show(); $("#downloadPage").hide(); }
-        else if(t === 'apps') { $("#homePage").hide(); $("#downloadPage").show(); renderApps(); }
+        $(".nav-item").removeClass('active'); 
+        $(`#nav-${t}`).addClass('active');
+        if(t === 'home') { 
+            $("#homePage").show(); 
+            $("#downloadPage").hide(); 
+        }
+        else if(t === 'apps') { 
+            $("#homePage").hide(); 
+            $("#downloadPage").show(); 
+            renderAppCategories();
+            renderDownloadPage(); 
+        }
     };
     
     window.openDetail = (i) => {
-        const p = storeData.products[i]; window.currentDetailIdx = i;
+        const p = storeData.products[i]; 
+        window.currentDetailIdx = i;
+        
         $("#detailImg").attr('src', p.image || 'https://placehold.co/400'); 
         $("#detailName").text(p.name);
         $("#detailPrice").text("Rp " + (parseInt(p.price)||0).toLocaleString('id-ID'));
         $("#detailDesc").text(p.desc || "-");
         $("#detailStock").text(p.stock || 0);
         $("#detailCat").text((p.category || "Umum").toUpperCase());
+        
+        const btn = $("#btnAddToCart");
+        const isHabis = parseInt(p.stock) <= 0;
+        
+        if(!isHabis){
+            btn.prop('disabled', false);
+            btn.text("TAMBAH KE KERANJANG");
+            btn.removeClass('bg-slate-300 text-slate-500 cursor-not-allowed');
+            btn.addClass('premium-gradient text-white');
+        } else {
+            btn.prop('disabled', true);
+            btn.text("STOK HABIS");
+            btn.removeClass('premium-gradient text-white');
+            btn.addClass('bg-slate-300 text-slate-500 cursor-not-allowed');
+        }
+        
         $("#detailModal").removeClass('hidden'); 
         setTimeout(() => $("#detailContent").removeClass('modal-hidden'), 10);
     };
@@ -467,9 +511,11 @@
         const i = window.currentDetailIdx; 
         const p = storeData.products[i];
         if(parseInt(p.stock) <= 0) return toastr.error("Stok kosong");
+        
         const ex = cart.find(c => c.idx === i); 
         if(ex) ex.qty++; 
         else cart.push({idx: i, name: p.name, price: parseInt(p.price), qty: 1});
+        
         localStorage.setItem('cart', JSON.stringify(cart)); 
         updateCartBadge(); 
         toastr.success("Berhasil ditambahkan ke keranjang!"); 
@@ -496,6 +542,7 @@
             $("#btnCheckout").addClass('btn-disabled'); 
             return;
         }
+        
         $("#btnCheckout").removeClass('btn-disabled');
         let total = 0;
         $("#cartList").html(cart.map((item, i) => {
@@ -545,6 +592,7 @@
                     width: 220, 
                     height: 220 
                 });
+                $("#qrStatus").text("NOMINAL OTOMATIS").removeClass('hidden');
                 $("#cartModal").addClass('hidden'); 
                 $("#paymentModal").removeClass('hidden');
             } catch(error) {
@@ -575,7 +623,13 @@
         
         $("#receiptNoteBox").text("📝 " + ($("#orderNote").val() || "-"));
         
-        if(user && !isGuestMode) {
+        const btnWa = $("#btnSendWa");
+        btnWa.prop('disabled', true).text("MENYIMPAN LOG...");
+        
+        $("#paymentModal").addClass('hidden'); 
+        $("#receiptModal").removeClass('hidden');
+
+        if(user && !isGuestMode){
             try {
                 await push(ref(db, `orders/${user.uid}`), { 
                     items: [...cart], 
@@ -586,13 +640,18 @@
                     date: Date.now(), 
                     status: "pending" 
                 });
+                toastr.success("Log Tersimpan"); 
+                btnWa.prop('disabled', false).text("KIRIM KE ADMIN");
             } catch(e) {
                 console.error("Save order error:", e);
+                btnWa.text("GAGAL LOG").prop('disabled', false);
             }
+        } else {
+            setTimeout(() => {
+                btnWa.prop('disabled', false).text("KIRIM (TAMU)");
+                toastr.info("Mode Tamu: No Log");
+            }, 1000);
         }
-        
-        $("#paymentModal").addClass('hidden'); 
-        $("#receiptModal").removeClass('hidden');
     };
 
     window.sendToWhatsapp = () => {
@@ -607,29 +666,74 @@
             localStorage.setItem('cart','[]'); 
             updateCartBadge();
             $("#receiptModal").addClass('hidden');
-            location.reload(); 
         }, 1500);
     };
 
+    window.closeReceipt = () => { 
+        cart=[]; 
+        localStorage.setItem('cart','[]'); 
+        updateCartBadge();
+        $("#receiptModal").addClass('hidden');
+        location.reload();
+    };
+
     // --- APPS PAGE ---
-    function renderApps() {
-        if(!storeData.downloads || storeData.downloads.length === 0) { 
-            $("#appList").html('<div class="py-20 text-center text-slate-300">Belum ada aplikasi</div>'); 
-            return; 
+    window.renderAppCategories = () => {
+        const cats = ['all'];
+        if(storeData.downloads) {
+            storeData.downloads.forEach(a => {
+                const c = a.category || 'Umum';
+                if(!cats.includes(c)) cats.push(c);
+            });
         }
-        $("#appList").html(storeData.downloads.map(a => `
+        
+        const html = cats.map(k => `
+            <button onclick="filterAppCat('${k}')" class="shrink-0 px-6 py-3 rounded-2xl text-[11px] font-extrabold transition-all ${activeAppCategory===k ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100' : 'bg-white text-slate-400 border border-slate-100'}">
+                ${k === 'all' ? 'SEMUA' : k.toUpperCase()}
+            </button>
+        `).join('');
+        
+        $("#appCategoryContainer").html(html);
+    };
+
+    window.filterAppCat = (c) => { 
+        activeAppCategory = c; 
+        renderAppCategories(); 
+        renderDownloadPage(); 
+    };
+
+    window.renderDownloadPage = () => {
+        const list = $("#appList");
+        list.html("");
+        
+        let apps = storeData.downloads || [];
+        
+        if(activeAppCategory !== 'all') {
+            apps = apps.filter(a => (a.category || 'Umum') === activeAppCategory);
+        }
+
+        if (apps.length === 0) {
+            list.html('<div class="col-span-2 py-20 text-center text-slate-300">Belum ada aplikasi</div>');
+            return;
+        }
+
+        apps.forEach(app => {
+            const img = app.icon || `https://placehold.co/400`;
+            list.append(`
             <div class="flex items-center gap-4 bg-white p-4 rounded-[1.8rem] border border-slate-50 shadow-sm">
-                <img src="${a.icon || 'https://placehold.co/100'}" class="w-14 h-14 rounded-2xl object-cover border border-slate-100">
+                <img src="${img}" class="w-14 h-14 rounded-2xl object-cover border border-slate-100">
                 <div class="flex-1 overflow-hidden">
-                    <h3 class="font-extrabold text-sm text-slate-800 truncate">${a.name}</h3>
-                    <p class="text-[10px] text-slate-400 line-clamp-1">${a.category || 'App'}</p>
+                    <h3 class="font-extrabold text-sm text-slate-800 truncate">${app.name}</h3>
+                    <p class="text-[10px] text-slate-400 line-clamp-1">${app.category || 'App'}</p>
+                    <p class="text-[10px] text-slate-500 mt-1 line-clamp-1">${app.desc || "Tidak ada deskripsi"}</p>
                 </div>
-                <a href="${a.link}" target="_blank" class="w-10 h-10 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                <a href="${app.link}" target="_blank" class="w-10 h-10 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg">
                     <i class="fas fa-download text-xs"></i>
                 </a>
             </div>
-        `).join(''));
-    }
+            `);
+        });
+    };
 
     // --- MAIN APP FUNCTIONS ---
     window.loginWithGoogle = async () => {
@@ -639,6 +743,7 @@
             user = result.user; 
             isGuestMode = false; 
             initStore(); 
+            toastr.success("Login Berhasil!");
         } catch(e) { 
             console.error("Login error:", e);
             toastr.error("Login Gagal"); 
@@ -650,6 +755,12 @@
         user = { uid: 'guest_' + Date.now(), displayName: 'Tamu' }; 
         userProfile = { name: 'Tamu' }; 
         initStore(); 
+        toastr.success("Mode Tamu Aktif!");
+    };
+
+    window.showLoginOptions = () => {
+        $("#app").addClass('hidden');
+        $("#loginModal").removeClass('hidden');
     };
 
     window.initStore = async () => {
@@ -668,21 +779,29 @@
                 $("#nav-admin-btn").removeClass('hidden');
             }
             
+            // Update UI based on guest mode
+            if(isGuestMode) {
+                $("#authAlert").removeClass('hidden');
+                $("#headerGreeting").text("Tamu");
+            } else {
+                $("#authAlert").addClass('hidden');
+                if(userProfile.name) {
+                    $("#headerGreeting").text(userProfile.name);
+                }
+            }
+            
             renderCategories();
             renderProducts();
             updateCartBadge();
             
             if(user && !isGuestMode) {
                 await loadProfile(user.uid);
-            } else {
-                $("#headerGreeting").text(userProfile.name || 'Tamu');
             }
             
             // Setup live notifications
             setInterval(showLiveNotif, 12000); 
             showLiveNotif();
             
-            toastr.success("Selamat datang di Itsbad Store!");
         } catch(error) {
             console.error("Init store error:", error);
             toastr.error("Gagal memuat toko");
@@ -691,9 +810,14 @@
 
     window.renderCategories = () => {
         const cats = ['all'];
+        const catSet = new Set();
+        
         storeData.products.forEach(p => { 
-            if(p.category && !cats.includes(p.category)) cats.push(p.category); 
+            const cat = p.category || 'Umum';
+            catSet.add(cat);
         });
+        
+        cats.push(...Array.from(catSet));
         
         $("#categoryContainer").html(cats.map(k => `
             <button onclick="filterCat('${k}')" class="shrink-0 px-6 py-3 rounded-2xl text-[11px] font-extrabold transition-all ${activeCategory===k ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100' : 'bg-white text-slate-400 border border-slate-100'}">
@@ -705,7 +829,7 @@
     window.renderProducts = (searchQuery = "") => {
         let filtered = storeData.products || [];
         if(activeCategory !== 'all') {
-            filtered = filtered.filter(p => p.category === activeCategory);
+            filtered = filtered.filter(p => (p.category || 'Umum') === activeCategory);
         }
         if(searchQuery) {
             filtered = filtered.filter(p => 
@@ -722,6 +846,8 @@
         $("#productGrid").html(filtered.map((p, i) => {
             const realIdx = storeData.products.indexOf(p);
             const isHabis = parseInt(p.stock) <= 0;
+            const soldCount = p.sold || 0;
+            
             return `
             <div class="bg-white p-4 rounded-[2rem] flex flex-col border border-slate-50 shadow-sm active:scale-95 transition-all" onclick="openDetail(${realIdx})">
                 <div class="relative aspect-square rounded-[1.5rem] overflow-hidden mb-4 bg-slate-50">
@@ -790,7 +916,7 @@
     function renderAdminProducts() {
         let html = `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-6 space-y-4">
             <h4 class="text-xs font-bold uppercase text-slate-400">Tambah Produk</h4>
-            <div onclick="document.getElementById('admImgInp').click()" class="w-full h-32 bg-slate-50 border-2 border-dashed rounded-2xl flex items-center justify-center text-slate-300 relative overflow-hidden">
+            <div onclick="document.getElementById('admImgInp').click()" class="w-full h-32 bg-slate-50 border-2 border-dashed rounded-2xl flex items-center justify-center text-slate-300 relative overflow-hidden cursor-pointer">
                 <img id="admImgPrev" class="w-full h-full object-cover hidden">
                 <i id="admImgIcon" class="fas fa-camera text-2xl"></i>
             </div>
@@ -798,8 +924,10 @@
             <input id="admPName" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Nama Produk">
             <input id="admPPrice" type="number" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Harga">
             <input id="admPStock" type="number" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Stok">
+            <input id="admPSold" type="number" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Terjual">
             <input id="admPCat" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Kategori">
             <textarea id="admPDesc" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none h-20" placeholder="Deskripsi"></textarea>
+            <input type="text" id="admImgLink" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Atau paste link gambar..." onchange="handleAdmImgLink(this)">
             <button onclick="saveAdmProd()" class="w-full premium-gradient text-white py-4 rounded-2xl font-bold">SIMPAN PRODUK</button>
         </div><div class="space-y-3">`;
         
@@ -815,6 +943,7 @@
                 <div class="flex gap-1">
                     <button onclick="moveProd(${i}, -1)" class="w-7 h-7 bg-slate-50 rounded-lg text-slate-400"><i class="fas fa-chevron-up"></i></button>
                     <button onclick="moveProd(${i}, 1)" class="w-7 h-7 bg-slate-50 rounded-lg text-slate-400"><i class="fas fa-chevron-down"></i></button>
+                    <button onclick="editAdm(${i})" class="w-7 h-7 bg-blue-50 rounded-lg text-blue-400"><i class="fas fa-edit"></i></button>
                     <button onclick="delAdmProd(${i})" class="w-7 h-7 bg-red-50 rounded-lg text-red-400 ml-1"><i class="fas fa-trash"></i></button>
                 </div>
             </div>`;
@@ -823,14 +952,24 @@
         $("#adminBody").html(html);
     }
 
+    window.handleAdmImgLink = (input) => {
+        const url = $(input).val();
+        if(url) {
+            tempAdmImg = url;
+            $("#admImgPrev").attr('src', url).removeClass('hidden'); 
+            $("#admImgIcon").hide();
+        }
+    };
+
     window.saveAdmProd = async () => {
         const p = { 
             name: $("#admPName").val(), 
             category: $("#admPCat").val(), 
             price: $("#admPPrice").val(), 
             stock: $("#admPStock").val(), 
+            sold: $("#admPSold").val() || 0,
             desc: $("#admPDesc").val(), 
-            image: window.tempAdmImg || "" 
+            image: tempAdmImg || "https://placehold.co/400"
         };
         if(!p.name || !p.price) return toastr.error("Nama dan harga harus diisi!");
         storeData.products.push(p);
@@ -838,12 +977,33 @@
         toastr.success("Produk disimpan!"); 
         renderAdminProducts(); 
         renderProducts(); 
-        window.tempAdmImg = "";
+        tempAdmImg = "";
         
         // Reset form
-        $("#admPName, #admPCat, #admPPrice, #admPStock, #admPDesc").val("");
+        $("#admPName, #admPCat, #admPPrice, #admPStock, #admPSold, #admPDesc, #admImgLink").val("");
         $("#admImgPrev").addClass('hidden'); 
         $("#admImgIcon").show();
+    };
+    
+    window.editAdm = (i) => {
+        const p = storeData.products[i];
+        $("#admPName").val(p.name);
+        $("#admPPrice").val(p.price);
+        $("#admPStock").val(p.stock);
+        $("#admPSold").val(p.sold || 0);
+        $("#admPDesc").val(p.desc);
+        $("#admPCat").val(p.category);
+        $("#admImgLink").val("");
+        
+        if(p.image){
+            tempAdmImg = p.image;
+            $("#admImgPrev").attr('src', p.image).removeClass('hidden');
+            $("#admImgIcon").hide();
+            
+            if(p.image.startsWith('http')) {
+                $("#admImgLink").val(p.image);
+            }
+        }
     };
     
     window.delAdmProd = async (i) => { 
@@ -868,8 +1028,8 @@
                     if(w>400){h=(h*400)/w;w=400;}
                     c.width=w; c.height=h; 
                     c.getContext('2d').drawImage(img,0,0,w,h);
-                    window.tempAdmImg = c.toDataURL('image/jpeg', 0.8); 
-                    $("#admImgPrev").attr('src', window.tempAdmImg).removeClass('hidden'); 
+                    tempAdmImg = c.toDataURL('image/jpeg', 0.8); 
+                    $("#admImgPrev").attr('src', tempAdmImg).removeClass('hidden'); 
                     $("#admImgIcon").hide();
                 }; 
                 img.src = e.target.result;
@@ -881,36 +1041,120 @@
     window.renderAdminApps = () => {
         let html = `<div class="bg-white p-6 rounded-[2rem] shadow-sm mb-6 space-y-4">
             <h4 class="text-xs font-bold uppercase text-slate-400">Tambah App Gratis</h4>
+            <div onclick="document.getElementById('admAppImgInp').click()" class="w-full h-32 bg-slate-50 border-2 border-dashed rounded-2xl flex items-center justify-center text-slate-300 relative overflow-hidden cursor-pointer">
+                <img id="admAppImgPrev" class="w-full h-full object-cover hidden">
+                <i id="admAppImgIcon" class="fas fa-cube text-2xl"></i>
+            </div>
+            <input type="file" id="admAppImgInp" class="hidden" onchange="handleAdmAppImg(this)">
             <input id="admAppName" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Nama App">
             <input id="admAppCat" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Kategori">
             <input id="admAppLink" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Link Download">
+            <textarea id="admAppDesc" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none h-20" placeholder="Deskripsi"></textarea>
+            <input type="text" id="admAppImgLink" class="w-full bg-slate-50 px-5 py-3 rounded-2xl text-xs font-bold outline-none" placeholder="Atau paste link icon..." onchange="handleAdmAppImgLink(this)">
             <button onclick="saveAdmApp()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold">SIMPAN APP</button>
         </div><div class="space-y-3">`;
         
         (storeData.downloads||[]).forEach((a, i) => {
             html += `<div class="bg-white p-4 rounded-3xl flex justify-between items-center">
-                <p class="text-xs font-bold">${a.name}</p>
-                <button onclick="delAdmApp(${i})" class="text-red-500"><i class="fas fa-trash"></i></button>
+                <div class="flex items-center gap-3">
+                    <img src="${a.icon||'https://placehold.co/50'}" class="w-10 h-10 rounded-xl object-cover">
+                    <div>
+                        <p class="text-xs font-bold">${a.name}</p>
+                        <p class="text-[9px] text-slate-400">${a.category || 'Umum'}</p>
+                    </div>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick="editAdmApp(${i})" class="w-7 h-7 bg-blue-50 rounded-lg text-blue-400"><i class="fas fa-edit"></i></button>
+                    <button onclick="delAdmApp(${i})" class="w-7 h-7 bg-red-50 rounded-lg text-red-400"><i class="fas fa-trash"></i></button>
+                </div>
             </div>`;
         });
         $("#adminBody").html(html + '</div>');
+    };
+    
+    window.handleAdmAppImgLink = (input) => {
+        const url = $(input).val();
+        if(url) {
+            tempAdmAppImg = url;
+            $("#admAppImgPrev").attr('src', url).removeClass('hidden'); 
+            $("#admAppImgIcon").hide();
+        }
     };
     
     window.saveAdmApp = async () => {
         const a = { 
             name: $("#admAppName").val(), 
             category: $("#admAppCat").val(), 
-            link: $("#admAppLink").val() 
+            link: $("#admAppLink").val(),
+            desc: $("#admAppDesc").val(),
+            icon: tempAdmAppImg || "https://placehold.co/400"
         };
         if(!a.name || !a.link) return toastr.error("Nama dan link harus diisi!");
         if(!storeData.downloads) storeData.downloads = []; 
         storeData.downloads.push(a);
         await update(ref(db, `stores/${STORE_ID}`), storeData); 
         renderAdminApps();
+        renderDownloadPage();
+        renderAppCategories();
         toastr.success("App disimpan!");
         
         // Reset form
-        $("#admAppName, #admAppCat, #admAppLink").val("");
+        $("#admAppName, #admAppCat, #admAppLink, #admAppDesc, #admAppImgLink").val("");
+        $("#admAppImgPrev").addClass('hidden'); 
+        $("#admAppImgIcon").show();
+        tempAdmAppImg = "";
+    };
+    
+    window.editAdmApp = (i) => {
+        const a = storeData.downloads[i];
+        $("#admAppName").val(a.name);
+        $("#admAppLink").val(a.link);
+        $("#admAppCat").val(a.category);
+        $("#admAppDesc").val(a.desc);
+        $("#admAppImgLink").val("");
+        
+        if(a.icon){
+            tempAdmAppImg = a.icon;
+            $("#admAppImgPrev").attr('src', a.icon).removeClass('hidden');
+            $("#admAppImgIcon").hide();
+            
+            if(a.icon.startsWith('http')) {
+                $("#admAppImgLink").val(a.icon);
+            }
+        }
+    };
+    
+    window.delAdmApp = async (i) => { 
+        if(confirm('Hapus Aplikasi ini?')){
+            storeData.downloads.splice(i,1);
+            await update(ref(db,`stores/${STORE_ID}`),storeData);
+            renderAdminApps(); 
+            renderDownloadPage(); 
+            renderAppCategories();
+            toastr.success("App dihapus!");
+        }
+    };
+    
+    window.handleAdmAppImg = (input) => {
+        const f = input.files[0]; 
+        if(f) {
+            const r = new FileReader(); 
+            r.onload = (e) => {
+                const img = new Image(); 
+                img.onload = () => {
+                    const c = document.createElement('canvas'); 
+                    let w=img.width, h=img.height; 
+                    if(w>400){h=(h*400)/w;w=400;}
+                    c.width=w; c.height=h; 
+                    c.getContext('2d').drawImage(img,0,0,w,h);
+                    tempAdmAppImg = c.toDataURL('image/jpeg', 0.8); 
+                    $("#admAppImgPrev").attr('src', tempAdmAppImg).removeClass('hidden'); 
+                    $("#admAppImgIcon").hide();
+                }; 
+                img.src = e.target.result;
+            }; 
+            r.readAsDataURL(f);
+        }
     };
     
     window.renderAdminSettings = () => {
@@ -930,18 +1174,29 @@
         storeData.qris = $("#admQris").val();
         await update(ref(db, `stores/${STORE_ID}`), storeData); 
         toastr.success("Pengaturan disimpan!");
+        $("#shopNameDisplay").text(storeData.name);
     };
 
     // --- PROFILE ---
-    window.openProfile = () => $("#profileModal").removeClass('hidden');
+    window.openProfile = () => {
+        if(!user || isGuestMode) {
+            showLoginOptions();
+            return;
+        }
+        $("#profileModal").removeClass('hidden'); 
+    };
+    
     window.closeProfile = () => $("#profileModal").addClass('hidden');
+    
     window.doLogout = () => {
-        signOut(auth).then(() => {
-            location.reload();
-        }).catch(e => {
-            console.error("Logout error:", e);
-            location.reload();
-        });
+        if(confirm("Logout?")) {
+            signOut(auth).then(() => {
+                location.reload();
+            }).catch(e => {
+                console.error("Logout error:", e);
+                location.reload();
+            });
+        }
     };
     
     window.loadProfile = async (uid) => {
@@ -955,6 +1210,7 @@
             $("#headerGreeting").text(userProfile.name); 
             $("#profName").val(userProfile.name); 
             $("#profPhone").val(userProfile.phone || '');
+            $("#profAddress").val(userProfile.address || '');
             if(userProfile.avatar) { 
                 $("#headerAvatar, #profileAvatarEdit").attr('src', userProfile.avatar); 
             }
@@ -966,6 +1222,7 @@
     window.saveProfileData = async () => {
         userProfile.name = $("#profName").val(); 
         userProfile.phone = $("#profPhone").val();
+        userProfile.address = $("#profAddress").val();
         try {
             await update(ref(db, `users/${user.uid}`), userProfile); 
             $("#headerGreeting").text(userProfile.name);
@@ -973,6 +1230,28 @@
         } catch(error) {
             console.error("Save profile error:", error);
             toastr.error("Gagal menyimpan profil");
+        }
+    };
+
+    window.handleAvatarUpload = (input) => {
+        const f = input.files[0]; 
+        if(f) {
+            const r = new FileReader(); 
+            r.onload = (e) => {
+                const img = new Image(); 
+                img.onload = () => {
+                    const c = document.createElement('canvas'); 
+                    let w=img.width, h=img.height; 
+                    if(w>300){h=(h*300)/w;w=300;}
+                    c.width=w; c.height=h; 
+                    c.getContext('2d').drawImage(img,0,0,w,h);
+                    const dataUrl = c.toDataURL('image/jpeg', 0.7); 
+                    $("#profileAvatarEdit, #headerAvatar").attr('src', dataUrl);
+                    userProfile.avatar = dataUrl;
+                }; 
+                img.src = e.target.result;
+            }; 
+            r.readAsDataURL(f);
         }
     };
 
@@ -985,20 +1264,31 @@
     onAuthStateChanged(auth, (currentUser) => { 
         if(currentUser) { 
             user = currentUser; 
+            isGuestMode = false;
+            if(user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                $("#nav-admin-btn").removeClass('hidden');
+            }
+            $("#loginModal").addClass('hidden');
+            $("#app").removeClass('hidden');
+            loadProfile(user.uid);
             initStore(); 
         } else {
             // Show login modal if not logged in
             $("#loginModal").removeClass('hidden');
+            $("#app").addClass('hidden');
         }
     });
 
     // Initialize the app when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
-        // Check if user is already logged in
-        if(auth.currentUser) {
-            user = auth.currentUser;
-            initStore();
-        }
+        toastr.options = {
+            "positionClass": "toast-top-center",
+            "timeOut": "2000",
+            "showMethod": "slideDown",
+            "hideMethod": "slideUp",
+            "closeButton": false,
+            "progressBar": true
+        };
     });
 
   </script>
